@@ -374,6 +374,7 @@ Transport::read_urls()
     assert(file.is_open());
     uint32_t num_server_nodes = 0;
     uint32_t num_monitor_nodes = 0;
+    uint32_t num_storage_nodes = 0;
     uint32_t node_type = (uint32_t)-1;
     while (getline (file, line)) {
         if (line[0] == '#')
@@ -383,6 +384,7 @@ Transport::read_urls()
                 case 'c' : node_type = 0; break;
                 case 's' : node_type = 1; break;
                 case 'm' : node_type = 2; break;
+                case 'l' : note_type = 3; break;
             }
         }
         else {
@@ -390,12 +392,14 @@ Transport::read_urls()
                 case 0: { break; }
                 case 1: { num_server_nodes ++; _urls.push_back(line); break; }
                 case 2: { num_monitor_nodes ++; _urls.push_back(line); break; }
+                case 3: { num_storage_nodes ++; _urls.push_back(line); break; }
             }
         }
     }
     assert(num_monitor_nodes <= 1);
-    g_num_nodes = num_server_nodes + num_monitor_nodes;
+    g_num_nodes = num_server_nodes + num_monitor_nodes + num_storage_nodes;
     g_num_server_nodes = num_server_nodes;
+    g_num_storage_nodes = num_storage_nodes;
     file.close();
 }
 

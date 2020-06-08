@@ -2,3 +2,6 @@
 # a list of servers; each on a new line
 node-0.lockez-qv73334.spark-pg0.clemson.cloudlab.us
 node-1.lockez-qv73334.spark-pg0.clemson.cloudlab.us
+=l
+#log manager node
+node0.lockez-qv73163.spark-pg0.wisc.cloudlab.us

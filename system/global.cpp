@@ -92,6 +92,7 @@ uint32_t g_total_num_threads = 0;
 uint32_t g_num_nodes = 0;
 uint32_t g_num_client_nodes = 0;
 uint32_t g_num_server_nodes = 0;
+uint32_t g_num_storage_nodes = 0;
 
 uint32_t g_node_id;
 
