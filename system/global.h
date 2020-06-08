@@ -203,6 +203,7 @@ enum Isolation {SR, SI, RR, NO_ACID};
 //////////////////////////////////////////////////
 extern uint32_t g_num_nodes;
 extern uint32_t g_num_server_nodes;
+extern uint32_t g_num_storage_nodes;
 extern uint32_t g_node_id;
 
 extern uint32_t g_num_input_threads;

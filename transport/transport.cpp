@@ -384,7 +384,7 @@ Transport::read_urls()
                 case 'c' : node_type = 0; break;
                 case 's' : node_type = 1; break;
                 case 'm' : node_type = 2; break;
-                case 'l' : note_type = 3; break;
+                case 'l' : node_type = 3; break;
             }
         }
         else {
