@@ -36,7 +36,7 @@ OutputThread::run()
 #endif
     //Main loop
     uint32_t output_thread_id = GET_THD_ID % g_num_input_threads;
-    if (g_num_nodes == 1)
+    if (g_num_nodes_log == 1)
         return RCOK;
 #if CC_ALG == TCM
     // periodically send gc timestamp to other nodes
@@ -127,7 +127,7 @@ OutputThread::output()
 void
 OutputThread::global_sync()
 {
-    for (uint32_t i = 0; i < g_num_nodes; i++) {
+    for (uint32_t i = 0; i < g_num_nodes_log; i++) {
         if (i == GLOBAL_NODE_ID) continue;
         Message * msg = new Message(Message::TERMINATE, i, 0, 0, NULL);
         uint32_t bytes = _transport->sendMsg(msg);
@@ -141,7 +141,7 @@ OutputThread::terminate()
 {
     // Only executed by clients nodes
     // terminate all client and server nodes
-    for (uint32_t i = 0; i < g_num_nodes; i++) {
+    for (uint32_t i = 0; i < g_num_nodes_log; i++) {
         if (i == GLOBAL_NODE_ID) continue;
         Message * msg = new Message(Message::TERMINATE, i, 0, 0, NULL);
         uint32_t bytes = _transport->sendMsg(msg);

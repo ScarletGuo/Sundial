@@ -76,7 +76,7 @@ InputThread::run()
     assert( glob_manager->get_thd_id() == get_thd_id() );
     pthread_barrier_wait( &global_barrier );
 
-    if (g_num_nodes == 1) {
+    if (g_num_nodes_log == 1) {
         cout << "running on single node" << endl;
         return RCOK;
     }
@@ -97,7 +97,7 @@ InputThread::global_sync()
 {
     // wait for message from each remote node.
     uint32_t num_msg_received = 0;
-    while (num_msg_received < g_num_nodes - 1) {
+    while (num_msg_received < g_num_nodes_log - 1) {
         uint64_t t1 = get_sys_clock();
         Message * msg = _transport->recvMsg();
         if (msg && msg->get_txn_id() == 0) {  // I assume that everyone will not send any other messages after they send their single msg whose txn_id=0
