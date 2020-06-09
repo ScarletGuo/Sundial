@@ -395,13 +395,11 @@ TxnManager::process_commit_phase_singlepart(RC rc)
 #if LOG_ENABLE
     // TODO. Have two separate implementations: 1. log to local disk. 2. log to Spanner.
     if (rc == COMMIT) {
-        char * log_record = NULL;
-        uint32_t log_record_size = _cc_manager->get_log_record(log_record);
-        if (log_record_size > 0) {
-            assert(log_record);
-            log_manager->log(log_record_size, log_record);
-            delete log_record;
-        }
+        send_msg( new Message( Message::COMMIT_REQ, g_num_nodes_log-1, get_txn_id(),
+                  0, NULL ) );
+    } else {
+        send_msg( new Message( Message::ABORT_REQ, g_num_nodes_log-1, get_txn_id(),
+                  0, NULL ) );
     }
 #endif
     _cc_manager->process_commit_phase_coord(rc);
@@ -653,9 +651,9 @@ TxnManager::process_2pc_prepare_req(Message * msg)
     RC rc = _cc_manager->process_prepare_req(msg->get_data_size(), msg->get_data(), _resp_size, _resp_data);
 #if LOG_ENABLE
     // Logging
-    uint32_t log_record_size = sizeof(_txn_id) + sizeof(rc);
-    char log_record[ log_record_size ];
-    log_manager->log(log_record_size, log_record);
+    Message::Type type = (rc == RCOK)? Message::PREPARED_COMMIT : ABORT_REQ;
+    send_msg( new Message( type, g_num_nodes_log-1, get_txn_id(),
+                0, NULL ) );
 #endif
     assert(rc == RCOK || rc == COMMIT);
     Message::Type type = (rc == RCOK)? Message::PREPARED_COMMIT : Message::COMMITTED;
@@ -685,9 +683,11 @@ TxnManager::process_2pc_prepare_req(Message * msg)
 #if LOG_ENABLE
     else {
         // Logging
-        uint32_t log_record_size = sizeof(_txn_id) + sizeof(rc);
-        char log_record[ log_record_size ];
-        log_manager->log(log_record_size, log_record);
+        //TODO: how to deal with COMMITTED?
+        Message::Type type = (rc == RCOK)? Message::PREPARED_COMMIT : 
+                         (rc == ABORT)? Message::ABORT_REQ : Message::COMMIT_REQ;
+        send_msg( new Message( type, g_num_nodes_log-1, get_txn_id(),
+                    0, NULL ) );
     }
 #endif
     return rc;
@@ -714,9 +714,9 @@ TxnManager::continue_prepare_phase()
             rc = _txn_abort? ABORT : COMMIT;
 #if LOG_ENABLE
             // Logging
-            uint32_t log_record_size = sizeof(_txn_id) + sizeof(rc);
-            char log_record[ log_record_size ];
-            log_manager->log(log_record_size, log_record);
+            Message::Type type = (rc == COMMIT)? Message::COMMIT_REQ : Message::ABORT_REQ;
+            send_msg( new Message( type, g_num_nodes_log-1, get_txn_id(),
+                        0, NULL ) );
 #endif
             return process_2pc_commit_phase(rc);
         }
@@ -738,9 +738,8 @@ TxnManager::continue_prepare_phase()
 
 #if LOG_ENABLE
         // Logging
-        uint32_t log_record_size = sizeof(_txn_id) + sizeof(rc);
-        char log_record[ log_record_size ];
-        log_manager->log(log_record_size, log_record);
+        send_msg( new Message( type, g_num_nodes_log-1, get_txn_id(),
+                    0, NULL ) );
 #endif
         send_msg(new Message(type, _src_node_id, get_txn_id(), _resp_size, _resp_data));
         return rc;
@@ -824,18 +823,12 @@ TxnManager::process_2pc_commit_phase(RC rc)
 #endif
 #if LOG_ENABLE
     // Logging
-    if (rc == ABORT) {
-        uint32_t log_record_size = sizeof(_txn_id) + sizeof(rc);
-        char log_record[ log_record_size ];
-        log_manager->log(log_record_size, log_record);
-    } else if (rc == COMMIT) {
-        char * log_record = NULL;
-        uint32_t log_record_size = _cc_manager->get_log_record(log_record);
-        if (log_record_size > 0) {
-            assert(log_record);
-            log_manager->log(log_record_size, log_record);
-            delete log_record;
-        }
+    if (rc == COMMIT) {
+        send_msg( new Message( Message::COMMIT_REQ, g_num_nodes_log-1, get_txn_id(),
+                  0, NULL ) );
+    } else if (rc == ABORT){
+        send_msg( new Message( Message::ABORT_REQ, g_num_nodes_log-1, get_txn_id(),
+                  0, NULL ) );
     }
 #endif
     for (set<uint32_t>::iterator it = remote_nodes_involved.begin();
@@ -883,9 +876,13 @@ TxnManager::process_2pc_commit_req(Message * msg)
         assert(false);
     // Logging
 #if LOG_ENABLE
-    uint32_t log_record_size = sizeof(_txn_id) + sizeof(rc);
-    char log_record[ log_record_size ];
-    log_manager->log(log_record_size, log_record);
+    if (rc == COMMIT) {
+        send_msg( new Message( Message::COMMIT_REQ, g_num_nodes_log-1, get_txn_id(),
+                  0, NULL ) );
+    } else if (rc == ABORT){
+        send_msg( new Message( Message::ABORT_REQ, g_num_nodes_log-1, get_txn_id(),
+                  0, NULL ) );
+    }
 #endif
 
     _cc_manager->process_commit_req(rc, msg->get_data_size(), msg->get_data());
