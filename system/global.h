@@ -202,6 +202,7 @@ enum Isolation {SR, SI, RR, NO_ACID};
 // Distributed DBMS
 //////////////////////////////////////////////////
 extern uint32_t g_num_nodes;
+extern uint32_t g_num_nodes_log;
 extern uint32_t g_num_server_nodes;
 extern uint32_t g_num_storage_nodes;
 extern uint32_t g_node_id;

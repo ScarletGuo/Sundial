@@ -27,22 +27,22 @@ Transport::Transport(uint32_t transport_id)
     _transport_id = transport_id;
 
     read_urls();
-    if (g_num_nodes == 1)
+    if (g_num_nodes_log == 1)
       return;
-    _local_info = new addrinfo [g_num_nodes];
-    _remote_info = new addrinfo [g_num_nodes];
-    _local_socks = new int [g_num_nodes];
-    _remote_socks = new int [g_num_nodes];
+    _local_info = new addrinfo [g_num_nodes_log];
+    _remote_info = new addrinfo [g_num_nodes_log];
+    _local_socks = new int [g_num_nodes_log];
+    _remote_socks = new int [g_num_nodes_log];
 
     _rr_node_id = 0;
-    _recv_buffer = new char * [g_num_nodes];
-    _recv_buffer_lower = new uint32_t [g_num_nodes];
-    _recv_buffer_upper = new uint32_t [g_num_nodes];
-    _send_buffer = new char * [g_num_nodes];
-    //_send_buffer_size = new uint32_t [g_num_nodes];
-    _send_buffer_lower = new uint32_t [g_num_nodes];
-    _send_buffer_upper = new uint32_t [g_num_nodes];
-    for (uint32_t i = 0; i < g_num_nodes; i ++) {
+    _recv_buffer = new char * [g_num_nodes_log];
+    _recv_buffer_lower = new uint32_t [g_num_nodes_log];
+    _recv_buffer_upper = new uint32_t [g_num_nodes_log];
+    _send_buffer = new char * [g_num_nodes_log];
+    //_send_buffer_size = new uint32_t [g_num_nodes_log];
+    _send_buffer_lower = new uint32_t [g_num_nodes_log];
+    _send_buffer_upper = new uint32_t [g_num_nodes_log];
+    for (uint32_t i = 0; i < g_num_nodes_log; i ++) {
         _recv_buffer[i] = new char [RECV_BUFFER_SIZE];
         //_recv_buffer_size[i] = 0;
         _recv_buffer_lower[i] = 0;
@@ -69,12 +69,12 @@ Transport::Transport(uint32_t transport_id)
         hostname[id_b << 7] = 0;  // in case they don't have a \0
     }*/
     printf("[!] My Hostname is %s\n", hostname);
-    uint32_t global_node_id = g_num_nodes;
-    for (uint32_t i = 0; i < g_num_nodes; i ++)  {
+    uint32_t global_node_id = g_num_nodes_log;
+    for (uint32_t i = 0; i < g_num_nodes_log; i ++)  {
         if (_urls[i] == string(hostname))
             global_node_id = i;
     }
-    M_ASSERT(global_node_id != g_num_nodes, "the node %s is not in ifconfig.txt", hostname);
+    M_ASSERT(global_node_id != g_num_nodes_log, "the node %s is not in ifconfig.txt", hostname);
     if (_transport_id == 0) {
         g_node_id = global_node_id;
         printf("Hostname: %s. Node ID=%d. \n", hostname, global_node_id);
@@ -82,8 +82,8 @@ Transport::Transport(uint32_t transport_id)
 
     // Create local socket for each remote server
     // For thread i on a node, it listens to node j on port = START_PORT + i * g_num_nodes + j
-    memset(_local_info, 0, sizeof(addrinfo) * g_num_nodes);
-    for (uint32_t i = 0; i < g_num_nodes; i ++) {
+    memset(_local_info, 0, sizeof(addrinfo) * g_num_nodes_log);
+    for (uint32_t i = 0; i < g_num_nodes_log; i ++) {
         if (i == global_node_id)
             continue;
         // get addr information
@@ -121,8 +121,8 @@ Transport::Transport(uint32_t transport_id)
     cout << "Local Socket initialized"  << endl;
 
     // Establish connection to remote servers.
-    memset(_remote_info, 0, sizeof(addrinfo) * g_num_nodes);
-    for (uint32_t i = 0; i < g_num_nodes; i++) {
+    memset(_remote_info, 0, sizeof(addrinfo) * g_num_nodes_log);
+    for (uint32_t i = 0; i < g_num_nodes_log; i++) {
         if (i == global_node_id)
             continue;
         // get addr information
@@ -161,7 +161,7 @@ Transport::Transport(uint32_t transport_id)
     }
 
     // Accept connection from remote servers.
-    for (uint32_t i = 0; i < g_num_nodes; i++) {
+    for (uint32_t i = 0; i < g_num_nodes_log; i++) {
         if (i == global_node_id)
             continue;
         int new_sd;
@@ -184,7 +184,7 @@ Transport::sendMsg(Message * msg)
 {
 #if !ENABLE_MSG_BUFFER
     uint32_t dest = msg->get_dest_id();
-    M_ASSERT(dest < g_num_nodes, "dest=%d", dest);
+    M_ASSERT(dest < g_num_nodes_log, "dest=%d", dest);
     uint32_t packet_size = msg->get_packet_len();
     char data[packet_size];
     msg->to_packet(data);
@@ -211,7 +211,7 @@ Transport::sendMsg(Message * msg)
     return bytes_sent;
 #else
     uint32_t dest = msg->get_dest_id();
-    assert(dest < g_num_nodes);
+    assert(dest < g_num_nodes_log);
 
     // Right now use a very simple batching model:
     //     Flush the buffer iff it is full, or it has not been flushed for 100 us.
@@ -261,7 +261,7 @@ void
 Transport::sendBufferedMsg()
 {
     //bool done = true;
-    for (uint32_t dest = 0; dest < g_num_nodes; dest++) {
+    for (uint32_t dest = 0; dest < g_num_nodes_log; dest++) {
         while (_send_buffer_lower[dest] != _send_buffer_upper[dest]) {
             int32_t bytes_sent = send(_remote_socks[ dest ],
                                        _send_buffer[dest] + _send_buffer_lower[dest],
@@ -281,8 +281,8 @@ Transport::recvMsg()
     ssize_t bytes;
     //char data[MAX_MESSAGE_SIZE];
     uint32_t global_node_id = g_node_id;
-    for (uint32_t i = 0; i < g_num_nodes; i++) {
-        uint32_t node_id = (i + _rr_node_id) % g_num_nodes;
+    for (uint32_t i = 0; i < g_num_nodes_log; i++) {
+        uint32_t node_id = (i + _rr_node_id) % g_num_nodes_log;
         if (node_id == global_node_id)
             continue;
 
@@ -322,7 +322,7 @@ Transport::recvMsg()
                 }
 //INC_STATS(0, debug3, get_sys_clock() - t1);
                 //_recv_buffer_size[node_id] -= msg->get_packet_len();
-                _rr_node_id = (1 + _rr_node_id) % g_num_nodes;
+                _rr_node_id = (1 + _rr_node_id) % g_num_nodes_log;
 #if PRINT_DEBUG_INFO
                 printf("\033[1;32m[TxnID=%5ld] recv %d<-%d %16s [%4d bytes] fd=%d \033[0m\n",
                        msg->get_txn_id(), global_node_id, msg->get_src_node_id(),
@@ -333,7 +333,7 @@ Transport::recvMsg()
             }
         }
     }
-    _rr_node_id = (1 + _rr_node_id) % g_num_nodes;
+    _rr_node_id = (1 + _rr_node_id) % g_num_nodes_log;
     return NULL;
 }
 
@@ -342,7 +342,7 @@ Transport::test_connect()
 {
     uint32_t global_node_id = g_node_id;
     // send msg to all nodes.
-    for (uint32_t i = 0; i < g_num_nodes; i++) {
+    for (uint32_t i = 0; i < g_num_nodes_log; i++) {
         if (i == global_node_id)
             continue;
         //Message * msg = new Message(Message::TERMINATE, i, 0, 0, NULL);
@@ -354,7 +354,7 @@ Transport::test_connect()
         DELETE(Message, msg); //delete msg;
     }
     // receive msg from all nodes
-    for (uint32_t i = 0; i < g_num_nodes - 1; i++) {
+    for (uint32_t i = 0; i < g_num_nodes_log - 1; i++) {
         Message * msg;
         do {
             msg = recvMsg();
@@ -398,6 +398,7 @@ Transport::read_urls()
     }
     assert(num_monitor_nodes <= 1);
     g_num_nodes = num_server_nodes + num_monitor_nodes;
+    g_num_nodes_log = g_num_nodes + num_storage_nodes;
     g_num_server_nodes = num_server_nodes;
     g_num_storage_nodes = num_storage_nodes;
     file.close();
