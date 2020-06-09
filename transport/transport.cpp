@@ -397,7 +397,7 @@ Transport::read_urls()
         }
     }
     assert(num_monitor_nodes <= 1);
-    g_num_nodes = num_server_nodes + num_monitor_nodes + num_storage_nodes;
+    g_num_nodes = num_server_nodes + num_monitor_nodes;
     g_num_server_nodes = num_server_nodes;
     g_num_storage_nodes = num_storage_nodes;
     file.close();
