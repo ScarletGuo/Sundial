@@ -77,6 +77,7 @@ Transport::Transport(uint32_t transport_id)
     M_ASSERT(global_node_id != g_num_nodes_log, "the node %s is not in ifconfig.txt", hostname);
     if (_transport_id == 0) {
         g_node_id = global_node_id;
+        g_log_node_id = g_num_nodes_log - 1 - g_node_id;
         printf("Hostname: %s. Node ID=%d. \n", hostname, global_node_id);
     }
 

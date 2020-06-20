@@ -96,6 +96,7 @@ uint32_t g_num_server_nodes = 0;
 uint32_t g_num_storage_nodes = 0;
 
 uint32_t g_node_id;
+uint32_t g_log_node_id;
 
 bool g_is_client_node = false;
 

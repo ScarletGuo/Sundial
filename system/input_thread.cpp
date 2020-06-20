@@ -57,7 +57,7 @@ void InputThread::dealwithMsg(Message * msg, uint64_t t1)
                     log_manager->log(log_record_size, log_record);
                     delete log_record;
                 }
-                _transport->sendMsg(new Message(Message::LOG_ACK, 0, 0, 0, NULL));
+                _transport->sendMsg(new Message(Message::LOG_ACK, msg->get_src_node_id(), msg->get_txn_id(), 0, NULL));
             // INC_FLOAT_STATS(time_write_queue, get_sys_clock() - t2);
             } else {
                 //TODO: other types, like COMMITTED
