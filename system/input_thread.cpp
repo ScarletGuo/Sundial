@@ -35,7 +35,9 @@ void InputThread::dealwithMsg(Message * msg, uint64_t t1)
         }
         _last_input_time = get_sys_clock();
         INC_FLOAT_STATS(time_recv_msg, get_sys_clock() - t1);
-        // uint64_t t2 = get_sys_clock();
+        #if !LOG_NODE
+            uint64_t t2 = get_sys_clock();
+        #endif
         INC_FLOAT_STATS(bytes_received, msg->get_packet_len());
         stats->_stats[GET_THD_ID]->_msg_count[msg->get_type()] ++;
         stats->_stats[GET_THD_ID]->_msg_size[msg->get_type()] += msg->get_packet_len();
