@@ -6,6 +6,7 @@
 #include "workload.h"
 #include "manager.h"
 #include "server_thread.h"
+#include "log.h"
 
 InputThread::InputThread(uint64_t thd_id)
     : Thread(thd_id, INPUT_THREAD)
@@ -34,31 +35,56 @@ void InputThread::dealwithMsg(Message * msg, uint64_t t1)
         }
         _last_input_time = get_sys_clock();
         INC_FLOAT_STATS(time_recv_msg, get_sys_clock() - t1);
-        uint64_t t2 = get_sys_clock();
+        // uint64_t t2 = get_sys_clock();
         INC_FLOAT_STATS(bytes_received, msg->get_packet_len());
         stats->_stats[GET_THD_ID]->_msg_count[msg->get_type()] ++;
         stats->_stats[GET_THD_ID]->_msg_size[msg->get_type()] += msg->get_packet_len();
 
-        if (msg->get_type() == Message::TERMINATE) {
+        #if LOG_NODE
+            if (msg->get_type() == Message::TERMINATE) {
             num_termination_received ++;
-            if (num_termination_received == g_num_server_nodes - 1)
+            if (num_termination_received == g_num_server_nodes)  
+            //NOTE: changed because log node terminate when all server nodes are down
                 glob_manager->set_remote_done();
-        } else {
-            uint32_t queue_id = 0;
-            queue_id = glob_manager->txnid_to_server_thread(msg->get_txn_id());
-
-            M_ASSERT(queue_id % g_num_input_threads == GET_THD_ID % g_num_input_threads,
-                    "queue_id=%d, thd_id=%ld\n", queue_id, GET_THD_ID);
-
-            uint64_t tt = get_sys_clock();
-            bool success = input_queues[ queue_id ]->push((uint64_t)msg);
-            while (!success) {
-                PAUSE
-                success = input_queues[ queue_id ]->push((uint64_t)msg);
+            } else if (msg->get_type() == Message::PREPARED_COMMIT
+                    || msg->get_type() == Message::ABORT_REQ
+                    || msg->get_type() == Message::COMMIT_REQ) {
+                printf("receive log req of type: %d\n", msg->get_type());
+                char * log_record = NULL;
+                int32_t log_record_size = 0;
+                if (log_record_size > 0) {
+                    assert(log_record);
+                    log_manager->log(log_record_size, log_record);
+                    delete log_record;
+                }
+                _transport->sendMsg(new Message(Message::LOG_ACK, 0, 0, 0, NULL));
+            // INC_FLOAT_STATS(time_write_queue, get_sys_clock() - t2);
+            } else {
+                //TODO: other types, like COMMITTED
+                printf("receive log req of type: %d\n", msg->get_type());
             }
-            INC_FLOAT_STATS(time_debug7, get_sys_clock() - tt);
-        }
-        INC_FLOAT_STATS(time_write_queue, get_sys_clock() - t2);
+        #else
+            if (msg->get_type() == Message::TERMINATE) {
+                num_termination_received ++;
+                if (num_termination_received == g_num_server_nodes - 1)
+                    glob_manager->set_remote_done();
+            } else {
+                uint32_t queue_id = 0;
+                queue_id = glob_manager->txnid_to_server_thread(msg->get_txn_id());
+
+                M_ASSERT(queue_id % g_num_input_threads == GET_THD_ID % g_num_input_threads,
+                        "queue_id=%d, thd_id=%ld\n", queue_id, GET_THD_ID);
+
+                uint64_t tt = get_sys_clock();
+                bool success = input_queues[ queue_id ]->push((uint64_t)msg);
+                while (!success) {
+                    PAUSE
+                    success = input_queues[ queue_id ]->push((uint64_t)msg);
+                }
+                INC_FLOAT_STATS(time_debug7, get_sys_clock() - tt);
+            }
+            INC_FLOAT_STATS(time_write_queue, get_sys_clock() - t2);
+        #endif
     } else {
         PAUSE10
         INC_FLOAT_STATS(time_input_idle, get_sys_clock() - t1);
@@ -69,6 +95,9 @@ RC
 InputThread::run()
 {
     global_sync();
+    #if LOG_NODE
+        global_sync_output();
+    #endif
     printf("Node %d sync done!\n", g_node_id);
 
     glob_manager->init_rand( get_thd_id() );
@@ -120,4 +149,16 @@ InputThread::measure_bw()
         if (msg)
             FREE(msg, sizeof(Message));
     } while (!msg || msg->get_type() != Message::TERMINATE);
+}
+
+void
+InputThread::global_sync_output()
+{
+    for (uint32_t i = 0; i < g_num_nodes_log; i++) {
+        if (i == GLOBAL_NODE_ID) continue;
+        Message * msg = new Message(Message::TERMINATE, i, 0, 0, NULL);
+        uint32_t bytes = _transport->sendMsg(msg);
+        if (bytes != msg->get_packet_len())
+            _transport->sendBufferedMsg();
+    }
 }

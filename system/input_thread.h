@@ -16,6 +16,7 @@ private:
 
     // synchronize all nodes.
     void global_sync();
+    void global_sync_output();
     void measure_bw();
     void dealwithMsg(Message * msg, uint64_t t1);
 

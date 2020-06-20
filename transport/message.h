@@ -40,7 +40,10 @@ public:
 
         // For TCM
         TCM_TS_SYNC_REQ,
-        NUM_MSG_TYPES
+        NUM_MSG_TYPES,
+
+        // For logging
+        LOG_ACK
     };
     Message(Type type, uint32_t dest, uint64_t txn_id, int size, char * data);
     Message(Message * msg);

@@ -145,7 +145,11 @@ Manager::remote_node_done()
 bool
 Manager::is_sim_done()
 {
+    #if LOG_NODE
+    return _remote_done;
+    #else
     return _remote_done && are_all_worker_threads_done();
+    #endif
 }
 
 uint32_t

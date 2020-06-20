@@ -374,6 +374,8 @@ TxnManager::process_msg(Message * msg)
     case Message::LOCAL_COPY_RESP:
         assert(ENABLE_LOCAL_CACHING);
         return process_caching_resp(msg);
+    case Message::LOG_ACK:
+        return RCOK;
     default:
         M_ASSERT(false, "Unsupported message type\n");
     }
@@ -630,6 +632,7 @@ TxnManager::process_2pc_prepare_phase()
         return RCOK;
     } else {
         assert(rc == RCOK);
+        // timeout and commit?
         return process_2pc_commit_phase(COMMIT);
     }
 }
