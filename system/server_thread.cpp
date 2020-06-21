@@ -100,6 +100,10 @@ RC ServerThread::run() {
                 msg = _msg;
                 _msg = NULL;
             }
+            if (msg->get_type() == Message::LOG_ACK) {
+                DELETE(Message, msg);
+                continue;
+            }
             INC_FLOAT_STATS(time_read_input_queue, get_sys_clock() - t1);
             uint64_t t2 = get_sys_clock();
             // make sure the correct txn_id is received.

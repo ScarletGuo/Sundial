@@ -51,7 +51,7 @@ void InputThread::dealwithMsg(Message * msg, uint64_t t1)
             } else if (msg->get_type() == Message::PREPARED_COMMIT
                     || msg->get_type() == Message::ABORT_REQ
                     || msg->get_type() == Message::COMMIT_REQ) {
-                printf("receive log req of type: %d\n", msg->get_type());
+                // printf("receive log req of type: %d\n", msg->get_type());
                 char * log_record = NULL;
                 int32_t log_record_size = 0;
                 if (log_record_size > 0) {
@@ -63,7 +63,7 @@ void InputThread::dealwithMsg(Message * msg, uint64_t t1)
             // INC_FLOAT_STATS(time_write_queue, get_sys_clock() - t2);
             } else {
                 //TODO: other types, like COMMITTED
-                printf("receive log req of type: %d\n", msg->get_type());
+                // printf("receive log req of type: %d\n", msg->get_type());
             }
         #else
             if (msg->get_type() == Message::TERMINATE) {

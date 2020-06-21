@@ -28,7 +28,7 @@
 // Concurrency Control
 ////////////////////////////////////////////////////////////////////////
 // WAIT_DIE, NO_WAIT, TICTOC, F_ONE, MAAT
-#define CC_ALG                         TICTOC
+#define CC_ALG                         WAIT_DIE
 #define ISOLATION_LEVEL             SERIALIZABLE
 
 // all transactions acquire tuples according to the primary key order.
@@ -103,7 +103,7 @@
 ////////////////////////////////////////////////////////////////////////
 // Logging
 ////////////////////////////////////////////////////////////////////////
-#define LOG_ENABLE                    false
+#define LOG_ENABLE                    true
 #define LOG_COMMAND                    false
 #define LOG_REDO                    false
 #define LOG_BATCH_TIME                10 // in ms

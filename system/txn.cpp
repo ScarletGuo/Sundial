@@ -654,8 +654,8 @@ TxnManager::process_2pc_prepare_req(Message * msg)
     RC rc = _cc_manager->process_prepare_req(msg->get_data_size(), msg->get_data(), _resp_size, _resp_data);
 #if LOG_ENABLE
     // Logging
-    Message::Type type = (rc == RCOK)? Message::PREPARED_COMMIT : ABORT_REQ;
-    send_msg( new Message( type, g_log_node_id, get_txn_id(),
+    Message::Type type1 = (rc == RCOK)? Message::PREPARED_COMMIT : Message::ABORT_REQ;
+    send_msg( new Message( type1, g_log_node_id, get_txn_id(),
                 0, NULL ) );
 #endif
     assert(rc == RCOK || rc == COMMIT);
