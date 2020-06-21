@@ -96,10 +96,10 @@ void InputThread::dealwithMsg(Message * msg, uint64_t t1)
 RC
 InputThread::run()
 {
-    global_sync();
     #if LOG_NODE
         global_sync_output();
     #endif
+    global_sync();
     printf("Node %d sync done!\n", g_node_id);
 
     glob_manager->init_rand( get_thd_id() );

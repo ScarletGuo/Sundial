@@ -1,68 +1,68 @@
 #pragma once
 
-// number of server threads on each node
-#define NUM_SERVER_THREADS 8
+#define DISTRIBUTED_ENABLE            true
+// number of server threads
+#define NUM_SERVER_THREADS            8
 
+////////////////////////////////////////////////////////////////////////
+// For distributed DBMS, the following parameters are for a single node.
+////////////////////////////////////////////////////////////////////////
 // CPU_FREQ is used to get accurate timing info
-// We assume all nodes have the same CPU frequency.
-#define CPU_FREQ 3.7     // in GHz/s
+#define CPU_FREQ                     2.6     // in GHz/s
 
-// warmup time in seconds
-#define WARMUP 0
-// WORKLOAD can be YCSB or TPCC
-#define WORKLOAD TPCC
+// warmup time
+#define WARMUP                        0
+// YCSB or TPCC
+#define WORKLOAD                     YCSB
 
-// Statistics
-// ==========
-// COLLECT_LATENCY: when set to true, will collect transaction latency information
-#define COLLECT_LATENCY true
-// PRT_LAT_DISTR: when set to true, will print transaction latency distribution
-#define PRT_LAT_DISTR false
-#define STATS_ENABLE true
-#define TIME_ENABLE true
-#define STATS_CP_INTERVAL 1000 // in ms
+// print the transaction latency distribution
+#define COLLECT_LATENCY             true
+#define PRT_LAT_DISTR                false
+#define STATS_ENABLE                true
+#define TIME_ENABLE                    true
 
+// Stats
+#define STATS_CP_INTERVAL            1000 // in ms
+
+////////////////////////////////////////////////////////////////////////
 // Concurrency Control
-// ===================
-// Supported concurrency control algorithms: WAIT_DIE, NO_WAIT, TICTOC, F_ONE, MAAT
-#define CC_ALG WAIT_DIE
-#define ISOLATION_LEVEL SERIALIZABLE
+////////////////////////////////////////////////////////////////////////
+// WAIT_DIE, NO_WAIT, TICTOC, F_ONE, MAAT
+#define CC_ALG                         TICTOC
+#define ISOLATION_LEVEL             SERIALIZABLE
 
-// KEY_ORDER: when set to true, each transaction accesses tuples in the primary key order.
-// Only effective when WORKLOAD == YCSB.
-#define KEY_ORDER false
-
+// all transactions acquire tuples according to the primary key order.
+#define KEY_ORDER                    false
 // per-row lock/ts management or central lock/ts management
-#define BUCKET_CNT 31
-#define MAX_NUM_ABORTS 0
-#define ABORT_PENALTY 1000000
-#define ABORT_BUFFER_SIZE 10
-#define ABORT_BUFFER_ENABLE true
+#define BUCKET_CNT                    31
+#define MAX_NUM_ABORTS                0
+#define ABORT_PENALTY                 1000000
+#define ABORT_BUFFER_SIZE            10
+#define ABORT_BUFFER_ENABLE            true
 // [ INDEX ]
-#define ENABLE_LATCH false
-#define CENTRAL_INDEX false
-#define CENTRAL_MANAGER false
-#define INDEX_STRUCT IDX_HASH
-#define BTREE_ORDER 16
+#define ENABLE_LATCH                false
+#define CENTRAL_INDEX                false
+#define CENTRAL_MANAGER             false
+#define INDEX_STRUCT                IDX_HASH
+#define BTREE_ORDER                 16
 
 // [Two Phase Locking]
-#define NO_LOCK false // NO_LOCK=true : used to model H-Store
+#define NO_LOCK                        false // NO_LOCK=true : used to model H-Store
 // [TIMESTAMP]
-#define TS_ALLOC TS_CLOCK
-#define TS_BATCH_ALLOC false
-#define TS_BATCH_NUM 1
+#define TS_ALLOC                    TS_CLOCK
+#define TS_BATCH_ALLOC                false
+#define TS_BATCH_NUM                1
 // [MVCC]
-#define MIN_TS_INTVL 5000000 //5 ms. In nanoseconds
+#define MIN_TS_INTVL                5000000 //5 ms. In nanoseconds
 // [OCC]
-#define MAX_WRITE_SET 10
-#define PER_ROW_VALID true
+#define MAX_WRITE_SET                10
+#define PER_ROW_VALID                true
 // [TICTOC]
-#define WRITE_COPY_FORM "data" // ptr or data
-#define TICTOC_MV false
-#define WR_VALIDATION_SEPARATE true
-#define WRITE_PERMISSION_LOCK false
-#define ATOMIC_TIMESTAMP "false"
-
+#define WRITE_COPY_FORM                "data" // ptr or data
+#define TICTOC_MV                    false
+#define WR_VALIDATION_SEPARATE        true
+#define WRITE_PERMISSION_LOCK        false
+#define ATOMIC_TIMESTAMP            "false"
 // when WAW_LOCK is true, lock a tuple before write.
 // essentially, WW conflicts are handled as 2PL.
 #define OCC_WAW_LOCK                true
@@ -107,7 +107,7 @@
 #define LOG_COMMAND                    false
 #define LOG_REDO                    false
 #define LOG_BATCH_TIME                10 // in ms
-#define LOG_NODE                    true
+#define LOG_NODE		    false
 
 ////////////////////////////////////////////////////////////////////////
 // Benchmark
@@ -136,8 +136,8 @@
 
 // For large warehouse count, the tables do not fit in memory
 // small tpcc schemas shrink the table size.
-#define TPCC_SMALL false
-#define NUM_WH 8
+#define TPCC_SMALL                    false
+#define NUM_WH                         1
 // TODO. REPLICATE_ITEM_TABLE = false only works for TICTOC.
 #define REPLICATE_ITEM_TABLE        true
 
@@ -230,15 +230,15 @@ extern TestCases                    g_test_case;
 /***********************************************/
 // Distributed DBMS
 /***********************************************/
-#define START_PORT 35777
-#define INOUT_QUEUE_SIZE 1024
-#define NUM_INPUT_THREADS 1
-#define NUM_OUTPUT_THREADS 1
-#define MAX_NUM_ACTIVE_TXNS 128
-#define ENABLE_MSG_BUFFER false
-#define MAX_MESSAGE_SIZE 16384
-#define RECV_BUFFER_SIZE 32768
-#define SEND_BUFFER_SIZE 32768
-#define MODEL_DUMMY_MSG false
+#define START_PORT                    35777
+#define INOUT_QUEUE_SIZE            1024
+#define NUM_INPUT_THREADS            1
+#define NUM_OUTPUT_THREADS            1
+#define MAX_NUM_ACTIVE_TXNS            128
+#define ENABLE_MSG_BUFFER            false
+#define MAX_MESSAGE_SIZE             16384
+#define RECV_BUFFER_SIZE             32768
+#define SEND_BUFFER_SIZE             32768
+#define MODEL_DUMMY_MSG                false
 
-#define MAX_CLOCK_SKEW 0 // in us
+#define MAX_CLOCK_SKEW                0 // in us
