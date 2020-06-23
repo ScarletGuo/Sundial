@@ -25,6 +25,11 @@ LogManager::LogManager(char * log_name)
         perror("open log file");
         exit(1);
     }
+    _log_fp = fdopen(_log_fd, "w+");
+    if (_log_fp == NULL) {
+        perror("open log file");
+        exit(1);
+    }
 }
 
 LogManager::~LogManager() {
@@ -54,5 +59,111 @@ LogManager::log(uint32_t size, char * record)
     if (fsync(_log_fd) == -1) {
         perror("fsync");
         exit(1);
+    }
+}
+
+Message* LogManager::log(Message *msg) {
+    Message::Type result = Message::LOG_ACK;
+    if (msg->get_type() == Message::COMMIT_REQ) {
+        log_message(msg, LogRecord::COMMIT);
+    } else {
+        LogRecord::Type vote = check_log(msg);
+        // invalid means no log exists
+        if (vote == LogRecord::INVALID) {
+            // insert watermark
+            // txn_lsn_table.insert(pair<uint64_t, uint64_t>(msg->get_txn_id(), _lsn));
+            if (msg->get_type() == Message::PREPARED_COMMIT) {
+                // vote yes
+                log_message(msg, LogRecord::YES);
+            } else {
+                // vote no
+                log_message(msg, LogRecord::ABORT);
+            }
+        } else {
+            if (vote != LogRecord::ABORT && msg->get_type() == Message::ABORT_REQ) {
+                log_message(msg, LogRecord::ABORT);
+            } else {
+                // log exists
+                result = log_to_message(vote);
+            }
+        }
+    }
+    Message * result_msg;
+    if (result == Message::LOG_ACK) {
+        result_msg = new Message(result, get_last_lsn());
+    } else {
+        result_msg = new Message(result, -1);
+    }
+    return result_msg;
+}
+
+// if no log return INVALID else return the log type
+LogRecord::Type LogManager::check_log(Message * msg) {
+    LogRecord::Type vote = LogRecord::INVALID;
+    uint16_t watermark = msg->get_lsn();
+    if (watermark == -1) {
+        // no log for this txn
+        return vote;
+    }
+    // FILE * fp = fopen(_log_name, "r");
+    fseek(_log_fp, 0, SEEK_END);
+    fseek(_log_fp, -sizeof(LogRecord), SEEK_CUR);
+    LogRecord cur_log;
+    if (fread((void *)&cur_log, sizeof(LogRecord), 1, _log_fp) != 1) {
+        return vote;
+    }
+
+    while (cur_log.get_latest_lsn() > watermark) {
+        //TODO: whether to add log type equals?
+        if (cur_log.get_txn_id() == msg->get_txn_id() && 
+        log_to_message(cur_log.get_log_record_type()) == msg->get_type()) {
+            // log exists
+            vote = cur_log.get_log_record_type();
+            break;
+        }
+
+        if (fseek(_log_fp, -2 * sizeof(LogRecord), SEEK_CUR) == -1)
+            break;
+        assert(fread((void *)&cur_log, sizeof(LogRecord), 1, _log_fp) == 1);
+    }
+    
+    // fclose(fp);
+    return vote;
+}
+
+void LogManager::log_message(Message *msg, LogRecord::Type type) {
+    ATOM_FETCH_ADD(_lsn, 1);
+    // printf("latest lsn: %d\n", _lsn);
+    LogRecord log{msg->get_dest_id(), msg->get_txn_id(), 
+                _lsn, type};
+    memcpy(_buffer, &log, sizeof(log));
+    if (fwrite(&log, sizeof(log), 1, _log_fp) != 1) {
+			perror("fwrite");
+			exit(1);
+    }
+    fflush(_log_fp);
+    if (fsync(_log_fd) == -1) {
+        perror("fsync");
+        exit(1);
+    }
+}
+
+uint64_t LogManager::get_last_lsn() {
+    return _lsn;
+}
+
+Message::Type LogManager::log_to_message(LogRecord::Type vote) {
+    switch (vote)
+    {
+    case LogRecord::INVALID :
+        return Message:: LOG_ACK;
+    case LogRecord::COMMIT :
+        return Message:: LOG_COMMIT;
+    case LogRecord::ABORT :
+        return Message:: LOG_ABORT;
+    case LogRecord::YES :
+        return Message:: LOG_PREPARED_COMMIT;
+    default:
+        assert(false);
     }
 }

@@ -52,14 +52,9 @@ void InputThread::dealwithMsg(Message * msg, uint64_t t1)
                     || msg->get_type() == Message::ABORT_REQ
                     || msg->get_type() == Message::COMMIT_REQ) {
                 // printf("receive log req of type: %d\n", msg->get_type());
-                char * log_record = NULL;
-                int32_t log_record_size = 0;
-                if (log_record_size > 0) {
-                    assert(log_record);
-                    log_manager->log(log_record_size, log_record);
-                    delete log_record;
-                }
-                _transport->sendMsg(new Message(Message::LOG_ACK, msg->get_src_node_id(), msg->get_txn_id(), 0, NULL));
+                Message* ret = log_manager->log(msg);
+                _transport->sendMsg(new Message(ret->get_type(), msg->get_src_node_id(), msg->get_txn_id(), ret->get_lsn(), 0, NULL));
+                delete ret;
             // INC_FLOAT_STATS(time_write_queue, get_sys_clock() - t2);
             } else {
                 //TODO: other types, like COMMITTED

@@ -43,9 +43,14 @@ public:
         NUM_MSG_TYPES,
 
         // For logging
-        LOG_ACK
+        LOG_ACK,
+        LOG_COMMIT,
+        LOG_ABORT,
+        LOG_PREPARED_COMMIT
     };
     Message(Type type, uint32_t dest, uint64_t txn_id, int size, char * data);
+    Message(Type type, uint32_t dest, uint64_t txn_id, uint32_t lsn, int size, char * data);
+    Message(Type type, uint32_t lsn);
     Message(Message * msg);
     Message(char * packet);
     ~Message();
@@ -62,7 +67,7 @@ public:
     Type get_type()             { return _msg_type; }
     void set_type(Type type)     { _msg_type = type; }
     uint64_t get_txn_id()        { return _txn_id; }
-
+    uint32_t get_lsn()    { return _lsn; }
 
     void to_packet(char * packet);
     static string get_name(Type type);
@@ -74,6 +79,7 @@ private:
     uint32_t     _src_node_id;
     uint32_t     _dest_node_id;
     uint64_t     _txn_id;
+    uint32_t     _lsn;
 
     uint32_t    _data_size;
     char *         _data;
