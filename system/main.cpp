@@ -30,22 +30,22 @@ int main(int argc, char* argv[])
         transport[i] = new Transport(i);
 
     // g_num_worker_threads is the # of server threads running on each node
-    // g_num_worker_threads = g_num_server_threads;
+    g_num_worker_threads = 1;
 
     for (uint32_t i = 0; i < g_num_input_threads; i ++)
         transport[i]->test_connect();
 
-    // g_total_num_threads = g_num_input_threads + g_num_output_threads;
-    g_total_num_threads = g_num_input_threads;
+    g_total_num_threads = g_num_input_threads + g_num_output_threads;
+    // g_total_num_threads = g_num_input_threads;
 
-    // input_queues = new InOutQueue * [g_num_worker_threads];
-    // output_queues = new InOutQueue * [g_num_worker_threads];
-    // for (uint32_t i = 0; i < g_num_worker_threads; i++) {
-    //     input_queues[i] = (InOutQueue *) _mm_malloc(sizeof(InOutQueue), 64);
-    //     new (input_queues[i]) InOutQueue;
-    //     output_queues[i] = (InOutQueue *) _mm_malloc(sizeof(InOutQueue), 64);
-    //     new (output_queues[i]) InOutQueue;
-    // }
+    input_queues = new InOutQueue * [g_num_worker_threads];
+    output_queues = new InOutQueue * [g_num_worker_threads];
+    for (uint32_t i = 0; i < g_num_worker_threads; i++) {
+        input_queues[i] = (InOutQueue *) _mm_malloc(sizeof(InOutQueue), 64);
+        new (input_queues[i]) InOutQueue;
+        output_queues[i] = (InOutQueue *) _mm_malloc(sizeof(InOutQueue), 64);
+        new (output_queues[i]) InOutQueue;
+    }
 //   #if CC_ALG == TICTOC && ENABLE_LOCAL_CACHING
 //     local_cache_man = new CacheManager;
 //   #endif
@@ -88,13 +88,13 @@ int main(int argc, char* argv[])
     //     server_threads[i] = new ServerThread(i);
     // worker_threads = (Thread **) server_threads;
     input_threads = new InputThread * [g_num_input_threads];
-    // output_threads = new OutputThread * [g_num_output_threads];
+    output_threads = new OutputThread * [g_num_output_threads];
     for (uint64_t i = 0; i < g_num_input_threads; i++)
         input_threads[i] = new InputThread(i);  // thread sequence number
-    // for (uint64_t i = 0; i < g_num_output_threads; i++)
-    //     output_threads[i] = new OutputThread(i + g_num_input_threads);  // same here
-    // pthread_barrier_init( &global_barrier, NULL, g_num_input_threads + g_num_output_threads);
-    pthread_barrier_init( &global_barrier, NULL, g_num_input_threads);
+    for (uint64_t i = 0; i < g_num_output_threads; i++)
+        output_threads[i] = new OutputThread(i + g_num_input_threads);  // same here
+    pthread_barrier_init( &global_barrier, NULL, g_num_input_threads + g_num_output_threads);
+    // pthread_barrier_init( &global_barrier, NULL, g_num_input_threads);
     pthread_mutex_init( &global_lock, NULL);
 
     warmup_finish = true;
@@ -109,15 +109,18 @@ int main(int argc, char* argv[])
     // for (uint64_t i = 0; i < g_num_worker_threads - 1; i++)
     //     pthread_create(&pthreads[i], NULL, start_thread, (void *)worker_threads[i]);
     for (uint64_t i = 0; i < g_num_input_threads; i++)
-        pthread_create(&pthreads[g_num_worker_threads + i], NULL, start_thread, (void *)input_threads[i]);
-    // for (uint64_t i = 0; i < g_num_output_threads; i++)
-    //     pthread_create(&pthreads[g_num_worker_threads + g_num_input_threads + i], NULL, start_thread, (void *)output_threads[i]);
+        pthread_create(&pthreads[i], NULL, start_thread, (void *)input_threads[i]);
+        // pthread_create(&pthreads[g_num_worker_threads + i], NULL, start_thread, (void *)input_threads[i]);
+    for (uint64_t i = 0; i < g_num_output_threads; i++)
+        // pthread_create(&pthreads[g_num_worker_threads + g_num_input_threads + i], NULL, start_thread, (void *)output_threads[i]);
+        pthread_create(&pthreads[g_num_input_threads + i], NULL, start_thread, (void *)output_threads[i]);
+
 
     // start_thread((void *)(worker_threads[g_num_worker_threads - 1]));
 
     // for (uint32_t i = 0; i < g_num_worker_threads - 1; i++)
     //     pthread_join(pthreads[i], NULL);
-    for (uint64_t i = 0; i < g_num_input_threads; i++)
+    for (uint64_t i = 0; i < g_num_input_threads + g_num_output_threads; i++)
         pthread_join(pthreads[i], NULL);
     clock_gettime(CLOCK_REALTIME, tp);
     uint64_t end_t = tp->tv_sec * 1000000000 + tp->tv_nsec;

@@ -53,7 +53,9 @@ void InputThread::dealwithMsg(Message * msg, uint64_t t1)
                     || msg->get_type() == Message::COMMIT_REQ) {
                 // printf("receive log req of type: %d\n", msg->get_type());
                 Message* ret = log_manager->log(msg);
-                _transport->sendMsg(new Message(ret->get_type(), msg->get_src_node_id(), msg->get_txn_id(), ret->get_lsn(), 0, NULL));
+                Message *m = new Message(ret->get_type(), msg->get_src_node_id(), msg->get_txn_id(), ret->get_lsn(), 0, NULL);
+                output_queues[0]->push((uint64_t)m);
+                // _transport->sendMsg(new Message(ret->get_type(), msg->get_src_node_id(), msg->get_txn_id(), ret->get_lsn(), 0, NULL));
                 delete ret;
             // INC_FLOAT_STATS(time_write_queue, get_sys_clock() - t2);
             } else {
@@ -92,7 +94,7 @@ RC
 InputThread::run()
 {
     #if LOG_NODE
-        global_sync_output();
+        // global_sync_output();
     #endif
     global_sync();
     printf("Node %d sync done!\n", g_node_id);
