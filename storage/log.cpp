@@ -105,11 +105,11 @@ LogRecord::Type LogManager::check_log(Message * msg) {
         // no log for this txn
         return vote;
     }
-    // FILE * fp = fopen(_log_name, "r");
-    fseek(_log_fp, 0, SEEK_END);
-    fseek(_log_fp, -sizeof(LogRecord), SEEK_CUR);
+    FILE * fp = fopen(_log_name, "r");
+    fseek(fp, 0, SEEK_END);
+    fseek(fp, -sizeof(LogRecord), SEEK_CUR);
     LogRecord cur_log;
-    if (fread((void *)&cur_log, sizeof(LogRecord), 1, _log_fp) != 1) {
+    if (fread((void *)&cur_log, sizeof(LogRecord), 1, fp) != 1) {
         return vote;
     }
 
@@ -122,12 +122,12 @@ LogRecord::Type LogManager::check_log(Message * msg) {
             break;
         }
 
-        if (fseek(_log_fp, -2 * sizeof(LogRecord), SEEK_CUR) == -1)
+        if (fseek(fp, -2 * sizeof(LogRecord), SEEK_CUR) == -1)
             break;
-        assert(fread((void *)&cur_log, sizeof(LogRecord), 1, _log_fp) == 1);
+        assert(fread((void *)&cur_log, sizeof(LogRecord), 1, fp) == 1);
     }
-    
-    // fclose(fp);
+    fseek(fp, 0, SEEK_END);
+    fclose(fp);
     return vote;
 }
 
