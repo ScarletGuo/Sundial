@@ -141,11 +141,13 @@ void LogManager::log_message(Message *msg, LogRecord::Type type) {
 			perror("fwrite");
 			exit(1);
     }
+    /*
     fflush(_log_fp);
     if (fsync(_log_fd) == -1) {
         perror("fsync");
         exit(1);
     }
+    */
 }
 
 uint64_t LogManager::get_last_lsn() {
