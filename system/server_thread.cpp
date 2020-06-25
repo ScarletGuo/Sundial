@@ -52,6 +52,14 @@ RC ServerThread::run() {
     RC rc = RCOK;
     assert (rc == RCOK);
 
+    #if LOG_NODE
+        while (true) {
+            if (glob_manager->is_sim_done())
+            {
+                break;
+            }
+        }
+    #else
     uint64_t init_time = get_sys_clock();
     _num_active_txns = 0;
     // calculate which client thread this server thread corresponds to.
@@ -239,6 +247,7 @@ RC ServerThread::run() {
         M_ASSERT(size == 0, "size = %d", size);
     }
     delete system_txn_man;
+    #endif
     return FINISH;
 }
 
