@@ -16,6 +16,9 @@
 #if CC_ALG == MAAT
 #include "maat_manager.h"
 #endif
+#if LOG_NODE
+#include "log.h"
+#endif
 
 #define DEBUG_INFO_DELAY_SEC 3
 
@@ -53,7 +56,19 @@ RC ServerThread::run() {
     assert (rc == RCOK);
 
     #if LOG_NODE
+        Message * msg = NULL;
         while (true) {
+            if (_msg || input_queues[get_thd_id()]->pop(msg)) {
+                if (_msg) {
+                    msg = _msg;
+                    _msg = NULL;
+                }
+                Message* ret = log_manager->log(msg);
+                Message *m = new Message(ret->get_type(), msg->get_src_node_id(), msg->get_txn_id(), ret->get_lsn(), 0, NULL);
+                output_queues[0]->push((uint64_t)m);
+                // _transport->sendMsg(new Message(ret->get_type(), msg->get_src_node_id(), msg->get_txn_id(), ret->get_lsn(), 0, NULL));
+                delete ret;
+            }
             if (glob_manager->is_sim_done())
             {
                 break;
