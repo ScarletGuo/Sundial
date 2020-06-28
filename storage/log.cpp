@@ -127,7 +127,7 @@ LogRecord::Type LogManager::check_log(Message * msg) {
         assert(fread((void *)&cur_log, sizeof(LogRecord), 1, fp) == 1);
     }
     fseek(fp, 0, SEEK_END);
-    fclose(fp);
+    // fclose(fp);
     return vote;
 }
 
@@ -137,17 +137,19 @@ void LogManager::log_message(Message *msg, LogRecord::Type type) {
     LogRecord log{msg->get_dest_id(), msg->get_txn_id(), 
                 _lsn, type};
     memcpy(_buffer, &log, sizeof(log));
-    if (fwrite(&log, sizeof(log), 1, _log_fp) != 1) {
-			perror("fwrite");
+    // if (fwrite(&log, sizeof(log), 1, _log_fp) != 1) {
+	// 		perror("fwrite");
+	// 		exit(1);
+    // }
+    if (write(_log_fd, _buffer, sizeof(log)) == -1) {
+			perror("write");
 			exit(1);
     }
-    /*
-    fflush(_log_fp);
+    // fflush(_log_fp);
     if (fsync(_log_fd) == -1) {
         perror("fsync");
         exit(1);
     }
-    */
 }
 
 uint64_t LogManager::get_last_lsn() {
