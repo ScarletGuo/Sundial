@@ -129,6 +129,10 @@ RC ServerThread::run() {
                 _msg = NULL;
             }
             if (msg->get_type() == Message::LOG_ACK) {
+                uint32_t * lsn_table = get_lsn_table();
+                if (msg->get_lsn() > lsn_table[g_node_id]) {
+                    lsn_table[g_node_id] = msg->get_lsn();
+                }
                 DELETE(Message, msg);
                 continue;
             }
