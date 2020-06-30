@@ -68,6 +68,7 @@ public:
 
     State             get_txn_state() { return _txn_state; }
     void             set_txn_state(State state) { _txn_state = state; }
+    ServerThread *   get_server_thread() { return _server_thread; }
 
     // Stats
     void             update_stats();

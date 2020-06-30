@@ -19,6 +19,7 @@ public:
     void signal();
 
     TxnManager * get_native_txn() { return _native_txn; }
+    uint32_t *   get_lsn_table() { return _lsn_table; }
     pthread_mutex_t cond_mutex;
     pthread_cond_t     cond;
 private:
@@ -37,5 +38,7 @@ private:
     // For timestamp allocation
     uint64_t     _curr_ts;
     bool         already_printed_debug;
+
+    uint32_t *  _lsn_table;
 };
 //__attribute__ ((aligned(64)));

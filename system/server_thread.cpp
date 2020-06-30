@@ -30,6 +30,7 @@ ServerThread::ServerThread(uint64_t thd_id)
     _msg = NULL;
     _native_txn = NULL;
     already_printed_debug = false;
+    _lsn_table = new uint32_t[g_num_nodes];
 }
 
 // Each thread executes at most one active transaction.
