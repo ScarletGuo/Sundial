@@ -2,6 +2,7 @@
 
 #include "global.h"
 #include "helper.h"
+#include "message.h"
 
 class workload;
 //class WorkerThread;
@@ -69,6 +70,7 @@ public:
     State             get_txn_state() { return _txn_state; }
     void             set_txn_state(State state) { _txn_state = state; }
     ServerThread *   get_server_thread() { return _server_thread; }
+    void             log(Message * msg, Message::Type type);
 
     // Stats
     void             update_stats();

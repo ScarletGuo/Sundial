@@ -139,6 +139,13 @@ TxnManager::set_txn_ready(RC rc)
     _cc_manager->set_txn_ready(rc);
 }
 
+void 
+TxnManager::log(Message * msg, Message::Type type) {
+    uint32_t lsn = get_server_thread()->get_lsn_table()[g_node_id];
+    send_msg( new Message(type, g_log_node_id, get_txn_id(), lsn, 
+                  0, NULL ) );
+}
+
 void
 TxnManager::update_stats()
 {
