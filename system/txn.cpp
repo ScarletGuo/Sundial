@@ -140,7 +140,7 @@ TxnManager::set_txn_ready(RC rc)
 }
 
 void 
-TxnManager::log(Message * msg, Message::Type type) {
+TxnManager::log(Message::Type type) {
     uint32_t lsn = get_server_thread()->get_lsn_table()[g_node_id];
     send_msg( new Message(type, g_log_node_id, get_txn_id(), lsn, 
                   0, NULL ) );
@@ -404,11 +404,9 @@ TxnManager::process_commit_phase_singlepart(RC rc)
 #if LOG_ENABLE
     // TODO. Have two separate implementations: 1. log to local disk. 2. log to Spanner.
     if (rc == COMMIT) {
-        send_msg( new Message( Message::COMMIT_REQ, g_log_node_id, get_txn_id(),
-                  0, NULL ) );
+        log(Message::COMMIT_REQ);
     } else {
-        send_msg( new Message( Message::ABORT_REQ, g_log_node_id, get_txn_id(),
-                  0, NULL ) );
+        log(Message::ABORT_REQ);
     }
 #endif
     _cc_manager->process_commit_phase_coord(rc);
@@ -662,8 +660,7 @@ TxnManager::process_2pc_prepare_req(Message * msg)
 #if LOG_ENABLE
     // Logging
     Message::Type type1 = (rc == RCOK)? Message::PREPARED_COMMIT : Message::ABORT_REQ;
-    send_msg( new Message( type1, g_log_node_id, get_txn_id(),
-                0, NULL ) );
+    log(type1);
 #endif
     assert(rc == RCOK || rc == COMMIT);
     Message::Type type = (rc == RCOK)? Message::PREPARED_COMMIT : Message::COMMITTED;
@@ -696,8 +693,7 @@ TxnManager::process_2pc_prepare_req(Message * msg)
         //TODO: how to deal with COMMITTED?
         Message::Type type = (rc == RCOK)? Message::PREPARED_COMMIT : 
                          (rc == ABORT)? Message::ABORT_REQ : Message::COMMIT_REQ;
-        send_msg( new Message( type, g_log_node_id, get_txn_id(),
-                    0, NULL ) );
+        log(type);
     }
 #endif
     return rc;
@@ -725,8 +721,7 @@ TxnManager::continue_prepare_phase()
 #if LOG_ENABLE
             // Logging
             Message::Type type = (rc == COMMIT)? Message::COMMIT_REQ : Message::ABORT_REQ;
-            send_msg( new Message( type, g_log_node_id, get_txn_id(),
-                        0, NULL ) );
+            log(type);
 #endif
             return process_2pc_commit_phase(rc);
         }
@@ -748,8 +743,7 @@ TxnManager::continue_prepare_phase()
 
 #if LOG_ENABLE
         // Logging
-        send_msg( new Message( type, g_log_node_id, get_txn_id(),
-                    0, NULL ) );
+        log(type);
 #endif
         send_msg(new Message(type, _src_node_id, get_txn_id(), _resp_size, _resp_data));
         return rc;
@@ -833,13 +827,7 @@ TxnManager::process_2pc_commit_phase(RC rc)
 #endif
 #if LOG_ENABLE
     // Logging
-    if (rc == COMMIT) {
-        send_msg( new Message( Message::COMMIT_REQ, g_log_node_id, get_txn_id(),
-                  0, NULL ) );
-    } else if (rc == ABORT){
-        send_msg( new Message( Message::ABORT_REQ, g_log_node_id, get_txn_id(),
-                  0, NULL ) );
-    }
+    log(type);
 #endif
     for (set<uint32_t>::iterator it = remote_nodes_involved.begin();
         it != remote_nodes_involved.end();
@@ -887,11 +875,9 @@ TxnManager::process_2pc_commit_req(Message * msg)
     // Logging
 #if LOG_ENABLE
     if (rc == COMMIT) {
-        send_msg( new Message( Message::COMMIT_REQ, g_log_node_id, get_txn_id(),
-                  0, NULL ) );
+        log(Message::COMMIT_REQ);
     } else if (rc == ABORT){
-        send_msg( new Message( Message::ABORT_REQ, g_log_node_id, get_txn_id(),
-                  0, NULL ) );
+        log(Message::ABORT_REQ);
     }
 #endif
 
