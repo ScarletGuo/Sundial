@@ -86,6 +86,9 @@ public:
     set<uint32_t>   aborted_remote_nodes;
     set<uint32_t>    readonly_remote_nodes;
     bool            _txn_abort;
+
+    // 1pc
+    uint32_t *   get_lsn_table() { return _lsn_table; }
 private:
     // TODO. for now, a txn is mapped to a single thread.
     ServerThread *    _server_thread;

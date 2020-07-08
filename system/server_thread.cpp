@@ -129,11 +129,18 @@ RC ServerThread::run() {
                 msg = _msg;
                 _msg = NULL;
             }
+            // 1pc
             if (msg->get_type() == Message::LOG_ACK) {
-                uint32_t * lsn_table = get_lsn_table();
-                if (msg->get_lsn() > lsn_table[g_node_id]) {
-                    lsn_table[g_node_id] = msg->get_lsn();
+                TxnManager * tmp_txn = txn_table->get_txn(msg->get_txn_id());
+                if (tmp_txn != NULL) {
+                    tmp_txn->get_lsn_table()[g_node_id] = msg->get_lsn();
+                } else {
+                    uint32_t * lsn_table = get_lsn_table();
+                    if (msg->get_lsn() > lsn_table[g_node_id]) {
+                        lsn_table[g_node_id] = msg->get_lsn();
+                    }
                 }
+                
                 DELETE(Message, msg);
                 continue;
             }
