@@ -175,4 +175,7 @@ private:
     // locality handler for TicToc
     void handle_local_caching();
     RC process_caching_resp(Message * msg);
+
+    //1pc
+    uint32_t *  _lsn_table;
 };

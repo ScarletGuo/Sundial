@@ -75,6 +75,10 @@ TxnManager::TxnManager(ServerThread * thread, bool sub_txn)
     _txn_abort = false;
     _remote_txn_abort = false;
     _cc_manager = CCManager::create(this);
+    
+    //1pc
+    _lsn_table = new uint32_t[g_num_nodes];
+    memset(_lsn_table, 0, g_num_nodes * sizeof(uint32_t));
 }
 
 TxnManager::TxnManager(TxnManager * txn)
@@ -104,6 +108,10 @@ TxnManager::TxnManager(TxnManager * txn)
     memset(_msg_count, 0, sizeof(uint64_t) * Message::NUM_MSG_TYPES);
     memset(_msg_size, 0, sizeof(uint64_t) * Message::NUM_MSG_TYPES);
     _cc_manager = CCManager::create(this);
+
+    //1pc
+    _lsn_table = new uint32_t[g_num_nodes];
+    memset(_lsn_table, 0, g_num_nodes * sizeof(uint32_t));
 }
 
 TxnManager::~TxnManager()
@@ -119,6 +127,9 @@ TxnManager::~TxnManager()
 #else
     delete _cc_manager;
 #endif
+
+    //1pc
+    delete _lsn_table;
 }
 
 bool
@@ -141,7 +152,7 @@ TxnManager::set_txn_ready(RC rc)
 
 void 
 TxnManager::log(Message::Type type) {
-    uint32_t lsn = get_server_thread()->get_lsn_table()[g_node_id];
+    uint32_t lsn = _lsn_table[g_node_id];
     send_msg( new Message(type, g_log_node_id, get_txn_id(), lsn, 
                   0, NULL ) );
 }
