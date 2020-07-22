@@ -660,7 +660,7 @@ RC
 TxnManager::process_2pc_prepare_req_phase_2(Message * msg)
 {
     // only for yes
-    Message::Type type = Message::PREPARED_COMMIT;
+    Message::Type type = rc_prepare_2 == RCOK ? Message::PREPARED_COMMIT : Message::COMMITTED;
     Message * resp_msg = new Message(type, _src_node_id, get_txn_id(), 0, NULL);
     send_msg(resp_msg);
     return rc_prepare_2;
