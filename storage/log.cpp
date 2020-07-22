@@ -83,6 +83,7 @@ Message* LogManager::log(Message *msg) {
             if (msg->get_type() == Message::PREPARED_COMMIT) {
                 // vote yes
                 log_message(msg, LogRecord::YES);
+                result = Message::YES_ACK;
             } else {
                 // vote no
                 log_message(msg, LogRecord::ABORT);

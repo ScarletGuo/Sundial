@@ -394,6 +394,9 @@ TxnManager::process_msg(Message * msg)
         return process_caching_resp(msg);
     case Message::LOG_ACK:
         return RCOK;
+    case Message::YES_ACK:
+        // send back after YES_ACK from log node received
+        return process_2pc_prepare_req_phase_2(msg);
     default:
         M_ASSERT(false, "Unsupported message type\n");
     }
@@ -654,6 +657,16 @@ TxnManager::process_2pc_prepare_phase()
 }
 
 RC
+TxnManager::process_2pc_prepare_req_phase_2(Message * msg)
+{
+    // only for yes
+    Message::Type type = Message::PREPARED_COMMIT;
+    Message * resp_msg = new Message(type, _src_node_id, get_txn_id(), 0, NULL);
+    send_msg(resp_msg);
+    return rc_prepare_2;
+}
+
+RC
 TxnManager::process_2pc_prepare_req(Message * msg)
 {
 #if CC_ALG == MAAT
@@ -670,14 +683,12 @@ TxnManager::process_2pc_prepare_req(Message * msg)
     RC rc = _cc_manager->process_prepare_req(msg->get_data_size(), msg->get_data(), _resp_size, _resp_data);
 #if LOG_ENABLE
     // Logging
-    Message::Type type1 = (rc == RCOK)? Message::PREPARED_COMMIT : Message::ABORT_REQ;
+    Message::Type type1 = Message::PREPARED_COMMIT;
+    _src_node_id = msg->get_src_node_id();
+    rc_prepare_2 = rc;
     log(type1);
 #endif
-    assert(rc == RCOK || rc == COMMIT);
-    Message::Type type = (rc == RCOK)? Message::PREPARED_COMMIT : Message::COMMITTED;
-    Message * resp_msg = new Message(type, msg->get_src_node_id(), get_txn_id(), 0, NULL);
-    send_msg(resp_msg);
-    return rc;
+    return RCOK;
 #elif CC_ALG == TICTOC || CC_ALG == F_ONE || CC_ALG == MAAT  \
     || CC_ALG == IDEAL_MVCC || CC_ALG == NAIVE_TICTOC || CC_ALG == TCM
     _resp_size = 0;

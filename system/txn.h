@@ -133,6 +133,7 @@ private:
 
     // prepare phase
     RC process_2pc_prepare_phase();
+    RC process_2pc_prepare_req_phase_2(Message * msg);
     RC process_2pc_prepare_req(Message * msg);
     RC process_2pc_prepare_resp(Message * msg);
     // for F1 and TicToc.
@@ -181,4 +182,7 @@ private:
 
     //1pc
     uint32_t *  _lsn_table;
+
+    //needed for wait logging
+    RC rc_prepare_2;
 };

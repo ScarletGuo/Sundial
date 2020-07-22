@@ -92,6 +92,7 @@ Message::get_name(Type type)
     case LOCAL_COPY_NACK:    return "LOCAL_COPY_NACK";
     case TCM_TS_SYNC_REQ:    return "TCM_TS_SYNC_REQ";
     case LOG_ACK:    return "LOG_ACK";
+    case YES_ACK:    return "YES_ACK";
     default:                assert(false);
     }
 }
