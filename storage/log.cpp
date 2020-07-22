@@ -37,6 +37,7 @@ LogManager::LogManager(char * log_name)
     latch_ = new std::mutex();
     cv_ = new std::condition_variable();
     appendCv_ = new std::condition_variable();
+}
 
 LogManager::~LogManager() {
 		delete[] _log_name;

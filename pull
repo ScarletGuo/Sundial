@@ -1,0 +1,4 @@
+git fetch
+git reset --hard origin/1pc-log
+cp ../config.h ./config.h
+make all

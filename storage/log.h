@@ -12,7 +12,7 @@
 #include <atomic>
 #include <chrono>
 #include <fcntl.h>
-#include <unistd.h
+#include <unistd.h>
 
 class LogManager {
 public:
