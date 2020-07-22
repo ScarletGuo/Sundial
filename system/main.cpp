@@ -167,6 +167,7 @@ int main(int argc, char* argv[])
     glob_manager->init();
     txn_table = new TxnTable();
     log_manager = new LogManager();
+    log_manager->run_flush_thread();
 
     printf("mem_allocator initialized!\n");
     workload * m_wl;
@@ -222,6 +223,9 @@ int main(int argc, char* argv[])
         pthread_join(pthreads[i], NULL);
     for (uint64_t i = 0; i < g_num_input_threads + g_num_output_threads; i++)
         pthread_join(pthreads[g_num_worker_threads + i], NULL);
+
+    log_manager->stop_flush_thread();
+    
     clock_gettime(CLOCK_REALTIME, tp);
     uint64_t end_t = tp->tv_sec * 1000000000 + tp->tv_nsec;
 

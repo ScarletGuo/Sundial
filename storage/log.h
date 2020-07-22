@@ -5,6 +5,15 @@
 #include <map>
 #include "log_record.h"
 
+//group commit
+#include <condition_variable>
+#include <future>
+#include <mutex>
+#include <atomic>
+#include <chrono>
+#include <fcntl.h>
+#include <unistd.h
+
 class LogManager {
 public:
     LogManager();
@@ -12,6 +21,11 @@ public:
     LogManager(char *log_name);
     void log(uint32_t size, char * record);
     Message* log(Message *msg);
+    
+    void run_flush_thread();
+    void stop_flush_thread();
+    void flush(bool force);
+
 private:
     uint32_t _buffer_size;
     char * _buffer;
@@ -21,6 +35,22 @@ private:
     uint32_t _name_size;
     char * _log_name;
     // map<uint64_t, uint64_t> txn_lsn_table; // TODO: no garbage collection for now
+
+    //group commit
+  	char *flush_buffer_;
+    uint32_t logBufferOffset_ = 0;
+    uint32_t flushBufferSize_ = 0;
+    bool ENABLE_LOGGING = false;
+    std::chrono::duration<long long int, std::milli> LOG_TIMEOUT =
+        std::chrono::milliseconds(1000);
+    bool needFlush_ = false; //for group commit
+    std::condition_variable * appendCv_; // for notifying append thread	
+    // latch for cv
+    std::mutex * latch_;
+    // flush thread
+    std::thread *flush_thread_;
+    // for notifying flush thread
+    std::condition_variable * cv_;
 
     LogRecord::Type check_log(Message * msg);
     void log_message(Message *msg, LogRecord::Type type);

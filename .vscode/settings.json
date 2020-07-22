@@ -10,6 +10,7 @@
         "xlocale": "cpp",
         "xutility": "cpp",
         "cmath": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "mutex": "cpp"
     }
 }

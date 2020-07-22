@@ -13,6 +13,7 @@ LogManager::LogManager()
 
 LogManager::LogManager(char * log_name)
 {
+    assert(512 % sizeof(LogRecord) == 0);   // group commit alignment
     _buffer_size = 64 * 1024 * 1024;
     _buffer = new char[_buffer_size]; // 64 MB
     _lsn = 0;
@@ -20,7 +21,7 @@ LogManager::LogManager(char * log_name)
     _log_name = new char[_name_size];
     strcpy(_log_name, log_name);
     //TODO: delete O_TRUNC when recovery is needed.
-    _log_fd = open(log_name, O_RDWR | O_CREAT | O_TRUNC | O_DIRECT | O_APPEND, 0755);
+    _log_fd = open(log_name, O_RDWR | O_CREAT | O_TRUNC | O_APPEND, 0755);
     if (_log_fd == 0) {
         perror("open log file");
         exit(1);
@@ -30,7 +31,12 @@ LogManager::LogManager(char * log_name)
         perror("open log file");
         exit(1);
     }
-}
+    
+    // group commit
+    flush_buffer_ = new char[_buffer_size];
+    latch_ = new std::mutex();
+    cv_ = new std::condition_variable();
+    appendCv_ = new std::condition_variable();
 
 LogManager::~LogManager() {
 		delete[] _log_name;
@@ -133,24 +139,30 @@ LogRecord::Type LogManager::check_log(Message * msg) {
 }
 
 void LogManager::log_message(Message *msg, LogRecord::Type type) {
+    unique_lock<mutex> latch(*latch_);
     ATOM_FETCH_ADD(_lsn, 1);
     // printf("latest lsn: %d\n", _lsn);
+    if (logBufferOffset_ >= _buffer_size) {
+        needFlush_ = true;
+        cv_->notify_one(); //let RunFlushThread wake up.
+        appendCv_->wait(latch, [&] {return logBufferOffset_ < _buffer_size;});
+        // logBufferOffset_ = 0;
+    }
     LogRecord log{msg->get_dest_id(), msg->get_txn_id(), 
                 _lsn, type};
-    memcpy(_buffer, &log, sizeof(log));
-    if (fwrite(&log, sizeof(log), 1, _log_fp) != 1) {
-			perror("fwrite");
-			exit(1);
-    }
-    // if (write(_log_fd, _buffer, sizeof(log)) == -1) {
-	// 		perror("write");
+    memcpy(_buffer + logBufferOffset_, &log, sizeof(log));
+    logBufferOffset_ += sizeof(LogRecord);
+    // if (fwrite(&log, sizeof(log), 1, _log_fp) != 1) {
+	// 		perror("fwrite");
 	// 		exit(1);
     // }
-    // fflush(_log_fp);
-    // if (fsync(_log_fd) == -1) {
-    //     perror("fsync");
-    //     exit(1);
-    // }
+    /*
+    fflush(_log_fp);
+    if (fsync(_log_fd) == -1) {
+        perror("fsync");
+        exit(1);
+    }
+    */
 }
 
 uint64_t LogManager::get_last_lsn() {
@@ -171,4 +183,74 @@ Message::Type LogManager::log_to_message(LogRecord::Type vote) {
     default:
         assert(false);
     }
+}
+
+//group commit
+// spawn a separate thread to wake up periodically to flush
+void LogManager::run_flush_thread() {
+    if (ENABLE_LOGGING) return;
+    ENABLE_LOGGING = true;
+    flush_thread_ = new thread([&] {
+        while (ENABLE_LOGGING) { //The thread is triggered every LOG_TIMEOUT seconds or when the log buffer is full
+        unique_lock<mutex> latch(*latch_);
+        // (2) When LOG_TIMEOUT is triggered.
+        cv_->wait_for(latch, LOG_TIMEOUT, [&] {return needFlush_;});
+        assert(flushBufferSize_ == 0);
+        if (logBufferOffset_ > 0) {
+            swap(_buffer,flush_buffer_);
+            swap(logBufferOffset_,flushBufferSize_);
+            // disk_manager_->WriteLog(flush_buffer_, flushBufferSize_);
+            // printf("write\n");
+            // TODO: figure out how to handle buffersize not reach alignment
+            /*
+            if (flushBufferSize_ != _buffer_size) {
+                // printf("fcntl\n");
+                fcntl(_log_fd, F_SETFD, O_RDWR | O_CREAT | O_TRUNC | O_APPEND);
+                if (write(_log_fd, flush_buffer_, flushBufferSize_) == -1) {
+                    perror("write1");
+                    exit(1);
+                }
+            } else {
+                fcntl(_log_fd, F_SETFD, O_RDWR | O_CREAT | O_TRUNC | O_APPEND | O_DIRECT);
+                */
+                if (write(_log_fd, flush_buffer_, flushBufferSize_) == -1) {
+                    perror("write2");
+                    exit(1);
+                }
+            // }
+            if (fsync(_log_fd) == -1) {
+                perror("fsync");
+                exit(1);
+            }
+            flushBufferSize_ = 0;
+            // SetPersistentLSN(lastLsn_);
+        }
+        needFlush_ = false;
+        appendCv_->notify_all();
+        }
+    });
+};
+/*
+ * Stop and join the flush thread, set ENABLE_LOGGING = false
+ */
+void LogManager::stop_flush_thread() {
+  if (!ENABLE_LOGGING) return;
+  ENABLE_LOGGING = false;
+  flush(true);
+  flush_thread_->join();
+  assert(logBufferOffset_ == 0 && flushBufferSize_ == 0);
+  delete flush_thread_;
+};
+
+void LogManager::flush(bool force) {
+  unique_lock<mutex> latch(*latch_);
+  if (force) {
+    needFlush_ = true;
+    cv_->notify_one(); //let RunFlushThread wake up.
+    if (ENABLE_LOGGING)
+      appendCv_->wait(latch, [&] { return !needFlush_; }); //block append thread
+  } else {
+    appendCv_->wait(latch);// group commit,  But instead of forcing flush,
+    // you need to wait for LOG_TIMEOUT or other operations to implicitly trigger the flush operations
+  }
 }
