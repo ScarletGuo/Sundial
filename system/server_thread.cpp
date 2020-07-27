@@ -130,6 +130,7 @@ RC ServerThread::run() {
                 _msg = NULL;
             }
             // 1pc
+            #if COMMIT_ALG == ONE_PC
             if (msg->get_type() == Message::LOG_ACK) {
                 TxnManager * tmp_txn = txn_table->get_txn(msg->get_txn_id());
                 if (tmp_txn != NULL) {
@@ -144,6 +145,12 @@ RC ServerThread::run() {
                 DELETE(Message, msg);
                 continue;
             }
+            #else
+                if (msg->get_type() == Message::LOG_ACK) {
+                    DELETE(Message, msg);
+                    continue;
+                }  
+            #endif
             INC_FLOAT_STATS(time_read_input_queue, get_sys_clock() - t1);
             uint64_t t2 = get_sys_clock();
             // make sure the correct txn_id is received.
@@ -164,11 +171,25 @@ RC ServerThread::run() {
                     DELETE(Message, msg);
                     continue;
                 }
+                #if COMMIT_ALG == TWO_PC
+                    if (msg->get_type() == Message::COMMIT_ACK
+                    || msg->get_type() == Message::ABORT_ACK) {
+                        DELETE(Message, msg);
+                        continue;
+                    }
+                #endif
                 M_ASSERT(msg->get_type() == Message::REQ || msg->get_type() == Message::CLIENT_REQ,
                         "msg->type = %s\n", msg->get_name().c_str());
                 txn_man = new TxnManager(msg, this);
                 txn_table->add_txn( txn_man );
             }
+            #if COMMIT_ALG == TWO_PC
+                if ((msg->get_type() == Message::COMMIT_ACK
+                    || msg->get_type() == Message::ABORT_ACK) && txn_man->is_sub_txn()) {
+                    DELETE(Message, msg);
+                    continue;
+                }
+            #endif
             RC rc = txn_man->process_msg(msg);
             handle_req_finish(rc, txn_man);
 

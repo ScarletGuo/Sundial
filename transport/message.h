@@ -44,6 +44,8 @@ public:
 
         // For logging
         LOG_ACK,
+        COMMIT_ACK,
+        ABORT_ACK,
         LOG_COMMIT,
         LOG_ABORT,
         LOG_PREPARED_COMMIT,

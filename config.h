@@ -121,7 +121,7 @@
 // YCSB
 ///////////////////////////////
 // Number of tuples per node
-#define SYNTH_TABLE_SIZE             (1024 * 10)
+#define SYNTH_TABLE_SIZE             (1024 * 10) // (1024 * 10 * 1024)
 #define ZIPF_THETA                     0.9
 #define READ_PERC                     0.9
 #define PERC_READONLY_DATA            0
@@ -242,3 +242,9 @@ extern TestCases                    g_test_case;
 #define MODEL_DUMMY_MSG                false
 
 #define MAX_CLOCK_SKEW                0 // in us
+
+// Commit Protocol
+#define ONE_PC         1
+#define TWO_PC         2
+
+#define COMMIT_ALG     TWO_PC

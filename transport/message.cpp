@@ -93,6 +93,8 @@ Message::get_name(Type type)
     case TCM_TS_SYNC_REQ:    return "TCM_TS_SYNC_REQ";
     case LOG_ACK:    return "LOG_ACK";
     case YES_ACK:    return "YES_ACK";
+    case COMMIT_ACK:   return "COMMIT_ACK";
+    case ABORT_ACK:   return "ABORT_ACK";
     default:                assert(false);
     }
 }
