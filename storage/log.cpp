@@ -73,6 +73,9 @@ Message* LogManager::log(Message *msg) {
     Message::Type result = Message::LOG_ACK;
     if (msg->get_type() == Message::COMMIT_REQ) {
         log_message(msg, LogRecord::COMMIT);
+        #if COMMIT_ALG == TWO_PC
+            result = Message::COMMIT_ACK;
+        #endif
     } else {
         // LogRecord::Type vote = check_log(msg);
         LogRecord::Type vote = LogRecord::INVALID;
@@ -87,10 +90,16 @@ Message* LogManager::log(Message *msg) {
             } else {
                 // vote no
                 log_message(msg, LogRecord::ABORT);
+                #if COMMIT_ALG == TWO_PC
+                    result = Message::ABORT_ACK;
+                #endif
             }
         } else {
             if (vote != LogRecord::ABORT && msg->get_type() == Message::ABORT_REQ) {
                 log_message(msg, LogRecord::ABORT);
+                #if COMMIT_ALG == TWO_PC
+                    result = Message::ABORT_ACK;
+                #endif
             } else {
                 // log exists
                 result = log_to_message(vote);
@@ -98,11 +107,15 @@ Message* LogManager::log(Message *msg) {
         }
     }
     Message * result_msg;
+    #if COMMIT_ALG == ONE_PC
     if (result == Message::LOG_ACK) {
         result_msg = new Message(result, get_last_lsn());
     } else {
         result_msg = new Message(result, -1);
     }
+    #else
+        result_msg = new Message(result, 0);
+    #endif
     return result_msg;
 }
 

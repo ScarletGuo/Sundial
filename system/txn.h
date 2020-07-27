@@ -143,6 +143,9 @@ private:
     // commit phase
     // rc can be either COMMIT or Abort.
     RC process_2pc_commit_phase(RC rc);
+    #if COMMIT_ALG == TWO_PC
+    RC process_2pc_commit_phase_2(Message * msg);
+    #endif
     RC process_2pc_commit_req(Message * msg);
     RC process_2pc_commit_resp();
 
