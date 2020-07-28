@@ -13,7 +13,7 @@ LogManager::LogManager()
 
 LogManager::LogManager(char * log_name)
 {
-    assert(512 % sizeof(LogRecord) == 0);   // group commit alignment
+    // assert(512 % sizeof(LogRecord) == 0);   // group commit alignment
     _buffer_size = 64 * 1024 * 1024;
     _buffer = new char[_buffer_size]; // 64 MB
     _lsn = 0;
@@ -21,16 +21,16 @@ LogManager::LogManager(char * log_name)
     _log_name = new char[_name_size];
     strcpy(_log_name, log_name);
     //TODO: delete O_TRUNC when recovery is needed.
-    _log_fd = open(log_name, O_RDWR | O_CREAT | O_TRUNC | O_APPEND, 0755);
+    _log_fd = open(log_name, O_RDWR | O_CREAT | O_TRUNC | O_APPEND | O_DIRECT, 0755);
     if (_log_fd == 0) {
         perror("open log file");
         exit(1);
     }
-    _log_fp = fdopen(_log_fd, "w+");
-    if (_log_fp == NULL) {
-        perror("open log file");
-        exit(1);
-    }
+    // _log_fp = fdopen(_log_fd, "w+");
+    // if (_log_fp == NULL) {
+    //     perror("open log file");
+    //     exit(1);
+    // }
     
     // group commit
     flush_buffer_ = new char[_buffer_size];
@@ -233,7 +233,7 @@ void LogManager::run_flush_thread() {
             } else {
                 fcntl(_log_fd, F_SETFD, O_RDWR | O_CREAT | O_TRUNC | O_APPEND | O_DIRECT);
                 */
-                if (write(_log_fd, flush_buffer_, flushBufferSize_) == -1) {
+                if (write(_log_fd, flush_buffer_, PGROUNDUP(flushBufferSize_)) == -1) {
                     perror("write2");
                     exit(1);
                 }

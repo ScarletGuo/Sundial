@@ -11,6 +11,8 @@
         "xutility": "cpp",
         "cmath": "cpp",
         "string": "cpp",
-        "mutex": "cpp"
+        "mutex": "cpp",
+        "thread": "cpp",
+        "iostream": "cpp"
     }
 }

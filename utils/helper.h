@@ -190,3 +190,6 @@ inline uint64_t get_sys_clock() {
 #endif
 }
 
+// logging helper
+#define PGSIZE 512
+#define PGROUNDUP(sz)  (((sz)+PGSIZE-1) & ~(PGSIZE-1))
