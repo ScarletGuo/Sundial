@@ -12,7 +12,7 @@ Message::Message(Type type, uint32_t dest, uint64_t txn_id, int size, char * dat
     _src_node_id = g_node_id;
 }
 
-Message::Message(Type type, uint32_t dest, uint64_t txn_id, uint32_t lsn, int size, char * data)
+Message::Message(Type type, uint32_t dest, uint64_t txn_id, uint32_t lsn, uint32_t size, char * data)
     : _msg_type(type)
     , _txn_id(txn_id)
     , _lsn(lsn)

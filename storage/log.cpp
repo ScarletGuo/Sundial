@@ -157,16 +157,21 @@ void LogManager::log_message(Message *msg, LogRecord::Type type) {
     unique_lock<mutex> latch(*latch_);
     ATOM_FETCH_ADD(_lsn, 1);
     // printf("latest lsn: %d\n", _lsn);
-    if (logBufferOffset_ >= _buffer_size) {
+    uint32_t size_total = sizeof(LogRecord) + msg->get_data_size();
+    if (logBufferOffset_ + size_total > _buffer_size) {
         needFlush_ = true;
         cv_->notify_one(); //let RunFlushThread wake up.
-        appendCv_->wait(latch, [&] {return logBufferOffset_ < _buffer_size;});
+        appendCv_->wait(latch, [&] {return logBufferOffset_ <= _buffer_size;});
         // logBufferOffset_ = 0;
     }
     LogRecord log{msg->get_dest_id(), msg->get_txn_id(), 
                 _lsn, type};
     memcpy(_buffer + logBufferOffset_, &log, sizeof(log));
     logBufferOffset_ += sizeof(LogRecord);
+    if (msg->get_data_size() != 0) {
+        memcpy(_buffer + logBufferOffset_, msg->get_data(), msg->get_data_size());
+        logBufferOffset_ += msg->get_data_size();
+    }
     // if (fwrite(&log, sizeof(log), 1, _log_fp) != 1) {
 	// 		perror("fwrite");
 	// 		exit(1);

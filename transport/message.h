@@ -54,7 +54,7 @@ public:
         YES_ACK
     };
     Message(Type type, uint32_t dest, uint64_t txn_id, int size, char * data);
-    Message(Type type, uint32_t dest, uint64_t txn_id, uint32_t lsn, int size, char * data);
+    Message(Type type, uint32_t dest, uint64_t txn_id, uint32_t lsn, uint32_t size, char * data);
     Message(Type type, uint32_t lsn);
     Message(Message * msg);
     Message(char * packet);

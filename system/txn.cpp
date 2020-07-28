@@ -157,6 +157,13 @@ TxnManager::log(Message::Type type) {
                   0, NULL ) );
 }
 
+void 
+TxnManager::log(Message::Type type, char * data, int size) {
+    uint32_t lsn = _lsn_table[g_node_id];
+    send_msg( new Message(type, g_log_node_id, get_txn_id(), lsn, 
+                  size, data ) );
+}
+
 void
 TxnManager::update_stats()
 {
@@ -691,7 +698,10 @@ TxnManager::process_2pc_prepare_req(Message * msg)
     Message::Type type1 = Message::PREPARED_COMMIT;
     _src_node_id = msg->get_src_node_id();
     rc_prepare_2 = rc;
-    log(type1);
+    // log query info for YES
+    char * data;
+    _store_procedure->get_query()->serialize(data);
+    log(type1, data, sizeof(data));
 #endif
     return RCOK;
 #elif CC_ALG == TICTOC || CC_ALG == F_ONE || CC_ALG == MAAT  \

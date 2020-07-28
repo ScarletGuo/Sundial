@@ -71,6 +71,7 @@ public:
     void             set_txn_state(State state) { _txn_state = state; }
     ServerThread *   get_server_thread() { return _server_thread; }
     void             log(Message::Type type);
+    void             log(Message::Type type, char * data, int size);
 
     // Stats
     void             update_stats();
