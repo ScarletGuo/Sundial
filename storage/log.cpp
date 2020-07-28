@@ -15,7 +15,9 @@ LogManager::LogManager(char * log_name)
 {
     // assert(512 % sizeof(LogRecord) == 0);   // group commit alignment
     _buffer_size = 64 * 1024 * 1024;
-    _buffer = new char[_buffer_size]; // 64 MB
+    int align = 512 - 1;
+    _buffer = (char *)malloc(_buffer_size + align); // 64 MB
+    _buffer = (char *)(((uintptr_t)_buffer + align)&~((uintptr_t)align));
     _lsn = 0;
     _name_size = 50;
     _log_name = new char[_name_size];
@@ -33,7 +35,8 @@ LogManager::LogManager(char * log_name)
     // }
     
     // group commit
-    flush_buffer_ = new char[_buffer_size];
+    flush_buffer_ = (char *)malloc(_buffer_size + align); // 64 MB
+    flush_buffer_ = (char *)(((uintptr_t)flush_buffer_ + align)&~((uintptr_t)align));
     latch_ = new std::mutex();
     cv_ = new std::condition_variable();
     appendCv_ = new std::condition_variable();
