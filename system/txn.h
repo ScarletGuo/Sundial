@@ -189,4 +189,6 @@ private:
 
     //needed for wait logging
     RC rc_prepare_2;
+
+    QueryBase * _query = NULL;
 };

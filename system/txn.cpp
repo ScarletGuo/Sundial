@@ -39,6 +39,7 @@ TxnManager::TxnManager(QueryBase * query, ServerThread * thread)
     : TxnManager(thread, false)
 {
     _store_procedure = GET_WORKLOAD->create_store_procedure(this, query);
+    _query = query;
 }
 
 TxnManager::TxnManager(Message * msg, ServerThread * thread)
@@ -699,9 +700,13 @@ TxnManager::process_2pc_prepare_req(Message * msg)
     _src_node_id = msg->get_src_node_id();
     rc_prepare_2 = rc;
     // log query info for YES
-    char * data;
-    _store_procedure->get_query()->serialize(data);
-    log(type1, data, sizeof(data));
+    if (_query != NULL) {
+        char * data;
+        _query->serialize(data);
+        log(type1, data, sizeof(data));
+    } else {
+        log(type1);
+    }
 #endif
     return RCOK;
 #elif CC_ALG == TICTOC || CC_ALG == F_ONE || CC_ALG == MAAT  \
