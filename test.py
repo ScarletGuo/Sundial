@@ -54,11 +54,11 @@ def parse_output(job):
 	output = open("temp.out")
 	for line in output:
 		line = line.strip()
-		if "[summary]" in line:
-			for token in line.strip().split('[summary]')[-1].split(','):
-				key, val = token.strip().split('=')
-				job[key] = val
-			break
+		if ":" in line:
+			# for token in line.strip().split('[summary]')[-1].split(','):
+			key, val = line.split(':')
+			job[key] = val
+			# break
 	output.close()
 	os.system("rm -f temp.out")
 	return job
