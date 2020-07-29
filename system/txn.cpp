@@ -277,6 +277,7 @@ TxnManager::execute(bool restart)
         uint32_t resp_size = 0;
         char * resp_data = NULL;
         char * data = _msg->get_data();
+        _msg_remote_req = new Message(_msg);
         UnstructuredBuffer buffer(_msg->get_data());
         uint32_t header_size = _cc_manager->process_remote_req_header( &buffer );
         data += header_size;
@@ -700,13 +701,13 @@ TxnManager::process_2pc_prepare_req(Message * msg)
     _src_node_id = msg->get_src_node_id();
     rc_prepare_2 = rc;
     // log query info for YES
-    if (_query != NULL) {
-        char * data;
-        _query->serialize(data);
-        log(type1, data, sizeof(data));
-    } else {
-        log(type1);
-    }
+    // if (_query != NULL) {
+    //     char * data;
+    //     _query->serialize(data);
+        log(type1, _msg_remote_req->get_data(), _msg_remote_req->get_data_size());
+    // } else {
+    //     log(type1);
+    // }
 #endif
     return RCOK;
 #elif CC_ALG == TICTOC || CC_ALG == F_ONE || CC_ALG == MAAT  \

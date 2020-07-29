@@ -191,4 +191,5 @@ private:
     RC rc_prepare_2;
 
     QueryBase * _query = NULL;
+    Message * _msg_remote_req;
 };
