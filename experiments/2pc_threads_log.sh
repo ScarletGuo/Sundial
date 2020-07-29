@@ -1,10 +1,12 @@
 cd ../
 cp -r config-ycsb-synthetic-std.h config.h
 
-fname="test"
+fname="2pc_threads_log"
 
 # algorithm
 alg=WAIT_DIE
+commit_alg=TWO_PC
+lognode="true"
 # latch=LH_MCSLOCK
 # [WW]
 # ww_starv_free="false"
@@ -33,7 +35,7 @@ wl="YCSB"
 # chain="false"
 
 # other
-# threads=16
+threads=16
 # profile="true"
 # cnt=100000 
 # penalty=50000
@@ -45,8 +47,10 @@ wl="YCSB"
 # do
 # for specified in 0 0.25 0.5 0.75 1
 # do
-timeout 200 python test.py CC_ALG=${alg}
-# done
+for threads in 2 4 8 16 32
+do
+timeout 200 python test.py CC_ALG=${alg} COMMIT_ALG=${commit_alg} LOG_NODE=${lognode} NUM_SERVER_THREADS=${threads}
+done
 # done
 # done
 
