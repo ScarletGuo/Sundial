@@ -13,6 +13,8 @@
         "string": "cpp",
         "mutex": "cpp",
         "thread": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "vector": "cpp",
+        "xtree": "cpp"
     }
 }

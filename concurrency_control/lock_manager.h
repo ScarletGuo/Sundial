@@ -37,6 +37,7 @@ public:
     // commit phase
     void         process_commit_phase_coord(RC rc);
     bool         need_commit_req(RC rc, uint32_t node_id, uint32_t &size, char * &data);
+    bool         get_modified_tuples(uint32_t &size, char * &data);
     void         process_commit_req(RC rc, uint32_t size, char * data);
     RC             commit_insdel();
     void         abort();

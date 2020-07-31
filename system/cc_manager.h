@@ -87,6 +87,7 @@ public:
     // commit phase
     virtual void     process_commit_phase_coord(RC rc) = 0;
     virtual bool    need_commit_req(RC rc, uint32_t node_id, uint32_t &size, char * &data) { return true; }
+    virtual bool    get_modified_tuples(uint32_t &size, char * &data) { return true; }
     virtual void     process_commit_req(RC rc, uint32_t size, char * data) = 0;
     virtual void     abort() = 0;
     virtual void     commit() { assert(false); }

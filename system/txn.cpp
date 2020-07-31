@@ -700,14 +700,11 @@ TxnManager::process_2pc_prepare_req(Message * msg)
     Message::Type type1 = Message::PREPARED_COMMIT;
     _src_node_id = msg->get_src_node_id();
     rc_prepare_2 = rc;
-    // log query info for YES
-    // if (_query != NULL) {
-    //     char * data;
-    //     _query->serialize(data);
-        log(type1, _msg_remote_req->get_data(), _msg_remote_req->get_data_size());
-    // } else {
-    //     log(type1);
-    // }
+
+    uint32_t size = 0;
+    char * data = NULL;
+    !_cc_manager->get_modified_tuples(size, data);
+    log(type1, data, size);
 #endif
     return RCOK;
 #elif CC_ALG == TICTOC || CC_ALG == F_ONE || CC_ALG == MAAT  \

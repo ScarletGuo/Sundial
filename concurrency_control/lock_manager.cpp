@@ -373,6 +373,38 @@ LockManager::need_commit_req(RC rc, uint32_t node_id, uint32_t &size, char * &da
         return false;
 }
 
+bool
+LockManager::get_modified_tuples(uint32_t &size, char * &data)
+{
+    assert(size == 0 && data == NULL);
+    
+    // Format
+    //   | num_writes | (key, table_id, size, data) * num_writes
+    UnstructuredBuffer buffer;
+    uint32_t num_writes = 0;
+    for (auto access : _access_set)    {
+        if (access.type == WR)
+            num_writes ++;
+    }
+            
+    if (num_writes) {
+        buffer.put( &num_writes );
+        for (auto access : _access_set)
+            if (access.type == WR) {
+                buffer.put( &access.key );
+                buffer.put( &access.table_id );
+                buffer.put( &access.data_size );
+                buffer.put( access.data, access.data_size );
+            }
+        size = buffer.size();
+        data = new char [size];
+        memcpy(data, buffer.data(), size);
+        return true;
+    } else
+        // read only txn, no need to log.
+        return false;
+}
+
 void
 LockManager::process_commit_req(RC rc, uint32_t size, char * data)
 {
