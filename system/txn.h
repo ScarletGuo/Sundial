@@ -192,4 +192,10 @@ private:
 
     QueryBase * _query = NULL;
     Message * _msg_remote_req;
+
+    // for separate prepare phase
+    // TODO: currently no use
+    int _prepare_phase = 1;
+    RC _rc_prepare_phase;
+
 };

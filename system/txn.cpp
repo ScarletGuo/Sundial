@@ -405,7 +405,11 @@ TxnManager::process_msg(Message * msg)
         return RCOK;
     case Message::YES_ACK:
         // send back after YES_ACK from log node received
-        return process_2pc_prepare_req_phase_2(msg);
+        // TODO: now only for participant
+        if (_is_sub_txn)
+            return process_2pc_prepare_req_phase_2(msg);
+        else
+            return RCOK;
     #if COMMIT_ALG == TWO_PC
     case Message::COMMIT_ACK:
     case Message::ABORT_ACK:
@@ -627,14 +631,17 @@ TxnManager::process_2pc_prepare_phase()
         _num_resp_expected = 1;
     }
     // Logging
-//#if LOG_ENABLE
+#if LOG_ENABLE
     // TODO need logging here only if the transaction is distributed.
-    //if (rc != WAIT) {
-    //    uint32_t log_record_size = sizeof(_txn_id) + sizeof(rc);
-    //    char log_record[ log_record_size ];
-    //    log_manager->log(log_record_size, log_record);
-    //}
-//#endif
+    if (rc != WAIT) {
+        // TODO: should wait be sending YES here?
+        Message::Type type1 = rc == ABORT ? Message::ABORT_REQ : Message::PREPARED_COMMIT;
+        uint32_t size = 0;
+        char * data = NULL;
+        !_cc_manager->get_modified_tuples(size, data);
+        log(type1, data, size);
+    }
+#endif
     if (rc == ABORT) {
         // local validation fails
         return process_2pc_commit_phase(ABORT);
