@@ -379,7 +379,7 @@ LockManager::get_modified_tuples(uint32_t &size, char * &data)
     assert(size == 0 && data == NULL);
     
     // Format
-    //   | num_writes | (key, table_id, size, data) * num_writes
+    //   | num_writes | (key, table_id, before_size, before_data, after_size, after_data) * num_writes
     UnstructuredBuffer buffer;
     uint32_t num_writes = 0;
     for (auto access : _access_set)    {
@@ -393,6 +393,9 @@ LockManager::get_modified_tuples(uint32_t &size, char * &data)
             if (access.type == WR) {
                 buffer.put( &access.key );
                 buffer.put( &access.table_id );
+                uint32_t tuple_size = access.row->get_tuple_size();
+                buffer.put( &tuple_size);
+                buffer.put( access.row->get_data(), tuple_size);
                 buffer.put( &access.data_size );
                 buffer.put( access.data, access.data_size );
             }
