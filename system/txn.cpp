@@ -390,7 +390,13 @@ TxnManager::process_msg(Message * msg)
     case Message::COMMITTED:
         assert(_txn_state == PREPARING);
         assert(waiting_for_remote);
-        return process_2pc_prepare_resp(msg);
+        // wait for log YES success
+        if (_log_yes_success == true)
+            return process_2pc_prepare_resp(msg);
+        else {
+            _prepare_resp_set.push_back(msg);
+            return RCOK;
+        }
     // 2PC commit phase
     case Message::COMMIT_REQ:
     case Message::ABORT_REQ:
@@ -408,8 +414,18 @@ TxnManager::process_msg(Message * msg)
         // TODO: now only for participant
         if (_is_sub_txn)
             return process_2pc_prepare_req_phase_2(msg);
-        else
-            return RCOK;
+        else {
+            _log_yes_success = true;
+            for (int i = 0; i < (int)_prepare_resp_set.size() - 1; i++)
+            {
+                process_2pc_prepare_resp(_prepare_resp_set[i]);
+            }
+            
+            if (_prepare_resp_set.empty())
+                return RCOK;
+            else
+                return process_2pc_prepare_resp(_prepare_resp_set.back());
+        }
     #if COMMIT_ALG == TWO_PC
     case Message::COMMIT_ACK:
     case Message::ABORT_ACK:

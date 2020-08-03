@@ -198,4 +198,8 @@ private:
     int _prepare_phase = 1;
     RC _rc_prepare_phase;
 
+    // for wait for log YES confirm
+    bool _log_yes_success = false;
+    // for stalled prepare resp
+    vector<Message *> _prepare_resp_set;
 };
