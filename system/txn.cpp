@@ -429,13 +429,15 @@ TxnManager::process_msg(Message * msg)
             else
                 return process_2pc_prepare_resp(_prepare_resp_set.back());
         }
-    #if COMMIT_ALG == TWO_PC
     case Message::COMMIT_ACK:
     case Message::ABORT_ACK:
         if (_is_sub_txn)
             return process_2pc_commit_req_phase_2(msg);
         else
+    #if COMMIT_ALG == TWO_PC
             return process_2pc_commit_phase_2(msg);
+    #else
+            return RCOK;
     #endif
     default:
         M_ASSERT(false, "Unsupported message type\n");

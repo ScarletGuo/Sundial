@@ -171,12 +171,12 @@ RC ServerThread::run() {
                     DELETE(Message, msg);
                     continue;
                 }
-                #if COMMIT_ALG == TWO_PC
-                    // if (msg->get_type() == Message::COMMIT_ACK
-                    // || msg->get_type() == Message::ABORT_ACK) {
-                    //     DELETE(Message, msg);
-                    //     continue;
-                    // }
+                #if COMMIT_ALG == ONE_PC
+                    if (msg->get_type() == Message::COMMIT_ACK
+                    || msg->get_type() == Message::ABORT_ACK) {
+                        DELETE(Message, msg);
+                        continue;
+                    }
                 #endif
                 M_ASSERT(msg->get_type() == Message::REQ || msg->get_type() == Message::CLIENT_REQ,
                         "msg->type = %s, txn_id=%lu\n", msg->get_name().c_str(), msg->get_txn_id());
