@@ -876,7 +876,9 @@ TxnManager::process_2pc_commit_phase(RC rc)
 #endif
 #if LOG_ENABLE
     // Logging
-    log(type);
+    if (!is_all_remote_readonly()) {  // for host node only log YES, no COMMIT for readonly
+        log(type);
+    }
 #endif
     for (set<uint32_t>::iterator it = remote_nodes_involved.begin();
         it != remote_nodes_involved.end();
@@ -973,15 +975,16 @@ TxnManager::process_2pc_commit_phase(RC rc)
 {
 
 #if LOG_ENABLE
-    // Logging
-    if (rc == COMMIT) {
-        send_msg( new Message( Message::COMMIT_REQ, g_log_node_id, get_txn_id(),
-                  0, NULL ) );
-    } else if (rc == ABORT){
-        send_msg( new Message( Message::ABORT_REQ, g_log_node_id, get_txn_id(),
-                  0, NULL ) );
+    if (!is_all_remote_readonly()) {    // for host node only log YES, no COMMIT for readonly
+        // Logging
+        if (rc == COMMIT) {
+            send_msg( new Message( Message::COMMIT_REQ, g_log_node_id, get_txn_id(),
+                    0, NULL ) );
+        } else if (rc == ABORT){
+            send_msg( new Message( Message::ABORT_REQ, g_log_node_id, get_txn_id(),
+                    0, NULL ) );
+        }
     }
-
     return RCOK;
 #else
         RC rc = msg->get_type() == Message::COMMIT_ACK ? COMMIT : ABORT;

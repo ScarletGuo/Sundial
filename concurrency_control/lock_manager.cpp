@@ -393,9 +393,10 @@ LockManager::get_modified_tuples(uint32_t &size, char * &data)
             if (access.type == WR) {
                 buffer.put( &access.key );
                 buffer.put( &access.table_id );
-                uint32_t tuple_size = access.row->get_tuple_size();
-                buffer.put( &tuple_size);
-                buffer.put( access.row->get_data(), tuple_size);
+                // no need for before_data
+                // uint32_t tuple_size = access.row->get_tuple_size();
+                // buffer.put( &tuple_size);
+                // buffer.put( access.row->get_data(), tuple_size);
                 buffer.put( &access.data_size );
                 buffer.put( access.data, access.data_size );
             }
