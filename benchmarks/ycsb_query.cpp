@@ -57,7 +57,8 @@ QueryYCSB::QueryYCSB()
     _requests = NULL;
     _requests = (RequestYCSB *) MALLOC(sizeof(RequestYCSB) * g_req_per_query);
     gen_requests();
-    _is_all_remote_readonly = false;
+    // _is_all_remote_readonly = false; // ??
+    
 }
 
 QueryYCSB::QueryYCSB(char * raw_data)

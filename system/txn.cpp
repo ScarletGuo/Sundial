@@ -942,7 +942,6 @@ RC
 TxnManager::process_2pc_commit_phase_2(Message * msg)
 {
     RC rc = msg->get_type() == Message::COMMIT_ACK ? COMMIT : ABORT;
-    _commit_start_time = get_sys_clock();
 #if CC_ALG == TCM
     if (rc == COMMIT)
         rc = ((TCMManager *)_cc_manager)->compute_ts_range();
@@ -1003,6 +1002,7 @@ TxnManager::process_2pc_commit_phase(RC rc)
 
 #if LOG_ENABLE
     if (!is_all_remote_readonly()) {    // for host node only log YES, no COMMIT for readonly
+    _commit_start_time = get_sys_clock();
         // Logging
         if (rc == COMMIT) {
             send_msg( new Message( Message::COMMIT_REQ, g_log_node_id, get_txn_id(),

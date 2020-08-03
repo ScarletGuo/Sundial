@@ -60,6 +60,11 @@ enum StatsFloat {
 };
 
 enum StatsInt {
+    // for 1pc
+    STAT_num_local_txn, // txn that has no remote requests
+    STAT_num_remote_readonly_txn, // txn that has remote request but all are readonly
+    STAT_num_remote_write_txn,     // txn that includes remote writes
+
     STAT_num_commits,
     STAT_num_aborts,
     STAT_num_waits,
@@ -235,6 +240,10 @@ public:
     };
 
     std::string statsIntName[NUM_INT_STATS] = {
+        "num_local_txn", // txn that has no remote requests
+        "num_remote_readonly_txn", // txn that has remote request but all are readonly
+        "num_remote_write_txn",
+        
         "num_commits",
         "num_aborts",
         "num_waits",
