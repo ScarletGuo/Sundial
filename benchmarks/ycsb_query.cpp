@@ -58,7 +58,7 @@ QueryYCSB::QueryYCSB()
     _requests = (RequestYCSB *) MALLOC(sizeof(RequestYCSB) * g_req_per_query);
     gen_requests();
     // _is_all_remote_readonly = false; // ??
-    
+
 }
 
 QueryYCSB::QueryYCSB(char * raw_data)
@@ -149,8 +149,16 @@ void QueryYCSB::gen_requests() {
         if (!exist)
             all_keys[_request_cnt ++] = req->key;
     }
-    if (!has_remote)
+    if (!has_remote) {
         _is_all_remote_readonly = false;
+        INC_INT_STATS(num_local_txn, 1);
+    } else {
+        if (_is_all_remote_readonly) {
+            INC_INT_STATS(num_remote_readonly_txn, 1);
+        } else {
+            INC_INT_STATS(num_remote_write_txn, 1);
+        }
+    }
     // Sort the requests in key order.
     if (g_key_order) {
         for (int i = _request_cnt - 1; i > 0; i--)
