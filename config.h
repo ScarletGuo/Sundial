@@ -247,4 +247,4 @@ extern TestCases                    g_test_case;
 #define ONE_PC         1
 #define TWO_PC         2
 
-#define COMMIT_ALG     TWO_PC
+#define COMMIT_ALG     ONE_PC
