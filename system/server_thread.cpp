@@ -179,7 +179,7 @@ RC ServerThread::run() {
                     }
                 #endif
                 M_ASSERT(msg->get_type() == Message::REQ || msg->get_type() == Message::CLIENT_REQ,
-                        "msg->type = %s\n", msg->get_name().c_str());
+                        "msg->type = %s, txn_id=%lu\n", msg->get_name().c_str(), msg->get_txn_id());
                 txn_man = new TxnManager(msg, this);
                 txn_table->add_txn( txn_man );
             }
