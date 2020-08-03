@@ -1,11 +1,11 @@
 cd ../
 cp -r config-ycsb-synthetic-std.h config.h
 
-fname="2pc_threads_compute_v2"
+fname="perc_remote_compute"
 
 # algorithm
 alg=WAIT_DIE
-commit_alg=TWO_PC
+commit_alg=ONE_PC
 lognode="false"
 # latch=LH_MCSLOCK
 # [WW]
@@ -45,13 +45,13 @@ threads=16
 # do
 # for alg in WOUND_WAIT BAMBOO
 # do
-# for specified in 0 0.25 0.5 0.75 1
-# do
-for threads in 2 4 8 16 32
+for commit_alg in ONE_PC TWO_PC
 do
-timeout 200 python test.py CC_ALG=${alg} COMMIT_ALG=${commit_alg} LOG_NODE=${lognode} NUM_SERVER_THREADS=${threads}
+for perc_remote in 0.01 0.02 0.04 0.06 0.08 0.1
+do
+timeout 200 python test.py CC_ALG=${alg} COMMIT_ALG=${commit_alg} LOG_NODE=${lognode} NUM_SERVER_THREADS=${threads} PERC_REMOTE=${perc_remote}
 done
-# done
+done
 # done
 
 cd outputs/

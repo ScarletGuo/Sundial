@@ -1,7 +1,7 @@
 cd ../
 cp -r config-ycsb-synthetic-std.h config.h
 
-fname="1pc_threads_compute"
+fname="1pc_threads_compute_v2"
 
 # algorithm
 alg=WAIT_DIE
