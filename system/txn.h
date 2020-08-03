@@ -202,4 +202,6 @@ private:
     bool _log_yes_success = false;
     // for stalled prepare resp
     vector<Message *> _prepare_resp_set;
+    // for the case that a readonly txn directly commit but need to wait for yes success
+    bool _readonly_wait_for_yes = false;
 };

@@ -416,6 +416,9 @@ TxnManager::process_msg(Message * msg)
             return process_2pc_prepare_req_phase_2(msg);
         else {
             _log_yes_success = true;
+            if (_readonly_wait_for_yes) {
+                return process_2pc_commit_phase(COMMIT);
+            }
             for (int i = 0; i < (int)_prepare_resp_set.size() - 1; i++)
             {
                 process_2pc_prepare_resp(_prepare_resp_set[i]);
@@ -689,7 +692,12 @@ TxnManager::process_2pc_prepare_phase()
     } else {
         assert(rc == RCOK);
         // timeout and commit?
-        return process_2pc_commit_phase(COMMIT);
+        if (_log_yes_success)
+            return process_2pc_commit_phase(COMMIT);
+        else {
+            _readonly_wait_for_yes = true;
+            return RCOK;
+        }
     }
 }
 
