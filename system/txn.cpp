@@ -984,63 +984,62 @@ TxnManager::process_2pc_commit_phase(RC rc)
             send_msg( new Message( Message::ABORT_REQ, g_log_node_id, get_txn_id(),
                     0, NULL ) );
         }
-    }
-    return RCOK;
-#else
-        RC rc = msg->get_type() == Message::COMMIT_ACK ? COMMIT : ABORT;
-    _commit_start_time = get_sys_clock();
-#if CC_ALG == TCM
-    if (rc == COMMIT)
-        rc = ((TCMManager *)_cc_manager)->compute_ts_range();
-#endif
+    } else {
+        _commit_start_time = get_sys_clock();
+    #if CC_ALG == TCM
+        if (rc == COMMIT)
+            rc = ((TCMManager *)_cc_manager)->compute_ts_range();
+    #endif
 
-    assert(!waiting_for_lock && !waiting_for_remote);
-    if (rc == COMMIT) {
-        _txn_state = COMMITTING;
-    } else if (rc == ABORT) {
-        _txn_state = ABORTING;
-        _store_procedure->txn_abort();
-    } else
-        assert(false);
+        assert(!waiting_for_lock && !waiting_for_remote);
+        if (rc == COMMIT) {
+            _txn_state = COMMITTING;
+        } else if (rc == ABORT) {
+            _txn_state = ABORTING;
+            _store_procedure->txn_abort();
+        } else
+            assert(false);
 
-    // TODO. transaction can already return to the user at this moment. should collect stats.
-    // TODO. may move cleanup below sending messages, this can reduce the critical path
-    Message::Type type = (rc == COMMIT)? Message::COMMIT_REQ : Message::ABORT_REQ;
-    _num_resp_expected = 0;
-    bool resp_expected = false;
-#if CC_ALG == MAAT
-    if (rc == COMMIT)
-        ((MaaTManager *)_cc_manager)->finalize_commit_ts();
-#endif
-    for (set<uint32_t>::iterator it = remote_nodes_involved.begin();
-        it != remote_nodes_involved.end();
-        it ++)
-    {
-        if (aborted_remote_nodes.find(*it) != aborted_remote_nodes.end())
-            continue;
-        if (readonly_remote_nodes.find(*it) != readonly_remote_nodes.end())
-            continue;
-        uint32_t size = 0;
-        char * data = NULL;
-        bool send = _cc_manager->need_commit_req(rc, *it, size, data);
-        if (send) {
-            resp_expected = true;
-            _num_resp_expected ++;
-            Message * msg = new Message(type, *it, get_txn_id(), size, data);
-            send_msg(msg);
+        // TODO. transaction can already return to the user at this moment. should collect stats.
+        // TODO. may move cleanup below sending messages, this can reduce the critical path
+        Message::Type type = (rc == COMMIT)? Message::COMMIT_REQ : Message::ABORT_REQ;
+        _num_resp_expected = 0;
+        bool resp_expected = false;
+    #if CC_ALG == MAAT
+        if (rc == COMMIT)
+            ((MaaTManager *)_cc_manager)->finalize_commit_ts();
+    #endif
+        for (set<uint32_t>::iterator it = remote_nodes_involved.begin();
+            it != remote_nodes_involved.end();
+            it ++)
+        {
+            if (aborted_remote_nodes.find(*it) != aborted_remote_nodes.end())
+                continue;
+            if (readonly_remote_nodes.find(*it) != readonly_remote_nodes.end())
+                continue;
+            uint32_t size = 0;
+            char * data = NULL;
+            bool send = _cc_manager->need_commit_req(rc, *it, size, data);
+            if (send) {
+                resp_expected = true;
+                _num_resp_expected ++;
+                Message * msg = new Message(type, *it, get_txn_id(), size, data);
+                send_msg(msg);
+            }
+        }
+        _cc_manager->process_commit_phase_coord(rc);
+        if (resp_expected) {
+            waiting_for_remote = true;
+            return RCOK;
+        } else {
+            remote_nodes_involved.clear();
+            aborted_remote_nodes.clear();
+            readonly_remote_nodes.clear();
+            _txn_state = (rc == COMMIT)? COMMITTED : ABORTED;
+            return rc;
         }
     }
-    _cc_manager->process_commit_phase_coord(rc);
-    if (resp_expected) {
-        waiting_for_remote = true;
-        return RCOK;
-    } else {
-        remote_nodes_involved.clear();
-        aborted_remote_nodes.clear();
-        readonly_remote_nodes.clear();
-        _txn_state = (rc == COMMIT)? COMMITTED : ABORTED;
-        return rc;
-    }
+    return RCOK;
 #endif
 }
 #endif
