@@ -1,7 +1,12 @@
 cd ../
 cp -r config-ycsb-synthetic-std.h config.h
 
+if [ $# -eq 1 ]
+then
+fname="$1"
+else
 fname="perc_remote_compute"
+fi
 
 # algorithm
 alg=WAIT_DIE

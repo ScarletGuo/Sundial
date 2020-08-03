@@ -1,7 +1,12 @@
 cd ../
 cp -r config-ycsb-synthetic-std.h config.h
 
-fname="threads_compute"
+if [ $# -eq 1 ]
+then
+fname="$1"
+else
+fname="threads_remote_compute"
+fi
 
 # algorithm
 alg=WAIT_DIE
