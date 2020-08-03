@@ -183,13 +183,13 @@ RC ServerThread::run() {
                 txn_man = new TxnManager(msg, this);
                 txn_table->add_txn( txn_man );
             }
-            #if COMMIT_ALG == TWO_PC
-                if ((msg->get_type() == Message::COMMIT_ACK
-                    || msg->get_type() == Message::ABORT_ACK) && txn_man->is_sub_txn()) {
-                    DELETE(Message, msg);
-                    continue;
-                }
-            #endif
+            // #if COMMIT_ALG == TWO_PC
+            //     if ((msg->get_type() == Message::COMMIT_ACK
+            //         || msg->get_type() == Message::ABORT_ACK) && txn_man->is_sub_txn()) {
+            //         DELETE(Message, msg);
+            //         continue;
+            //     }
+            // #endif
             RC rc = txn_man->process_msg(msg);
             handle_req_finish(rc, txn_man);
 

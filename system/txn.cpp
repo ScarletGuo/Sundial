@@ -432,7 +432,10 @@ TxnManager::process_msg(Message * msg)
     #if COMMIT_ALG == TWO_PC
     case Message::COMMIT_ACK:
     case Message::ABORT_ACK:
-        return process_2pc_commit_phase_2(msg);
+        if (_is_sub_txn)
+            return process_2pc_commit_req_phase_2(msg);
+        else
+            return process_2pc_commit_phase_2(msg);
     #endif
     default:
         M_ASSERT(false, "Unsupported message type\n");
@@ -1071,26 +1074,29 @@ TxnManager::process_2pc_commit_phase(RC rc)
 RC
 TxnManager::process_2pc_commit_req(Message * msg)
 {
+    _msg_commit_req = new Message(msg);
+    // Logging
+#if LOG_ENABLE
+    log(msg->get_type());
+#endif
+
+    return RCOK;
+}
+
+RC
+TxnManager::process_2pc_commit_req_phase_2(Message * msg)
+{
     RC rc;
-    if (msg->get_type() == Message::COMMIT_REQ) {
+    if (msg->get_type() == Message::COMMIT_ACK) {
         _txn_state = COMMITTED;
         rc = COMMIT;
-    } else if (msg->get_type() == Message::ABORT_REQ) {
+    } else if (msg->get_type() == Message::ABORT_ACK) {
         _txn_state = ABORTED;
         rc = ABORT;
     } else
         assert(false);
-    // Logging
-#if LOG_ENABLE
-    if (rc == COMMIT) {
-        log(Message::COMMIT_REQ);
-    } else if (rc == ABORT){
-        log(Message::ABORT_REQ);
-    }
-#endif
-
-    _cc_manager->process_commit_req(rc, msg->get_data_size(), msg->get_data());
-    send_msg(new Message(Message::ACK, msg->get_src_node_id(), get_txn_id(), 0, NULL));
+    _cc_manager->process_commit_req(rc, _msg_commit_req->get_data_size(), _msg_commit_req->get_data());
+    send_msg(new Message(Message::ACK, _msg_commit_req->get_src_node_id(), get_txn_id(), 0, NULL));
     return rc;
 }
 

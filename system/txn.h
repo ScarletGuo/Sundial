@@ -148,6 +148,7 @@ private:
     RC process_2pc_commit_phase_2(Message * msg);
     #endif
     RC process_2pc_commit_req(Message * msg);
+    RC process_2pc_commit_req_phase_2(Message * msg);
     RC process_2pc_commit_resp();
 
 
@@ -204,4 +205,6 @@ private:
     vector<Message *> _prepare_resp_set;
     // for the case that a readonly txn directly commit but need to wait for yes success
     bool _readonly_wait_for_yes = false;
+    // for commit req phase 2
+    Message * _msg_commit_req;
 };
