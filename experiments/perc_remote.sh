@@ -50,8 +50,8 @@ threads=16
 # penalty=50000
 
 # figure 4: normalized throughput with optimal case, varying requests
-# for i in 0 1 2 3 4
-# do
+for i in 0 1 2 3 4
+do
 # for alg in WOUND_WAIT BAMBOO
 # do
 for commit_alg in ONE_PC TWO_PC
@@ -61,7 +61,7 @@ do
 timeout 200 python test.py CC_ALG=${alg} COMMIT_ALG=${commit_alg} LOG_NODE=${lognode} NUM_SERVER_THREADS=${threads} PERC_REMOTE=${perc_remote}  READ_PERC=${read_ratio}
 done
 done
-# done
+done
 
 cd outputs/
 python3 collect_stats.py
