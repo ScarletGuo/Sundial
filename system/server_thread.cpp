@@ -131,20 +131,20 @@ RC ServerThread::run() {
             }
             // 1pc
             #if COMMIT_ALG == ONE_PC
-            if (msg->get_type() == Message::LOG_ACK) {
-                TxnManager * tmp_txn = txn_table->get_txn(msg->get_txn_id());
-                if (tmp_txn != NULL) {
-                    tmp_txn->get_lsn_table()[g_node_id] = msg->get_lsn();
-                } else {
-                    uint32_t * lsn_table = get_lsn_table();
-                    if (msg->get_lsn() > lsn_table[g_node_id]) {
-                        lsn_table[g_node_id] = msg->get_lsn();
-                    }
-                }
+            // if (msg->get_type() == Message::LOG_ACK) {
+            //     TxnManager * tmp_txn = txn_table->get_txn(msg->get_txn_id());
+            //     if (tmp_txn != NULL) {
+            //         tmp_txn->get_lsn_table()[g_node_id] = msg->get_lsn();
+            //     } else {
+            //         uint32_t * lsn_table = get_lsn_table();
+            //         if (msg->get_lsn() > lsn_table[g_node_id]) {
+            //             lsn_table[g_node_id] = msg->get_lsn();
+            //         }
+            //     }
                 
-                DELETE(Message, msg);
-                continue;
-            }
+            //     DELETE(Message, msg);
+            //     continue;
+            // }
             #else
                 if (msg->get_type() == Message::LOG_ACK) {
                     DELETE(Message, msg);
