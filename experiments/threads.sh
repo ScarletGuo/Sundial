@@ -1,5 +1,5 @@
 cd ../
-cp -r config-ycsb-synthetic-std.h config.h
+cp -r config-ycsb-std.h config.h
 
 lognode="false"
 
@@ -32,7 +32,7 @@ perc_remote=0.1
 wl="YCSB"
 # req=16
 # synthetic=true
-# zipf=0
+zipf=0
 # num_hs=1
 # pos=SPECIFIED
 # specified=0
@@ -60,7 +60,7 @@ for commit_alg in ONE_PC TWO_PC
 do
 for threads in 2 4 8 16 32
 do
-timeout 200 python test.py CC_ALG=${alg} COMMIT_ALG=${commit_alg} LOG_NODE=${lognode} NUM_SERVER_THREADS=${threads} PERC_REMOTE=${perc_remote} READ_PERC=${read_ratio}
+timeout 200 python test.py CC_ALG=${alg} COMMIT_ALG=${commit_alg} LOG_NODE=${lognode} NUM_SERVER_THREADS=${threads} PERC_REMOTE=${perc_remote} READ_PERC=${read_ratio} ZIPF_THETA=${zipf}
 done
 done
 done
