@@ -1,3 +1,4 @@
+git pull origin 1pc-log
 git add .
 git commit -m "result"
 git push origin 1pc-log
