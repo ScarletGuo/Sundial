@@ -1,0 +1,135 @@
+[!] My Hostname is node-0.computenode.spark-pg0.clemson.cloudlab.us
+Hostname: node-0.computenode.spark-pg0.clemson.cloudlab.us. Node ID=0. 
+Local Socket initialized
+Socket initialized
+Connection Test PASS!
+mem_allocator initialized!
+workload initialized!
+Node 0 sync done!
+PASS! SimTime = 1780380748
+=Worker Thread=
+    Throughput:                   5777.43
+    run_time:                     8.01325 (1.00165,1.00167,1.00172,1.00164,1.00164,1.00164,1.00164,1.00164,0,0,)
+    time_read_input_queue:        0.03353 (0.00641116,0.0040082,0.00413908,0.0039039,0.00398832,0.0034166,0.00380303,0.00385974,0,0,)
+    time_process_txn:             0.644938 (0.0824034,0.0911708,0.0853131,0.0822581,0.0816372,0.0639378,0.0796748,0.0785424,0,0,)
+    time_waiting_for_job:         0 (0,0,0,0,0,0,0,0,0,0,)
+    time_wait_buffer:             0.0317502 (0.00382328,0.00388798,0.00390504,0.00391003,0.00395962,0.00439642,0.00396454,0.00390332,0,0,)
+    time_abort_queue:             1.53194 (0.163507,0.130265,0.294967,0.16884,0.284532,0.169245,0.156138,0.16445,0,0,)
+    time_idle:                    5.67728 (0.734459,0.760715,0.601539,0.730884,0.615752,0.748649,0.746131,0.739153,0,0,)
+    time_write_output_queue:      0.0202391 (0.00256723,0.00279474,0.00284203,0.00286089,0.00266025,0.00141516,0.00261687,0.00248192,0,0,)
+    log_size:                     0 (0,0,0,0,0,0,0,0,0,0,)
+    bytes_sent:                   0.0258927 (0,0,0,0,0,0,0,0,0,0.0258927,)
+    dummy_bytes_sent:             0 (0,0,0,0,0,0,0,0,0,0,)
+    time_send_msg:                0.106586 (0,0,0,0,0,0,0,0,0,0.106586,)
+    time_read_queue:              0.109496 (0,0,0,0,0,0,0,0,0,0.109496,)
+    time_output_idle:             0.860662 (0,0,0,0,0,0,0,0,0,0.860662,)
+    bytes_received:               0.0161566 (0,0,0,0,0,0,0,0,0.0161566,0,)
+    time_recv_msg:                0.116055 (0,0,0,0,0,0,0,0,0.116055,0,)
+    time_write_queue:             0.0263653 (0,0,0,0,0,0,0,0,0.0263653,0,)
+    time_input_idle:              1.60758 (0.753148,0,0,0,0,0,0,0,0.854437,0,)
+    execute_phase (in us) :       241.84 (0.169664,0.198621,0.176256,0.170322,0.165005,0.171119,0.179596,0.168943,0,0,)
+    lock_phase (in us) :          0 (0,0,0,0,0,0,0,0,0,0,)
+    prepare_phase (in us) :       508.024 (0.289745,0.470063,0.292899,0.287106,0.289138,0.44784,0.439887,0.423259,0,0,)
+    commit_phase (in us) :        69.7387 (0.0556281,0.0501402,0.0443352,0.0539826,0.056548,0.0477976,0.0461058,0.0490406,0,0,)
+    abort (in us) :               558.035 (0.481924,0.277053,0.482622,0.485618,0.487212,0.329445,0.330403,0.355073,0,0,)
+    CC (row) (in us) :            0 (0,0,0,0,0,0,0,0,0,0,)
+    CC (index) (in us) :          27.7066 (0.0194438,0.0217163,0.0201341,0.0192646,0.0191661,0.0214418,0.0189058,0.0202656,0,0,)
+    logic (in us) :               79.0176 (0.059675,0.0657397,0.0601986,0.0591558,0.056524,0.0443574,0.0569548,0.0546694,0,0,)
+    wait (in us) :                5.43386 (0.00380539,0.00651081,0.00390684,0.00272536,0.00412962,0.000823252,0.00610693,0.00343757,0,0,)
+    network (in us) :             381.886 (0.263239,0.276175,0.244376,0.25939,0.263187,0.394401,0.253212,0.255998,0,0,)
+    cache:                        0 (0,0,0,0,0,0,0,0,0,0,)
+    time_debug1:                  0 (0,0,0,0,0,0,0,0,0,0,)
+    time_debug2:                  0 (0,0,0,0,0,0,0,0,0,0,)
+    time_debug3:                  0 (0,0,0,0,0,0,0,0,0,0,)
+    time_debug4:                  0.00824082 (0,0,0,0,0,0,0,0,0,0.00824082,)
+    time_debug5:                  0 (0,0,0,0,0,0,0,0,0,0,)
+    time_debug6:                  0 (0,0,0,0,0,0,0,0,0,0,)
+    time_debug7:                  0.024164 (0,0,0,0,0,0,0,0,0.024164,0,)
+
+    average_latency:              0.00137764
+    90%_latency:                  0.0019935
+    95%_latency:                  0.0031634
+    99%_latency:                  0.0109752
+    max_latency:                  0.200716
+
+    num_local_txn:                1055 (140,152,132,123,119,148,133,108,0,0,)
+    num_remote_readonly_txn:      3866 (455,544,497,474,458,487,501,450,0,0,)
+    num_remote_write_txn:         866 (117,112,86,114,123,102,104,108,0,0,)
+    num_commits:                  5787 (712,808,715,711,700,737,738,666,0,0,)
+    num_aborts:                   3078 (336,264,600,337,553,354,299,335,0,0,)
+    num_waits:                    208 (23,25,26,33,35,18,20,28,0,0,)
+    num_home_txn:                 5787 (712,808,715,711,700,737,738,666,0,0,)
+    num_remote_txn:               6657 (812,826,844,869,848,825,813,820,0,0,)
+    num_aborts_ws:                323 (33,26,51,46,34,49,36,48,0,0,)
+    num_aborts_rs:                2541 (268,230,538,257,471,296,223,258,0,0,)
+    num_aborts_signal:            0 (0,0,0,0,0,0,0,0,0,0,)
+    num_aborts_remote:            536 (42,15,17,53,285,29,51,44,0,0,)
+    num_aborts_execute:           2825 (299,250,585,299,497,332,257,306,0,0,)
+    num_pre_aborts:               0 (0,0,0,0,0,0,0,0,0,0,)
+    num_aborts_restart:           3078 (336,264,600,337,553,354,299,335,0,0,)
+    num_aborts_terminate:         0 (0,0,0,0,0,0,0,0,0,0,)
+    num_renewals:                 0 (0,0,0,0,0,0,0,0,0,0,)
+    num_no_need_to_renewal:       0 (0,0,0,0,0,0,0,0,0,0,)
+    num_cache_bypass:             0 (0,0,0,0,0,0,0,0,0,0,)
+    num_cache_reads:              0 (0,0,0,0,0,0,0,0,0,0,)
+    num_cache_hits:               0 (0,0,0,0,0,0,0,0,0,0,)
+    num_cache_misses:             0 (0,0,0,0,0,0,0,0,0,0,)
+    num_cache_remove:             0 (0,0,0,0,0,0,0,0,0,0,)
+    num_cache_inserts:            0 (0,0,0,0,0,0,0,0,0,0,)
+    num_cache_updates:            0 (0,0,0,0,0,0,0,0,0,0,)
+    num_cache_evictions:          0 (0,0,0,0,0,0,0,0,0,0,)
+    num_local_hits:               0 (0,0,0,0,0,0,0,0,0,0,)
+    num_renew:                    0 (0,0,0,0,0,0,0,0,0,0,)
+    num_renew_success:            0 (0,0,0,0,0,0,0,0,0,0,)
+    num_renew_failure:            0 (0,0,0,0,0,0,0,0,0,0,)
+    num_ro_read:                  0 (0,0,0,0,0,0,0,0,0,0,)
+    num_ro_check:                 0 (0,0,0,0,0,0,0,0,0,0,)
+    num_rw_read:                  0 (0,0,0,0,0,0,0,0,0,0,)
+    num_rw_check:                 0 (0,0,0,0,0,0,0,0,0,0,)
+    int_debug1:                   0 (0,0,0,0,0,0,0,0,0,0,)
+    int_debug2:                   2864 (301,256,589,303,505,345,259,306,0,0,)
+    int_debug3:                   208 (23,25,26,33,35,18,20,28,0,0,)
+    int_debug4:                   0 (0,0,0,0,0,0,0,0,0,0,)
+    int_debug5:                   0 (0,0,0,0,0,0,0,0,0,0,)
+    int_debug6:                   0 (0,0,0,0,0,0,0,0,0,0,)
+    int_urgentwrite:              0 (0,0,0,0,0,0,0,0,0,0,)
+    int_aborts_rs1:               0 (0,0,0,0,0,0,0,0,0,0,)
+    int_aborts_rs2:               0 (0,0,0,0,0,0,0,0,0,0,)
+    int_aborts_rs3:               0 (0,0,0,0,0,0,0,0,0,0,)
+    int_aborts_ws1:               0 (0,0,0,0,0,0,0,0,0,0,)
+    int_aborts_ws2:               0 (0,0,0,0,0,0,0,0,0,0,)
+    int_aborts_maat_resolve_failure:0 (0,0,0,0,0,0,0,0,0,0,)
+    int_aborts_maat_resolve_no_feasibles:0 (0,0,0,0,0,0,0,0,0,0,)
+    int_aborts_maat_adjust_others_failure:0 (0,0,0,0,0,0,0,0,0,0,)
+    int_aborts_maat_empty_interval_after_adjustment:0 (0,0,0,0,0,0,0,0,0,0,)
+    int_inevitable:               0 (0,0,0,0,0,0,0,0,0,0,)
+    int_possibMVCC:               0 (0,0,0,0,0,0,0,0,0,0,)
+    int_saved_by_hist:            0 (0,0,0,0,0,0,0,0,0,0,)
+=Input/Output Thread=
+    Message Types     #recv       bytesRecv   #sent       bytesSent   #committed  bytesCommitted
+    CLIENT_REQ        0           2625        0           0           5074        4156        
+    CLIENT_RESP       0           0           0           0           0           0           
+    REQ               6657        527664      7063        558752      4732        375872      
+    RESP_COMMIT       6524        13361488    6618        13504888    4732        9727312     
+    RESP_ABORT        539         32414       39          1560        49639       15379       
+    LOCK_REQ          0           0           0           0           0           0           
+    LOCK_COMMIT       0           0           0           0           0           0           
+    LOCK_ABORT        0           0           0           0           0           0           
+    PREPARE_REQ       5067        202680      4732        189280      4732        189280      
+    AMEND_REQ         0           0           0           0           0           0           
+    PREPARED_COMMIT   865         34600       11770       10105876    6652        8878612     
+    PREPARED_ABORT    0           0           0           0           0           0           
+    COMMITTED         3867        154680      4151        166040      3867        154680      
+    COMMIT_REQ        916         1059184     3046        1090932     2130        1054292     
+    ABORT_REQ         1551        62040       4417        176680      0           0           
+    ACK               2657        106280      2467        98680       865         34600       
+    TERMINATE         1           40          0           0           0           0           
+    DUMMY             0           0           0           0           0           0           
+    LOCAL_COPY_RESP   0           0           0           0           0           0           
+    LOCAL_COPY_NACK   0           0           0           0           0           0           
+    TCM_TS_SYNC_REQ   0           0           0           0           0           0           
+
+=Check Points=
+
+Metrics:	thr,num_local_txn,num_remote_readonly_txn,num_remote_write_txn,num_commits,num_aborts,num_waits,num_home_txn,num_remote_txn,num_aborts_ws,num_aborts_rs,num_aborts_signal,num_aborts_remote,num_aborts_execute,num_pre_aborts,num_aborts_restart,num_aborts_terminate,num_renewals,num_no_need_to_renewal,num_cache_bypass,num_cache_reads,num_cache_hits,num_cache_misses,num_cache_remove,num_cache_inserts,num_cache_updates,num_cache_evictions,num_local_hits,num_renew,num_renew_success,num_renew_failure,num_ro_read,num_ro_check,num_rw_read,num_rw_check,int_debug1,int_debug2,int_debug3,int_debug4,int_debug5,int_debug6,int_urgentwrite,int_aborts_rs1,int_aborts_rs2,int_aborts_rs3,int_aborts_ws1,int_aborts_ws2,int_aborts_maat_resolve_failure,int_aborts_maat_resolve_no_feasibles,int_aborts_maat_adjust_others_failure,int_aborts_maat_empty_interval_after_adjustment,int_inevitable,int_possibMVCC,int_saved_by_hist,run_time,average_latency,time_read_input_queue,time_process_txn,time_waiting_for_job,time_wait_buffer,time_abort_queue,time_idle,time_write_output_queue,log_size,bytes_sent,dummy_bytes_sent,time_send_msg,time_read_queue,time_output_idle,bytes_received,time_recv_msg,time_write_queue,time_input_idle,execute_phase,lock_phase,prepare_phase,commit_phase,abort,CC (row),CC (index),logic,wait,network,cache,time_debug1,time_debug2,time_debug3,time_debug4,time_debug5,time_debug6,time_debug7,CLIENT_REQ,CLIENT_RESP,REQ,RESP_COMMIT,RESP_ABORT,LOCK_REQ,LOCK_COMMIT,LOCK_ABORT,PREPARE_REQ,AMEND_REQ,PREPARED_COMMIT,PREPARED_ABORT,COMMITTED,COMMIT_REQ,ABORT_REQ,ACK,TERMINATE,DUMMY,LOCAL_COPY_RESP,LOCAL_COPY_NACK,TCM_TS_SYNC_REQ,
+CP1:	8,0,0,0,8,2,0,0,1,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7.0116,0.0157887,0.00152319,8.5548e-05,0,0.00204743,0,0,1.4772e-05,0,9.552e-06,0,7.3564e-05,0.000165352,0.00150781,1.3108e-05,0.000120616,3.582e-05,0.00145433,0.00206331,0,0.00313891,0.000448194,0.0101383,0,1.158e-05,1.8802e-05,0,0.00312748,0,0,0,0,5.768e-06,0,0,3.3836e-05,0,0,1,3,0,0,0,0,2,0,2,0,6,4,0,4,1,0,0,0,0,
