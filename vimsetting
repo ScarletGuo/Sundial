@@ -1,0 +1,26 @@
+let mapleader=";"
+
+filetype plugin on
+
+set nocompatible
+set hlsearch
+set incsearch
+set ignorecase
+set wildmenu
+
+set laststatus=2
+set ruler
+set number
+set cursorline
+
+syntax enable
+syntax on
+
+filetype indent on
+set expandtab
+set tabstop=4
+set shiftwidth=4
+set softtabstop=4
+
+set foldmethod=syntax
+set nofoldenable
