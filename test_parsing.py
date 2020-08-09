@@ -51,7 +51,7 @@ def compile_and_run(job) :
 	run('', job)
 
 def parse_output(job):
-	output = open("temp.out")
+	output = open("sample.out")
 	phase = 0
 	for line in output:
 		if phase == 0:
@@ -72,17 +72,20 @@ def parse_output(job):
 				val = re.split(r'\s+', list[1])[0]
 				job[key] = val
 				# break
+	output.close()
+	os.system("rm -f temp.out")
+	return job
 
 if __name__ == "__main__":
 	job = {}
-	for item in sys.argv[1:]:
-		key = item.split("=")[0]
-		value = item.split("=")[1]
-		job[key] = value
+	# for item in sys.argv[1:]:
+	# 	key = item.split("=")[0]
+	# 	value = item.split("=")[1]
+	# 	job[key] = value
 
-	compile_and_run(job)
+	# compile_and_run(job)
 	job = parse_output(job)
-	stats = open("outputs/stats.json", 'a+')
+	stats = open("test.json", 'a+')
 	stats.write(json.dumps(job)+"\n")
 	stats.close()
 
