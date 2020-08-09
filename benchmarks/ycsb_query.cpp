@@ -88,6 +88,7 @@ void QueryYCSB::gen_requests() {
     uint64_t all_keys[g_req_per_query];
     bool has_remote = false;
     _is_all_remote_readonly = true;
+    _is_all_local_readonly = true;
     uint64_t table_size = g_synth_table_size;
     for (uint32_t tmp = 0; tmp < g_req_per_query; tmp ++) {
         RequestYCSB * req = &_requests[_request_cnt];
@@ -118,6 +119,8 @@ void QueryYCSB::gen_requests() {
         }
         if (req->rtype == WR && remote)
             _is_all_remote_readonly = false;
+        if (req->rtype == WR && !remote)
+            _is_all_local_readonly = false;
 
         #if SOCIAL_NETWORK
         // if this switch is turned on, we mimic a social network

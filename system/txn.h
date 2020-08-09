@@ -51,6 +51,7 @@ public:
     CCManager *     get_cc_manager() { return _cc_manager; }
     StoreProcedure *     get_store_procedure() { return _store_procedure; };
     bool            is_all_remote_readonly();
+    bool            is_all_local_readonly();
 
     /////////////////////////////////////
     // [Distributed DBMS]
@@ -166,6 +167,7 @@ private:
 
     uint64_t         _commit_start_time;
     uint64_t         _finish_time;
+    uint64_t         _commit_end_time;
 
     uint64_t         _lock_wait_time;
     uint64_t         _lock_wait_start_time;

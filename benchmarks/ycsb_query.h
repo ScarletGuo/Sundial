@@ -28,6 +28,7 @@ public:
     RequestYCSB * get_requests()    { return _requests; }
     void gen_requests();
     bool is_all_remote_readonly() { return _is_all_remote_readonly; }
+    bool is_all_local_readonly() { return _is_all_local_readonly; }
 
 private:
     uint32_t _request_cnt;
@@ -40,4 +41,5 @@ private:
     static double denom;
     static double zeta_2_theta;
     bool _is_all_remote_readonly;
+    bool _is_all_local_readonly;
 };

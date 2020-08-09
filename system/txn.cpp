@@ -140,6 +140,12 @@ TxnManager::is_all_remote_readonly()
 }
 
 bool
+TxnManager::is_all_local_readonly()
+{
+    return _store_procedure->get_query()->is_all_local_readonly();
+}
+
+bool
 TxnManager::is_txn_ready()
 {
     return _cc_manager->is_txn_ready();
@@ -197,7 +203,7 @@ TxnManager::update_stats()
         INC_FLOAT_STATS(execute_phase, _prepare_start_time - _txn_restart_time);
 #endif
         INC_FLOAT_STATS(prepare_phase, _commit_start_time - _prepare_start_time);
-        INC_FLOAT_STATS(commit_phase, _finish_time - _commit_start_time);
+        INC_FLOAT_STATS(commit_phase, _commit_end_time - _commit_start_time);
         INC_FLOAT_STATS(abort, _txn_restart_time - _txn_start_time);
 
         INC_FLOAT_STATS(wait, _lock_wait_time);
@@ -905,7 +911,9 @@ TxnManager::process_2pc_commit_phase(RC rc)
 #endif
 #if LOG_ENABLE
     // Logging
-    if (!(is_all_remote_readonly() || remote_nodes_involved.size() == 0)) {  // for host node only log YES, no COMMIT for readonly
+    if ( (is_all_local_readonly() && 
+            (is_all_remote_readonly() || remote_nodes_involved.size() == 0) ) == false
+            ) {  // for host node only log YES, no COMMIT for readonly
         log(type);
     }
 #endif
@@ -927,6 +935,7 @@ TxnManager::process_2pc_commit_phase(RC rc)
             send_msg(msg);
         }
     }
+    _commit_end_time = get_sys_clock();
     _cc_manager->process_commit_phase_coord(rc);
     if (resp_expected) {
         waiting_for_remote = true;
@@ -985,6 +994,7 @@ TxnManager::process_2pc_commit_phase_2(Message * msg)
             send_msg(msg);
         }
     }
+    _commit_end_time = get_sys_clock();
     _cc_manager->process_commit_phase_coord(rc);
     if (resp_expected) {
         waiting_for_remote = true;
@@ -1003,7 +1013,9 @@ TxnManager::process_2pc_commit_phase(RC rc)
 {
 
 #if LOG_ENABLE
-    if (!(is_all_remote_readonly() || remote_nodes_involved.size() == 0)) {    // for host node only log YES, no COMMIT for readonly, or a completely local txn
+    if ( (is_all_local_readonly() && 
+            (is_all_remote_readonly() || remote_nodes_involved.size() == 0) ) == false
+            ) {    // for host node only log YES, no COMMIT for readonly, or a completely local txn
     _commit_start_time = get_sys_clock();
         // Logging
         if (rc == COMMIT) {
