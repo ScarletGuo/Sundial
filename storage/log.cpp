@@ -253,7 +253,7 @@ void LogManager::run_flush_thread() {
             }
             Message * tmp_msg = NULL;
             while (local_out_queue->pop(tmp_msg)) {
-                output_queues[0]->push(tmp_msg);
+                output_queues[0]->push((uint64_t)tmp_msg);
             }
             needFlush_ = false;
             appendCv_->notify_all();
