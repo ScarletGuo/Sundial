@@ -52,6 +52,8 @@ private:
     // for notifying flush thread
     std::condition_variable * cv_;
 
+    InOutQueue * local_out_queue; // for flush thread send msg
+
     LogRecord::Type check_log(Message * msg);
     void log_message(Message *msg, LogRecord::Type type);
     uint64_t get_last_lsn();

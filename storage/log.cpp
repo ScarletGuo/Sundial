@@ -40,6 +40,7 @@ LogManager::LogManager(char * log_name)
     latch_ = new std::mutex();
     cv_ = new std::condition_variable();
     appendCv_ = new std::condition_variable();
+    local_out_queue = new InOutQueue;
 }
 
 LogManager::~LogManager() {

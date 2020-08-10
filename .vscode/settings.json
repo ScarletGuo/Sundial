@@ -16,6 +16,8 @@
         "iostream": "cpp",
         "vector": "cpp",
         "xtree": "cpp",
-        "condition_variable": "cpp"
+        "condition_variable": "cpp",
+        "queue": "cpp",
+        "stack": "cpp"
     }
 }
