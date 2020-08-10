@@ -369,7 +369,7 @@ TxnManager::process_msg(Message * msg)
     _msg_count[msg->get_type()] ++;
     _msg_size[msg->get_type()] += msg->get_packet_len();
     if (msg->is_response()) {
-        assert(!is_sub_txn());
+        // assert(!is_sub_txn());
         _net_wait_time += get_sys_clock() - _net_wait_start_time;
         if (msg->get_src_node_id() == g_log_node_id)
             _net_log_wait_time += get_sys_clock() - _net_wait_start_time;
