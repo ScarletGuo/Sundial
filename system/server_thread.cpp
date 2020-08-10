@@ -70,8 +70,8 @@ RC ServerThread::run() {
                 output_queues[0]->push((uint64_t)m);
                 */
                 Message* ret = log_manager->log(msg);
-                Message *m = new Message(ret->get_type(), msg->get_src_node_id(), msg->get_txn_id(), ret->get_lsn(), 0, NULL);
-                output_queues[0]->push((uint64_t)m);
+                // Message *m = new Message(ret->get_type(), msg->get_src_node_id(), msg->get_txn_id(), ret->get_lsn(), 0, NULL);
+                // output_queues[0]->push((uint64_t)m);
                 // _transport->sendMsg(new Message(ret->get_type(), msg->get_src_node_id(), msg->get_txn_id(), ret->get_lsn(), 0, NULL));
                 delete ret;
             }

@@ -120,6 +120,8 @@ Message* LogManager::log(Message *msg) {
     #else
         result_msg = new Message(result, 0);
     #endif
+    Message *m = new Message(result_msg->get_type(), msg->get_src_node_id(), msg->get_txn_id(), result_msg->get_lsn(), 0, NULL);
+    local_out_queue->push((uint64_t)m);
     return result_msg;
 }
 
@@ -216,41 +218,45 @@ void LogManager::run_flush_thread() {
     ENABLE_LOGGING = true;
     flush_thread_ = new thread([&] {
         while (ENABLE_LOGGING) { //The thread is triggered every LOG_TIMEOUT seconds or when the log buffer is full
-        unique_lock<mutex> latch(*latch_);
-        // (2) When LOG_TIMEOUT is triggered.
-        cv_->wait_for(latch, LOG_TIMEOUT, [&] {return needFlush_;});
-        assert(flushBufferSize_ == 0);
-        if (logBufferOffset_ > 0) {
-            swap(_buffer,flush_buffer_);
-            swap(logBufferOffset_,flushBufferSize_);
-            // disk_manager_->WriteLog(flush_buffer_, flushBufferSize_);
-            // printf("write\n");
-            // TODO: figure out how to handle buffersize not reach alignment
-            /*
-            if (flushBufferSize_ != _buffer_size) {
-                // printf("fcntl\n");
-                fcntl(_log_fd, F_SETFD, O_RDWR | O_CREAT | O_TRUNC | O_APPEND);
-                if (write(_log_fd, flush_buffer_, flushBufferSize_) == -1) {
-                    perror("write1");
+            unique_lock<mutex> latch(*latch_);
+            // (2) When LOG_TIMEOUT is triggered.
+            cv_->wait_for(latch, LOG_TIMEOUT, [&] {return needFlush_;});
+            assert(flushBufferSize_ == 0);
+            if (logBufferOffset_ > 0) {
+                swap(_buffer,flush_buffer_);
+                swap(logBufferOffset_,flushBufferSize_);
+                // disk_manager_->WriteLog(flush_buffer_, flushBufferSize_);
+                // printf("write\n");
+                // TODO: figure out how to handle buffersize not reach alignment
+                /*
+                if (flushBufferSize_ != _buffer_size) {
+                    // printf("fcntl\n");
+                    fcntl(_log_fd, F_SETFD, O_RDWR | O_CREAT | O_TRUNC | O_APPEND);
+                    if (write(_log_fd, flush_buffer_, flushBufferSize_) == -1) {
+                        perror("write1");
+                        exit(1);
+                    }
+                } else {
+                    fcntl(_log_fd, F_SETFD, O_RDWR | O_CREAT | O_TRUNC | O_APPEND | O_DIRECT);
+                    */
+                    if (write(_log_fd, flush_buffer_, PGROUNDUP(flushBufferSize_)) == -1) {
+                        perror("write2");
+                        exit(1);
+                    }
+                // }
+                if (fsync(_log_fd) == -1) {
+                    perror("fsync");
                     exit(1);
                 }
-            } else {
-                fcntl(_log_fd, F_SETFD, O_RDWR | O_CREAT | O_TRUNC | O_APPEND | O_DIRECT);
-                */
-                if (write(_log_fd, flush_buffer_, PGROUNDUP(flushBufferSize_)) == -1) {
-                    perror("write2");
-                    exit(1);
-                }
-            // }
-            if (fsync(_log_fd) == -1) {
-                perror("fsync");
-                exit(1);
+                flushBufferSize_ = 0;
+                // SetPersistentLSN(lastLsn_);
             }
-            flushBufferSize_ = 0;
-            // SetPersistentLSN(lastLsn_);
-        }
-        needFlush_ = false;
-        appendCv_->notify_all();
+            Message * tmp_msg = NULL;
+            while (local_out_queue->pop(tmp_msg)) {
+                output_queues[0]->push(tmp_msg);
+            }
+            needFlush_ = false;
+            appendCv_->notify_all();
         }
     });
 };
