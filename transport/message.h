@@ -77,8 +77,10 @@ public:
     void to_packet(char * packet);
     static string get_name(Type type);
     static bool is_response(Type type);
+    static bool is_log_response(Type type);
     string get_name() { return get_name(get_type()); }
     bool is_response() { return is_response(get_type()); }
+    bool is_log_response() { return is_log_response(get_type()); }
 private:
     Type         _msg_type;
     uint32_t     _src_node_id;
