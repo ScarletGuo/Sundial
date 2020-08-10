@@ -67,6 +67,7 @@ TxnManager::TxnManager(ServerThread * thread, bool sub_txn)
     _txn_restart_time = _txn_start_time;
     _lock_wait_time = 0;
     _net_wait_time = 0;
+    _net_log_wait_time = 0;
     _msg_count = (uint64_t *) _mm_malloc(sizeof(uint64_t) * Message::NUM_MSG_TYPES, 64);
     _msg_size = (uint64_t *) _mm_malloc(sizeof(uint64_t) * Message::NUM_MSG_TYPES, 64);
     memset(_msg_count, 0, sizeof(uint64_t) * Message::NUM_MSG_TYPES);
@@ -95,6 +96,7 @@ TxnManager::TxnManager(TxnManager * txn)
     _txn_restart_time = get_sys_clock();
     _lock_wait_time = 0;
     _net_wait_time = 0;
+    _net_log_wait_time = 0;
 
     _num_aborts = txn->_num_aborts;
     _txn_abort = false;
@@ -208,6 +210,7 @@ TxnManager::update_stats()
 
         INC_FLOAT_STATS(wait, _lock_wait_time);
         INC_FLOAT_STATS(network, _net_wait_time);
+        INC_FLOAT_STATS(network_log, _net_log_wait_time);
 #if COLLECT_LATENCY
         vector<double> &all = stats->_stats[GET_THD_ID]->all_latency;
         all.push_back(latency);
@@ -368,6 +371,8 @@ TxnManager::process_msg(Message * msg)
     if (msg->is_response()) {
         assert(!is_sub_txn());
         _net_wait_time += get_sys_clock() - _net_wait_start_time;
+        if (msg->get_src_node_id() == g_log_node_id)
+            _net_log_wait_time += get_sys_clock() - _net_wait_start_time;
     }
 
     switch (msg->get_type()) {

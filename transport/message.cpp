@@ -106,5 +106,9 @@ Message::is_response(Type type)
         || (type == RESP_ABORT)
         || (type == PREPARED_COMMIT)
         || (type == PREPARED_ABORT)
-        || (type == ACK);
+        || (type == ACK)
+        || (type == LOG_ACK)
+        || (type == YES_ACK)
+        || (type == COMMIT_ACK)
+        || (type == ABORT_ACK);
 }

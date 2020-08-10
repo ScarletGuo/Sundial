@@ -45,6 +45,7 @@ enum StatsFloat {
     STAT_logic,
     STAT_wait,
     STAT_network,
+    STAT_network_log,
     STAT_cache,
 
     // debug stats
@@ -227,6 +228,7 @@ public:
         "logic",
         "wait",
         "network",
+        "network_log",
         "cache",
 
         // debug
