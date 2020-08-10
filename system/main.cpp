@@ -129,6 +129,8 @@ int main(int argc, char* argv[])
     clock_gettime(CLOCK_REALTIME, tp);
     uint64_t end_t = tp->tv_sec * 1000000000 + tp->tv_nsec;
 
+    if (STATS_ENABLE)
+        stats->print();
     int64_t endtime = get_server_clock();
     int64_t runtime = end_t - start_t;
     if (abs(1.0 * runtime / (endtime - starttime) - 1) > 0.01)
