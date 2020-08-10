@@ -174,6 +174,7 @@ private:
 
 
     uint64_t        _net_wait_start_time;
+    uint64_t        _net_log_wait_start_time;
     uint64_t         _net_wait_time;
     uint64_t         _net_log_wait_time;
 

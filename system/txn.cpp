@@ -374,7 +374,7 @@ TxnManager::process_msg(Message * msg)
     }
 
     if (msg->is_log_response()) {
-        _net_log_wait_time += get_sys_clock() - _net_wait_start_time;
+        _net_log_wait_time += get_sys_clock() - _net_log_wait_start_time;
     }
 
     switch (msg->get_type()) {
@@ -1147,6 +1147,8 @@ void
 TxnManager::send_msg(Message * msg)
 {
     _net_wait_start_time = get_sys_clock();
+    if (msg->get_dest_id() == g_log_node_id)
+        _net_log_wait_start_time = get_sys_clock();
     _msg_count[msg->get_type()] ++;
     _msg_size[msg->get_type()] += msg->get_packet_len();
     while (!output_queues[GET_THD_ID]->push((uint64_t)msg)) {
