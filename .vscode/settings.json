@@ -18,6 +18,7 @@
         "xtree": "cpp",
         "condition_variable": "cpp",
         "queue": "cpp",
-        "stack": "cpp"
+        "stack": "cpp",
+        "chrono": "cpp"
     }
 }

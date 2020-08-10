@@ -14,7 +14,7 @@ LogManager::LogManager()
 LogManager::LogManager(char * log_name)
 {
     // assert(512 % sizeof(LogRecord) == 0);   // group commit alignment
-    _buffer_size = 32 * 1024;
+    _buffer_size = 64 * 1024 * 1024;
     int align = 512 - 1;
     _buffer = (char *)malloc(_buffer_size + align); // 64 MB
     _buffer = (char *)(((uintptr_t)_buffer + align)&~((uintptr_t)align));
