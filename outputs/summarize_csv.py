@@ -1,4 +1,5 @@
 import pandas as pd
+import matplotlib
 import sys
 print(sys.argv[1])
 df = pd.read_csv(sys.argv[1])
@@ -12,4 +13,7 @@ df = pd.read_csv(sys.argv[1])
 #df.head()
 #df.index()
 grouped = df.groupby(['COMMIT_ALG', 'NUM_SERVER_THREADS'])
-print(grouped['Throughput'].mean().reset_index())
+newdf = grouped['Throughput'].mean().reset_index()
+plot = newdf.plot()
+fig = plot.get_figure()
+fig.savefig("output.png")
