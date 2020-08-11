@@ -98,7 +98,7 @@ TxnManager::TxnManager(TxnManager * txn)
     _lock_wait_time = 0;
     _net_wait_time = 0;
     _net_log_wait_time = 0;
-    _log_yes_total_time = txn->get_log_yes_total_time();
+    _log_yes_total_time = 0;
 
     _num_aborts = txn->_num_aborts;
     _txn_abort = false;
@@ -379,6 +379,10 @@ TxnManager::process_msg(Message * msg)
 
     if (msg->is_log_response()) {
         _net_log_wait_time += get_sys_clock() - _net_log_wait_start_time;
+    }
+
+    if (msg->get_type() == Message::YES_ACK) {
+        _log_yes_total_time += get_sys_clock() - _net_log_wait_start_time;
     }
 
     switch (msg->get_type()) {
@@ -727,7 +731,7 @@ RC
 TxnManager::process_2pc_prepare_req_phase_2(Message * msg)
 {
     // only for yes
-    _log_yes_total_time += get_sys_clock() - _log_yes_start_time;
+    // _log_yes_total_time += get_sys_clock() - _log_yes_start_time;
     _log_yes_time_cnt += 1;
     Message::Type type = rc_prepare_2 == RCOK ? Message::PREPARED_COMMIT : Message::COMMITTED;
     Message * resp_msg = new Message(type, _src_node_id, get_txn_id(), 0, NULL);
@@ -759,7 +763,7 @@ TxnManager::process_2pc_prepare_req(Message * msg)
     uint32_t size = 0;
     char * data = NULL;
     !_cc_manager->get_modified_tuples(size, data);
-    _log_yes_start_time = get_sys_clock();
+    // _log_yes_start_time = get_sys_clock();
     log(type1, data, size);
 #endif
     return RCOK;
