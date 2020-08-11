@@ -122,7 +122,7 @@
 ///////////////////////////////
 // Number of tuples per node
 #define SYNTH_TABLE_SIZE             (1024 * 10 * 1024) // (1024 * 10 * 1024)
-#define ZIPF_THETA                     0.9 // try 0 here, if still contention, make table size larger
+#define ZIPF_THETA                     0 // try 0 here, if still contention, make table size larger
 #define READ_PERC                     0.5
 #define PERC_READONLY_DATA            0
 #define PERC_REMOTE                    0.05
