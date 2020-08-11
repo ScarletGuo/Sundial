@@ -42,7 +42,7 @@ private:
     uint32_t flushBufferSize_ = 0;
     bool ENABLE_LOGGING = false;
     std::chrono::duration<long long int, std::micro> LOG_TIMEOUT =
-        std::chrono::microseconds(500);
+        std::chrono::microseconds(1500);
     bool needFlush_ = false; //for group commit
     std::condition_variable * appendCv_; // for notifying append thread	
     // latch for cv
