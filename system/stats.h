@@ -46,7 +46,7 @@ enum StatsFloat {
     STAT_wait,
     STAT_network,
     STAT_network_log,
-    STAT_single_log_yes,
+    STAT_total_log_yes,
     STAT_cache,
 
     // debug stats
@@ -70,6 +70,7 @@ enum StatsInt {
     STAT_num_commits,
     STAT_num_aborts,
     STAT_num_waits,
+    STAT_num_log_yes,
 
     STAT_num_home_txn, // txn mapped to this node.
     STAT_num_remote_txn,
@@ -230,7 +231,7 @@ public:
         "wait",
         "network",
         "network_log",
-        "single_log_yes",
+        "total_log_yes",
         "cache",
 
         // debug
@@ -251,6 +252,7 @@ public:
         "num_commits",
         "num_aborts",
         "num_waits",
+        "num_log_yes",
 
         "num_home_txn",
         "num_remote_txn",

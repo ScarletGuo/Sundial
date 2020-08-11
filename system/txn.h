@@ -91,6 +91,7 @@ public:
 
     // 1pc
     uint32_t *   get_lsn_table() { return _lsn_table; }
+    uint64_t     get_log_yes_total_time() { return _log_yes_total_time;}
 private:
     // TODO. for now, a txn is mapped to a single thread.
     ServerThread *    _server_thread;
@@ -178,7 +179,7 @@ private:
     uint64_t         _net_wait_time;
     uint64_t         _net_log_wait_time;
 
-    uint64_t         _log_yes_time_total;
+    uint64_t         _log_yes_total_time;
     uint64_t         _log_yes_start_time;
     uint64_t         _log_yes_time_cnt;
 

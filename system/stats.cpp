@@ -133,7 +133,7 @@ void Stats::output(std::ostream * os)
         for (uint32_t tid = 0; tid < g_total_num_threads; tid ++)
             total += _stats[tid]->_float_stats[i];
         string suffix = "";
-        if (i >= STAT_execute_phase && i <= STAT_network) {
+        if (i >= STAT_execute_phase && i <= STAT_total_log_yes) {
             total = total / total_num_commits * 1000000; // in us.
             suffix = " (in us) ";
         }
