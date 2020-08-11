@@ -17,7 +17,7 @@ fi
 # algorithm
 alg=WAIT_DIE
 commit_alg=ONE_PC
-perc_remote=0.1
+perc_remote=0.05
 # latch=LH_MCSLOCK
 # [WW]
 # ww_starv_free="false"
@@ -71,4 +71,6 @@ mv stats.csv ${fname}.csv
 mv stats.json ${fname}.json
 cd ..
 
+if [ $lognode -eq "false" ]
+then
 python experiments/send_email.py ${fname}
