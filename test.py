@@ -72,6 +72,9 @@ def parse_output(job):
 				val = re.split(r'\s+', list[1])[0]
 				job[key] = val
 				# break
+	output.close()
+	os.system("rm -f temp.out")
+	return job
 
 if __name__ == "__main__":
 	job = {}

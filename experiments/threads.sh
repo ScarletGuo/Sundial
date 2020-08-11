@@ -74,3 +74,4 @@ cd ..
 if [ $lognode -eq "false" ]
 then
 python experiments/send_email.py ${fname}
+fi
