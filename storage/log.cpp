@@ -220,7 +220,7 @@ void LogManager::run_flush_thread() {
         while (ENABLE_LOGGING) { //The thread is triggered every LOG_TIMEOUT seconds or when the log buffer is full
             unique_lock<mutex> latch(*latch_);
             // (2) When LOG_TIMEOUT is triggered.
-            cv_->wait_for(latch, LOG_TIMEOUT, [&] {return needFlush_;});
+            cv_->wait_for(latch, log_timeout, [&] {return needFlush_;});
             assert(flushBufferSize_ == 0);
             if (logBufferOffset_ > 0) {
                 swap(_buffer,flush_buffer_);

@@ -108,6 +108,7 @@
 #define LOG_REDO                    false
 #define LOG_BATCH_TIME                10 // in ms
 #define LOG_NODE		    false
+#define LOG_TIMEOUT         1000 // in us
 
 ////////////////////////////////////////////////////////////////////////
 // Benchmark
