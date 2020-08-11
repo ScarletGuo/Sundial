@@ -178,6 +178,10 @@ private:
     uint64_t         _net_wait_time;
     uint64_t         _net_log_wait_time;
 
+    uint64_t         _log_yes_time_total;
+    uint64_t         _log_yes_start_time;
+    uint64_t         _log_yes_time_cnt;
+
     // txn_id format. Each txn has a unique ID
     // | per thread monotonically increasing ID   |  thread ID   |   Node ID |
     uint64_t         _txn_id;

@@ -68,6 +68,7 @@ TxnManager::TxnManager(ServerThread * thread, bool sub_txn)
     _lock_wait_time = 0;
     _net_wait_time = 0;
     _net_log_wait_time = 0;
+    _log_yes_time_total = 0;
     _msg_count = (uint64_t *) _mm_malloc(sizeof(uint64_t) * Message::NUM_MSG_TYPES, 64);
     _msg_size = (uint64_t *) _mm_malloc(sizeof(uint64_t) * Message::NUM_MSG_TYPES, 64);
     memset(_msg_count, 0, sizeof(uint64_t) * Message::NUM_MSG_TYPES);
@@ -97,6 +98,7 @@ TxnManager::TxnManager(TxnManager * txn)
     _lock_wait_time = 0;
     _net_wait_time = 0;
     _net_log_wait_time = 0;
+    _log_yes_time_total = 0;
 
     _num_aborts = txn->_num_aborts;
     _txn_abort = false;
@@ -211,6 +213,7 @@ TxnManager::update_stats()
         INC_FLOAT_STATS(wait, _lock_wait_time);
         INC_FLOAT_STATS(network, _net_wait_time);
         INC_FLOAT_STATS(network_log, _net_log_wait_time);
+        INC_FLOAT_STATS(single_log_yes, _log_yes_time_total / _log_yes_time_cnt);
 #if COLLECT_LATENCY
         vector<double> &all = stats->_stats[GET_THD_ID]->all_latency;
         all.push_back(latency);
@@ -723,6 +726,8 @@ RC
 TxnManager::process_2pc_prepare_req_phase_2(Message * msg)
 {
     // only for yes
+    _log_yes_time_total += get_sys_clock() - _log_yes_start_time;
+    _log_yes_time_cnt += 1;
     Message::Type type = rc_prepare_2 == RCOK ? Message::PREPARED_COMMIT : Message::COMMITTED;
     Message * resp_msg = new Message(type, _src_node_id, get_txn_id(), 0, NULL);
     send_msg(resp_msg);
@@ -753,6 +758,7 @@ TxnManager::process_2pc_prepare_req(Message * msg)
     uint32_t size = 0;
     char * data = NULL;
     !_cc_manager->get_modified_tuples(size, data);
+    _log_yes_start_time = get_sys_clock();
     log(type1, data, size);
 #endif
     return RCOK;
