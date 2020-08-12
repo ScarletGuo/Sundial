@@ -17,6 +17,7 @@ fi
 # algorithm
 alg=WAIT_DIE
 commit_alg=ONE_PC
+log_timeout=1000
 perc_remote=0.05
 # latch=LH_MCSLOCK
 # [WW]
@@ -46,7 +47,7 @@ read_ratio=0.5
 # chain="false"
 
 # other
-threads=16
+threads=32
 # profile="true"
 # cnt=100000 
 # penalty=50000
@@ -58,9 +59,12 @@ do
 # do
 for commit_alg in ONE_PC TWO_PC
 do
-for threads in 2 4 8 16 32
+for threads in 32
 do
-timeout 200 python test.py CC_ALG=${alg} COMMIT_ALG=${commit_alg} LOG_NODE=${lognode} NUM_SERVER_THREADS=${threads} PERC_REMOTE=${perc_remote} READ_PERC=${read_ratio} ZIPF_THETA=${zipf}
+for log_timeout in 250 500 750 1000 1250 1500
+do
+timeout 200 python test.py LOG_TIMEOUT=${log_timeout} CC_ALG=${alg} COMMIT_ALG=${commit_alg} LOG_NODE=${lognode} NUM_SERVER_THREADS=${threads} PERC_REMOTE=${perc_remote} READ_PERC=${read_ratio} ZIPF_THETA=${zipf}
+done
 done
 done
 done
