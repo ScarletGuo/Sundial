@@ -20,5 +20,6 @@
         "queue": "cpp",
         "stack": "cpp",
         "chrono": "cpp"
-    }
+    },
+    "python.pythonPath": "D:\\Anaconda\\python.exe"
 }
