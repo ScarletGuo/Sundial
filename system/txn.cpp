@@ -929,8 +929,8 @@ TxnManager::process_2pc_commit_phase(RC rc)
 #endif
 #if LOG_ENABLE
     // Logging
-    if ( (is_all_local_readonly() && 
-            (is_all_remote_readonly() || remote_nodes_involved.size() == 0) ) == false
+    if ( 
+            (is_all_remote_readonly() || remote_nodes_involved.size() == 0)  == false
             ) {  // for host node only log YES, no COMMIT for readonly
         log(type);
     }
@@ -1031,8 +1031,8 @@ TxnManager::process_2pc_commit_phase(RC rc)
 {
 
 #if LOG_ENABLE
-    if ( (is_all_local_readonly() && 
-            (is_all_remote_readonly() || remote_nodes_involved.size() == 0) ) == false
+    if ( 
+            (is_all_remote_readonly() || remote_nodes_involved.size() == 0)  == false
             ) {    // for host node only log YES, no COMMIT for readonly, or a completely local txn
     _commit_start_time = get_sys_clock();
         // Logging
