@@ -19,7 +19,8 @@
         "condition_variable": "cpp",
         "queue": "cpp",
         "stack": "cpp",
-        "chrono": "cpp"
+        "chrono": "cpp",
+        "utility": "cpp"
     },
     "python.pythonPath": "D:\\Anaconda\\python.exe"
 }

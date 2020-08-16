@@ -121,7 +121,11 @@ void Stats::output(std::ostream * os)
         total_run_time += _stats[tid]->_float_stats[STAT_run_time];
     }
 
+#if !LOG_NODE
     assert(total_num_commits > 0);
+#else
+    total_num_commits = 1;
+#endif
     out << "=Worker Thread=" << endl;
     out << "    " << setw(30) << left << "Throughput:"
         << BILLION * total_num_commits / total_run_time * g_num_server_threads << endl;
@@ -137,6 +141,13 @@ void Stats::output(std::ostream * os)
             total = total / total_num_commits * 1000000; // in us.
             suffix = " (in us) ";
         }
+        #if LOG_NODE
+            if (i >= STAT_time_debug1 && i <= STAT_time_debug2) {
+                out << "total logs: " << _stats[0]->_int_stats[STAT_int_debug1] << endl;
+                total = total / _stats[0]->_int_stats[STAT_int_debug1] * 1000000; // in us.
+                suffix = " (in us) ";
+            }
+        #endif
         out << "    " << setw(30) << left << statsFloatName[i] + suffix + ':' << total / BILLION;
         out << " (";
         for (uint32_t tid = 0; tid < g_total_num_threads; tid ++)

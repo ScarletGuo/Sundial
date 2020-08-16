@@ -172,6 +172,9 @@ void LogManager::log_message(Message *msg, LogRecord::Type type) {
     }
     LogRecord log{msg->get_dest_id(), msg->get_txn_id(), 
                 _lsn, type};
+    if (_first_log_start_time == 0) {
+        _first_log_start_time = get_sys_clock();
+    }
     memcpy(_buffer + logBufferOffset_, &log, sizeof(log));
     logBufferOffset_ += sizeof(LogRecord);
     if (msg->get_data_size() != 0) {
@@ -223,6 +226,7 @@ void LogManager::run_flush_thread() {
             cv_->wait_for(latch, log_timeout, [&] {return needFlush_;});
             assert(flushBufferSize_ == 0);
             if (logBufferOffset_ > 0) {
+                uint64_t flush_start_time = get_sys_clock();
                 swap(_buffer,flush_buffer_);
                 swap(logBufferOffset_,flushBufferSize_);
                 // disk_manager_->WriteLog(flush_buffer_, flushBufferSize_);
@@ -248,13 +252,17 @@ void LogManager::run_flush_thread() {
                     perror("fsync");
                     exit(1);
                 }
+                INC_FLOAT_STATS(time_debug2, get_sys_clock() - flush_start_time);
                 flushBufferSize_ = 0;
                 // SetPersistentLSN(lastLsn_);
+                INC_FLOAT_STATS(time_debug1, get_sys_clock() - _first_log_start_time);
+                INC_INT_STATS(int_debug1, 1);
             }
             Message * tmp_msg = NULL;
             while (local_out_queue->pop(tmp_msg)) {
                 output_queues[0]->push((uint64_t)tmp_msg);
             }
+            _first_log_start_time = 0;
             needFlush_ = false;
             appendCv_->notify_all();
         }

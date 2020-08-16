@@ -58,4 +58,7 @@ private:
     void log_message(Message *msg, LogRecord::Type type);
     uint64_t get_last_lsn();
     Message::Type log_to_message(LogRecord::Type vote);
+
+    // for debugging
+    uint64_t _first_log_start_time = 0;
 };
