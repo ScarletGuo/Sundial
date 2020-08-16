@@ -4,5 +4,5 @@ node-0.computenode.spark-pg0.clemson.cloudlab.us
 node-1.computenode.spark-pg0.clemson.cloudlab.us
 =l
 #log manager node
-node-0.lognode.spark-pg0.clemson.cloudlab.us
-node-1.lognode.spark-pg0.clemson.cloudlab.us
+node-0.lognodessd.spark-pg0.wisc.cloudlab.us
+node-1.lognodessd.spark-pg0.wisc.cloudlab.us
