@@ -61,7 +61,7 @@ for commit_alg in ONE_PC TWO_PC
 do
 # for threads in 2 4 8 16 32 64 128
 # do
-for log_timeout in  500 1000 1500 2000 2500 3000
+for log_timeout in 500 1000 2000 4000 8000 10000 16000
 do
 timeout 100 python test.py LOG_TIMEOUT=${log_timeout} CC_ALG=${alg} COMMIT_ALG=${commit_alg} LOG_NODE=${lognode} NUM_SERVER_THREADS=${threads} PERC_REMOTE=${perc_remote} READ_PERC=${read_ratio} ZIPF_THETA=${zipf}
 # done
