@@ -137,10 +137,19 @@ void Stats::output(std::ostream * os)
         for (uint32_t tid = 0; tid < g_total_num_threads; tid ++)
             total += _stats[tid]->_float_stats[i];
         string suffix = "";
-        if (i >= STAT_execute_phase && i <= STAT_total_log_yes) {
+        if (i >= STAT_execute_phase && i <= STAT_network_log) {
             total = total / total_num_commits * 1000000; // in us.
             suffix = " (in us) ";
         }
+        #if !LOG_NODE
+        if (i == STAT_total_log_yes) {
+            double total_yes = 0;
+            for (uint32_t tid = 0; tid < g_total_num_threads; tid ++)
+                total_yes += _stats[tid]->_int_stats[STAT_num_log_yes];
+            total = total / total_yes * 1000000; // in us.
+            suffix = " (in us) ";
+        }
+        #endif
         #if LOG_NODE
             if (i >= STAT_time_debug1 && i <= STAT_time_debug2) {
                 out << "total logs: " << _stats[0]->_int_stats[STAT_int_debug1] << endl;
