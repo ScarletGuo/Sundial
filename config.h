@@ -192,6 +192,7 @@ extern TestCases                    g_test_case;
 #define DEBUG_SYNTH                    false
 #define DEBUG_ASSERT                false
 #define DEBUG_CC                    false
+#define DEBUG_LOG                   false
 
 ////////////////////////////////////////////////////////////////////////
 // Constant

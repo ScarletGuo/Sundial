@@ -127,12 +127,14 @@ int main(int argc, char* argv[])
         pthread_join(pthreads[g_num_worker_threads + i], NULL);
 
     log_manager->stop_flush_thread();
+    #if DEBUG_LOG
     uint64_t t1;
     uint64_t t2;
-    while (intput_time_queue->pop(t1) && output_time_queue->pop(t2)) {
-        INC_FLOAT_STATS(time_debug_6, t2 - t1);
+    while (input_time_queue->pop(t1) && output_time_queue->pop(t2)) {
+        INC_FLOAT_STATS(time_debug6, t2 - t1);
         INC_INT_STATS(int_debug2, 1);
     }
+    #endif
     clock_gettime(CLOCK_REALTIME, tp);
     uint64_t end_t = tp->tv_sec * 1000000000 + tp->tv_nsec;
 
