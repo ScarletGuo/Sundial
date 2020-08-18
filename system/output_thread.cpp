@@ -72,6 +72,9 @@ OutputThread::run()
                 INC_FLOAT_STATS(time_debug4, get_sys_clock() - t2);
                 _last_output_time = get_sys_clock();
                 _transport->sendMsg(msg);
+                #if LOG_NODE
+                    output_time_queue->push((uint64_t)get_sys_clock());
+                #endif
 #endif
                 INC_FLOAT_STATS(bytes_sent, msg->get_packet_len());
                 delete msg;

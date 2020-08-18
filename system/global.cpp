@@ -113,3 +113,9 @@ TxnTable * txn_table;
 
 FreeQueue * free_queue_txn_man;
 uint32_t g_dummy_size = 0;
+
+
+#if LOG_NODE
+InOutQueue * input_time_queue;
+InOutQueue * output_time_queue;
+#endif

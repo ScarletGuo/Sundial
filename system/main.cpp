@@ -23,6 +23,8 @@ void parser(int argc, char * argv[]);
 int main(int argc, char* argv[])
 {
 #if LOG_NODE
+    input_time_queue = new InOutQueue;
+    output_time_queue = new InOutQueue;
     parser(argc, argv);
     M_ASSERT(INDEX_STRUCT != IDX_BTREE, "btree is not supported yet\n");
     transport = new Transport * [g_num_input_threads];
@@ -125,7 +127,12 @@ int main(int argc, char* argv[])
         pthread_join(pthreads[g_num_worker_threads + i], NULL);
 
     log_manager->stop_flush_thread();
-    
+    uint64_t t1;
+    uint64_t t2;
+    while (intput_time_queue->pop(t1) && output_time_queue->pop(t2)) {
+        INC_FLOAT_STATS(time_debug_6, t2 - t1);
+        INC_INT_STATS(int_debug2, 1);
+    }
     clock_gettime(CLOCK_REALTIME, tp);
     uint64_t end_t = tp->tv_sec * 1000000000 + tp->tv_nsec;
 

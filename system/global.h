@@ -220,3 +220,8 @@ extern uint32_t g_txn_table_size;
 extern TxnTable * txn_table;
 
 extern FreeQueue * free_queue_txn_man;
+
+#if LOG_NODE
+extern InOutQueue * input_time_queue;
+extern InOutQueue * output_time_queue;
+#endif

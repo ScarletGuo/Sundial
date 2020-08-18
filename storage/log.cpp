@@ -120,10 +120,8 @@ Message* LogManager::log(Message *msg) {
     #else
         result_msg = new Message(result, 0);
     #endif
-    uint64_t t2 = get_sys_clock();
     Message *m = new Message(result_msg->get_type(), msg->get_src_node_id(), msg->get_txn_id(), result_msg->get_lsn(), 0, NULL);
     local_out_queue->push((uint64_t)m);
-    INC_FLOAT_STATS(time_debug6, get_sys_clock() - t2);
     return result_msg;
 }
 
