@@ -163,6 +163,10 @@ void Stats::output(std::ostream * os)
                 total = total / _stats[0]->_int_stats[STAT_int_debug1] * 1000000; // in us.
                 suffix = " (in us) ";
             }
+            if (i >= STAT_time_debug5 && i <= STAT_time_debug6) {
+                total = total * 1000000; // in us.
+                suffix = " (in us) ";
+            }
         #endif
         out << "    " << setw(30) << left << statsFloatName[i] + suffix + ':' << total / BILLION;
         out << " (";
