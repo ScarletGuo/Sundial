@@ -446,6 +446,7 @@ TxnManager::process_msg(Message * msg)
         else {
             _log_yes_success = true;
             if (_readonly_wait_for_yes) {
+                _both_ack_received_time = get_sys_clock();
                 return process_2pc_commit_phase(COMMIT);
             }
             for (int i = 0; i < (int)_prepare_resp_set.size() - 1; i++)
@@ -726,8 +727,10 @@ TxnManager::process_2pc_prepare_phase()
     } else {
         assert(rc == RCOK);
         // timeout and commit?
-        if (_log_yes_success)
+        if (_log_yes_success) {
+            _both_ack_received_time = get_sys_clock();
             return process_2pc_commit_phase(COMMIT);
+        }
         else {
             _readonly_wait_for_yes = true;
             return RCOK;
