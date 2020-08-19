@@ -1,8 +1,8 @@
 =s
 # a list of servers; each on a new line
-node-0.computenodessd2.spark-pg0.utah.cloudlab.us
-node-1.computenodessd2.spark-pg0.utah.cloudlab.us
+node-0.computenodessd.spark-pg0.wisc.cloudlab.us
+node-1.computenodessd.spark-pg0.wisc.cloudlab.us
 =l
 #log manager node
-node-0.lognodessd2.spark-pg0.utah.cloudlab.us
-node-1.lognodessd2.spark-pg0.utah.cloudlab.us
+node-0.lognodessd.spark-pg0.wisc.cloudlab.us
+node-1.lognodessd.spark-pg0.wisc.cloudlab.us
