@@ -8,7 +8,7 @@
 // For distributed DBMS, the following parameters are for a single node.
 ////////////////////////////////////////////////////////////////////////
 // CPU_FREQ is used to get accurate timing info
-#define CPU_FREQ                     2.6     // in GHz/s
+#define CPU_FREQ                     2.4     // in GHz/s
 
 // warmup time
 #define WARMUP                        0
@@ -123,7 +123,7 @@
 ///////////////////////////////
 // Number of tuples per node
 #define SYNTH_TABLE_SIZE             (1024 * 10 * 1024) // (1024 * 10 * 1024)
-#define ZIPF_THETA                     0
+#define ZIPF_THETA                     0 // try 0 here, if still contention, make table size larger
 #define READ_PERC                     0.5
 #define PERC_READONLY_DATA            0
 #define PERC_REMOTE                    0.05
@@ -192,6 +192,7 @@ extern TestCases                    g_test_case;
 #define DEBUG_SYNTH                    false
 #define DEBUG_ASSERT                false
 #define DEBUG_CC                    false
+#define DEBUG_LOG                   true
 
 ////////////////////////////////////////////////////////////////////////
 // Constant
