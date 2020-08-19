@@ -208,7 +208,8 @@ TxnManager::update_stats()
 #else
         INC_FLOAT_STATS(execute_phase, _prepare_start_time - _txn_restart_time);
 #endif
-        INC_FLOAT_STATS(prepare_phase, _commit_start_time - _prepare_start_time);
+        INC_FLOAT_STATS(prepare_phase_1, _both_ack_received_time - _prepare_start_time);
+        INC_FLOAT_STATS(prepare_phase_2, _commit_start_time - _both_ack_received_time);
         INC_FLOAT_STATS(commit_phase, _commit_end_time - _commit_start_time);
         INC_FLOAT_STATS(abort, _txn_restart_time - _txn_start_time);
 
@@ -859,6 +860,7 @@ TxnManager::continue_prepare_phase()
 RC
 TxnManager::process_2pc_prepare_resp(Message * msg)
 {
+    _both_ack_received_time = get_sys_clock();
     RC rc = RCOK;
         rc = RCOK;
     if (msg->get_type() == Message::PREPARED_ABORT)

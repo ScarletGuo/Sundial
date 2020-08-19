@@ -166,6 +166,7 @@ private:
     uint64_t *         _msg_count;
     uint64_t *         _msg_size;
 
+    uint64_t         _both_ack_received_time; // in prepare phase
     uint64_t         _commit_start_time;
     uint64_t         _finish_time;
     uint64_t         _commit_end_time;
