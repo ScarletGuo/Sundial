@@ -121,7 +121,9 @@ Message* LogManager::log(Message *msg) {
         result_msg = new Message(result, 0);
     #endif
     Message *m = new Message(result_msg->get_type(), msg->get_src_node_id(), msg->get_txn_id(), result_msg->get_lsn(), 0, NULL);
-    local_out_queue->push((uint64_t)m);
+    while (!local_out_queue->push((uint64_t)m)) {
+        PAUSE10
+    }
     return result_msg;
 }
 
@@ -261,7 +263,9 @@ void LogManager::run_flush_thread() {
             Message * tmp_msg = NULL;
             uint64_t t1 = get_sys_clock();
             while (local_out_queue->pop(tmp_msg)) {
-                output_queues[0]->push((uint64_t)tmp_msg);
+                while (!output_queues[0]->push((uint64_t)tmp_msg)) {
+                    PAUSE10
+                }
             }
             INC_FLOAT_STATS(time_debug5, get_sys_clock() - t1);
             _first_log_start_time = 0;
