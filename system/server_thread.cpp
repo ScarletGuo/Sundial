@@ -94,7 +94,7 @@ RC ServerThread::run() {
             INC_INT_STATS(int_debug2, 1);
             cnt++;
         }
-        printf("ave: %lf\n", (double) total / cnt);
+        // printf("ave: %lf\n", (double) total / cnt);
     #endif
     #else
     uint64_t init_time = get_sys_clock();

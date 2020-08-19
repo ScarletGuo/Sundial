@@ -163,7 +163,7 @@ void Stats::output(std::ostream * os)
                 total = total / _stats[0]->_int_stats[STAT_int_debug1] * 1000000; // in us.
                 suffix = " (in us) ";
             }
-            if (i >= STAT_time_debug5) {
+            if (i == STAT_time_debug5) {
                 total = total * 1000000; // in us.
                 suffix = " (in us) ";
             }
@@ -187,7 +187,7 @@ void Stats::output(std::ostream * os)
 
     out << endl;
 
-#if COLLECT_LATENCY
+#if COLLECT_LATENCY && !LOG_NODE
     double avg_latency = 0;
     for (uint32_t tid = 0; tid < g_total_num_threads; tid ++)
         avg_latency += _stats[tid]->_float_stats[STAT_txn_latency];
