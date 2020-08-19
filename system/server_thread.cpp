@@ -89,7 +89,7 @@ RC ServerThread::run() {
         while (input_time_queue->pop(t1) && output_time_queue->pop(t2)) {
             uint64_t time = (t2 - t1) * 1000000 / BILLION;
             total += time;
-            printf("time: %lu\n", time);
+            // printf("time: %lu\n", time);
             INC_FLOAT_STATS(time_debug6, t2 - t1);
             INC_INT_STATS(int_debug2, 1);
             cnt++;

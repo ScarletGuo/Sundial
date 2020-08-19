@@ -8,7 +8,7 @@
 // For distributed DBMS, the following parameters are for a single node.
 ////////////////////////////////////////////////////////////////////////
 // CPU_FREQ is used to get accurate timing info
-#define CPU_FREQ                     2.6     // in GHz/s
+#define CPU_FREQ                     2.4     // in GHz/s
 
 // warmup time
 #define WARMUP                        0
