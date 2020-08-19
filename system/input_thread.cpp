@@ -116,6 +116,7 @@ InputThread::run()
         uint64_t t1 = get_sys_clock();
         msg = _transport->recvMsg();
         #if LOG_NODE && DEBUG_LOG
+        if (msg)
             input_time_queue->push((uint64_t)get_sys_clock());
         #endif
         dealwithMsg(msg, t1);
