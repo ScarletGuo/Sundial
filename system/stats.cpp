@@ -169,8 +169,11 @@ void Stats::output(std::ostream * os)
             }
             #if DEBUG_LOG
             if (i == STAT_time_debug6) {
+                double total_msg = 0;
+                for (uint32_t tid = 0; tid < g_total_num_threads; tid ++)
+                    total_msg += _stats[tid]->_int_stats[STAT_int_debug2];
                 out << "total msgs: " << _stats[0]->_int_stats[STAT_int_debug2] << endl;
-                total = total / _stats[0]->_int_stats[STAT_int_debug2] * 1000000; // in us.
+                total = total / total_msg * 1000000; // in us.
                 suffix = " (in us) ";
             }
             #endif

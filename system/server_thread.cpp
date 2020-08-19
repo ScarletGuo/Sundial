@@ -80,6 +80,16 @@ RC ServerThread::run() {
                 break;
             }
         }
+        
+    #if DEBUG_LOG
+        uint64_t t1;
+        uint64_t t2;
+        while (input_time_queue->pop(t1) && output_time_queue->pop(t2)) {
+            printf("time: %lu\n", (t2 - t1) * 1000000 / BILLION);
+            INC_FLOAT_STATS(time_debug6, t2 - t1);
+            INC_INT_STATS(int_debug2, 1);
+        }
+    #endif
     #else
     uint64_t init_time = get_sys_clock();
     _num_active_txns = 0;
