@@ -81,9 +81,9 @@ void InputThread::dealwithMsg(Message * msg, uint64_t t1)
                     success = input_queues[ queue_id ]->push((uint64_t)msg);
                 }
                 #if DEBUG_LOG
-                if (msg->is_log_response()) {
-                    printf("txn_id: %lu, type: %d, time: %lf\n", msg->get_txn_id(), msg->get_type(), get_sys_clock() * (double)1000000 / BILLION);
-                }
+                // if (msg->is_log_response()) {
+                //     printf("txn_id: %lu, type: %d, time: %lf\n", msg->get_txn_id(), msg->get_type(), get_sys_clock() * (double)1000000 / BILLION);
+                // }
                 #endif
                 INC_FLOAT_STATS(time_debug7, get_sys_clock() - tt);
             }

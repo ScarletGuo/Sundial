@@ -383,7 +383,7 @@ TxnManager::process_msg(Message * msg)
         _net_log_wait_time += get_sys_clock() - _net_log_wait_start_time;
         INC_INT_STATS(int_debug1, 1);
         #if DEBUG_LOG
-        printf("txn_id: %lu, type: %d, time: %lf\n", msg->get_txn_id(), msg->get_type(), get_sys_clock() * (double)1000000 / BILLION);
+        // printf("txn_id: %lu, type: %d, time: %lf\n", msg->get_txn_id(), msg->get_type(), get_sys_clock() * (double)1000000 / BILLION);
         #endif
     }
 
