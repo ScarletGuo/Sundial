@@ -84,11 +84,17 @@ RC ServerThread::run() {
     #if DEBUG_LOG
         uint64_t t1;
         uint64_t t2;
+        int cnt = 0;
+        uint64_t total = 0;
         while (input_time_queue->pop(t1) && output_time_queue->pop(t2)) {
-            printf("time: %lu\n", (t2 - t1) * 1000000 / BILLION);
+            uint64_t time = (t2 - t1) * 1000000 / BILLION;
+            total += time;
+            printf("time: %lu\n", time);
             INC_FLOAT_STATS(time_debug6, t2 - t1);
             INC_INT_STATS(int_debug2, 1);
+            cnt++;
         }
+        printf("ave: %lf\n", (double) total / cnt);
     #endif
     #else
     uint64_t init_time = get_sys_clock();
