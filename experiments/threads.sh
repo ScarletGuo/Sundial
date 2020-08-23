@@ -59,7 +59,7 @@ do
 # do
 for commit_alg in ONE_PC TWO_PC
 do
-for threads in 2 4 8 12 16 20 24 28 32 36 40 44
+for threads in 25 26 27 28 29 30 31 32
 do
 # for log_timeout in 250 500 750 1000 1250 1500
 # do

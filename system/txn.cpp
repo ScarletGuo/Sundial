@@ -200,7 +200,8 @@ TxnManager::update_stats()
 
     if ( _txn_state == COMMITTED ) {
         INC_INT_STATS(num_commits, 1);
-        uint64_t latency = _finish_time - _txn_start_time;
+        // change from finish time to commit end time
+        uint64_t latency = _commit_end_time - _txn_start_time;
         INC_FLOAT_STATS(txn_latency, latency);
 #if CC_ALG == NAIVE_TICTOC
         INC_FLOAT_STATS(execute_phase, _lock_phase_start_time - _txn_restart_time);
