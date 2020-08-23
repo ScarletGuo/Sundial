@@ -56,7 +56,7 @@ do
 # do
 for commit_alg in ONE_PC TWO_PC
 do
-for perc_remote in 0.01 0.02 0.04 0.06 0.08 0.1
+for perc_remote in 0 0.01 0.02 0.04 0.06 0.08 0.1
 do
 timeout 200 python test.py CC_ALG=${alg} COMMIT_ALG=${commit_alg} LOG_NODE=${lognode} NUM_SERVER_THREADS=${threads} PERC_REMOTE=${perc_remote}  READ_PERC=${read_ratio} ZIPF_THETA=${zipf}
 done
