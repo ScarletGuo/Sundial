@@ -44,7 +44,7 @@ read_ratio=0.5
 # chain="false"
 
 # other
-threads=16
+threads=28
 # profile="true"
 # cnt=100000 
 # penalty=50000
