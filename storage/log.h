@@ -64,4 +64,6 @@ private:
     uint64_t _first_log_start_time = 0;
     uint64_t max_flushing_time = 0;
     uint64_t min_flushing_time = 2000 * BILLION / 1000000;
+
+    std::mutex * swap_lock;
 };

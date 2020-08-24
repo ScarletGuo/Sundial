@@ -38,6 +38,7 @@ LogManager::LogManager(char * log_name)
     flush_buffer_ = (char *)malloc(_buffer_size + align); // 64 MB
     flush_buffer_ = (char *)(((uintptr_t)flush_buffer_ + align)&~((uintptr_t)align));
     latch_ = new std::mutex();
+    swap_lock = new std::mutex();
     cv_ = new std::condition_variable();
     appendCv_ = new std::condition_variable();
     local_out_queue = new InOutQueue;
@@ -122,9 +123,11 @@ Message* LogManager::log(Message *msg) {
         result_msg = new Message(result, 0);
     #endif
     Message *m = new Message(result_msg->get_type(), msg->get_src_node_id(), msg->get_txn_id(), result_msg->get_lsn(), 0, NULL);
+    swap_lock->lock();
     while (!local_out_queue->push((uint64_t)m)) {
         PAUSE10
     }
+    swap_lock->unlock();
     return result_msg;
 }
 
@@ -167,6 +170,7 @@ void LogManager::log_message(Message *msg, LogRecord::Type type) {
     ATOM_FETCH_ADD(_lsn, 1);
     // printf("latest lsn: %d\n", _lsn);
     uint32_t size_total = sizeof(LogRecord) + msg->get_data_size();
+    swap_lock->lock();
     if (logBufferOffset_ + size_total > _buffer_size) {
         needFlush_ = true;
         cv_->notify_one(); //let RunFlushThread wake up.
@@ -184,6 +188,7 @@ void LogManager::log_message(Message *msg, LogRecord::Type type) {
         memcpy(_buffer + logBufferOffset_, msg->get_data(), msg->get_data_size());
         logBufferOffset_ += msg->get_data_size();
     }
+    swap_lock->unlock();
     // if (fwrite(&log, sizeof(log), 1, _log_fp) != 1) {
 	// 		perror("fwrite");
 	// 		exit(1);
@@ -230,9 +235,11 @@ void LogManager::run_flush_thread() {
             assert(flushBufferSize_ == 0);
             if (logBufferOffset_ > 0) {
                 uint64_t flush_start_time = get_sys_clock();
+                swap_lock->lock();
                 swap(_buffer,flush_buffer_);
                 swap(logBufferOffset_,flushBufferSize_);
                 swap(local_out_queue, local_flush_queue);
+                swap_lock->unlock();
                 // disk_manager_->WriteLog(flush_buffer_, flushBufferSize_);
                 // printf("write\n");
                 // TODO: figure out how to handle buffersize not reach alignment
