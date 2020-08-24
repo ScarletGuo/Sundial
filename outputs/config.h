@@ -8,7 +8,7 @@
 // For distributed DBMS, the following parameters are for a single node.
 ////////////////////////////////////////////////////////////////////////
 // CPU_FREQ is used to get accurate timing info
-#define CPU_FREQ                     2.6     // in GHz/s
+#define CPU_FREQ                     2.4     // in GHz/s
 
 // warmup time
 #define WARMUP                        0
@@ -192,6 +192,7 @@ extern TestCases                    g_test_case;
 #define DEBUG_SYNTH                    false
 #define DEBUG_ASSERT                false
 #define DEBUG_CC                    false
+#define DEBUG_LOG                   true
 
 ////////////////////////////////////////////////////////////////////////
 // Constant
@@ -248,4 +249,7 @@ extern TestCases                    g_test_case;
 #define ONE_PC         1
 #define TWO_PC         2
 
-#define COMMIT_ALG     ONE_PC
+#define COMMIT_ALG     TWO_PC
+
+#define COLLECT_DISTRIBUTED_LATENCY    false
+#define COLLECT_LOCAL_LATENCY    false
