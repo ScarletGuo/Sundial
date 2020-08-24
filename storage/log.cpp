@@ -259,12 +259,13 @@ void LogManager::run_flush_thread() {
                 // SetPersistentLSN(lastLsn_);
                 INC_FLOAT_STATS(time_debug1, get_sys_clock() - _first_log_start_time);
                 INC_INT_STATS(int_debug1, 1);
-            }
-            Message * tmp_msg = NULL;
-            uint64_t t1 = get_sys_clock();
-            while (local_out_queue->pop(tmp_msg)) {
-                while (!output_queues[0]->push((uint64_t)tmp_msg)) {
-                    PAUSE10
+                
+                Message * tmp_msg = NULL;
+                uint64_t t1 = get_sys_clock();
+                while (local_out_queue->pop(tmp_msg)) {
+                    while (!output_queues[0]->push((uint64_t)tmp_msg)) {
+                        PAUSE10
+                    }
                 }
             }
             INC_FLOAT_STATS(time_debug5, get_sys_clock() - t1);
