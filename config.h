@@ -252,4 +252,4 @@ extern TestCases                    g_test_case;
 #define COMMIT_ALG     TWO_PC
 
 #define COLLECT_DISTRIBUTED_LATENCY    false
-#define COLLECT_LOCAL_LATENCY    true
+#define COLLECT_LOCAL_LATENCY    false
