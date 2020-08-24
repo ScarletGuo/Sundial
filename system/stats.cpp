@@ -153,7 +153,7 @@ void Stats::output(std::ostream * os)
         if (i == STAT_network_log) {
             double total_log = 0;
             for (uint32_t tid = 0; tid < g_total_num_threads; tid ++)
-                total_log += _stats[tid]->_int_stats[STAT_int_debug1];
+                total_log += _stats[tid]->_int_stats[STAT_int_debug2];
             total = total / total_log * 1000000; // in us.
             suffix = " (in us) ";
         }
