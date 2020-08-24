@@ -115,9 +115,11 @@ void Stats::output(std::ostream * os)
     }
 
     uint64_t total_num_commits = 0;
+    uint64_t total_num_local = 0;
     double total_run_time = 0;
     for (uint32_t tid = 0; tid < g_total_num_threads; tid ++) {
         total_num_commits += _stats[tid]->_int_stats[STAT_num_commits];
+        total_num_local += _stats[tid]->_int_stats[STAT_num_local_txn];
         total_run_time += _stats[tid]->_float_stats[STAT_run_time];
     }
 
@@ -189,11 +191,20 @@ void Stats::output(std::ostream * os)
 
 #if COLLECT_LATENCY && !LOG_NODE
     double avg_latency = 0;
-    for (uint32_t tid = 0; tid < g_total_num_threads; tid ++)
+    double avg_local_latency = 0;
+    double avg_distributed_latency = 0;
+    for (uint32_t tid = 0; tid < g_total_num_threads; tid ++) {
         avg_latency += _stats[tid]->_float_stats[STAT_txn_latency];
+        avg_local_latency += _stats[tid]->_float_stats[STAT_local_txn_latency];
+        avg_distributed_latency += _stats[tid]->_float_stats[STAT_distributed_txn_latency];
+    }
     avg_latency /= total_num_commits;
+    avg_local_latency /= total_num_local;
+    avg_distributed_latency /= (total_num_commits - total_num_local);
 
     out << "    " << setw(30) << left << "average_latency:" << avg_latency / BILLION << endl;
+    out << "    " << setw(30) << left << "average_local_latency:" << avg_local_latency / BILLION << endl;
+    out << "    " << setw(30) << left << "average_distributed_latency:" << avg_distributed_latency / BILLION << endl;
     // print latency distribution
     out << "    " << setw(30) << left << "90%_latency:"
         << _aggregate_latency[(uint64_t)(total_num_commits * 0.90)] / BILLION << endl;

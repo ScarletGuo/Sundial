@@ -200,12 +200,14 @@ TxnManager::update_stats()
 
     if ( _txn_state == COMMITTED ) {
         INC_INT_STATS(num_commits, 1);
-        if (_store_procedure->get_query()->is_local()) {
-            INC_INT_STATS(int_debug3, 1);
-        }
         // change from finish time to commit end time
         uint64_t latency = _commit_end_time - _txn_start_time;
         INC_FLOAT_STATS(txn_latency, latency);
+        if (_store_procedure->get_query()->is_local()) {
+            INC_FLOAT_STATS(local_txn_latency, latency);
+        } else {
+            INC_FLOAT_STATS(distributed_txn_latency, latency);
+        }
 #if CC_ALG == NAIVE_TICTOC
         INC_FLOAT_STATS(execute_phase, _lock_phase_start_time - _txn_restart_time);
         INC_FLOAT_STATS(lock_phase, _prepare_start_time - _lock_phase_start_time);
