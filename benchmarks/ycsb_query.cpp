@@ -154,8 +154,10 @@ void QueryYCSB::gen_requests() {
     }
     if (!has_remote) {
         _is_all_remote_readonly = false;
+        _is_local = true;
         INC_INT_STATS(num_local_txn, 1);
     } else {
+        _is_local = false;
         if (_is_all_remote_readonly) {
             INC_INT_STATS(num_remote_readonly_txn, 1);
         } else {

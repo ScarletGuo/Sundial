@@ -29,6 +29,7 @@ public:
     void gen_requests();
     bool is_all_remote_readonly() { return _is_all_remote_readonly; }
     bool is_all_local_readonly() { return _is_all_local_readonly; }
+    bool is_local() { return _is_local; }
 
 private:
     uint32_t _request_cnt;
@@ -42,4 +43,5 @@ private:
     static double zeta_2_theta;
     bool _is_all_remote_readonly;
     bool _is_all_local_readonly;
+    bool _is_local;
 };

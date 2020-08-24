@@ -28,6 +28,7 @@ public:
     Isolation     get_isolation_level() { return _isolation_level; }
     virtual bool        is_all_remote_readonly() { return false; }
     virtual bool        is_all_local_readonly() { return false; }
+    virtual bool        is_local() { return false; }
 #if CC_ALG == WAIT_DIE || CC_ALG == F_ONE || (CC_ALG == TICTOC && OCC_LOCK_TYPE == WAIT_DIE)
     uint64_t     get_ts() { return _txn_ts; }
     void         set_ts(uint64_t txn_ts) { _txn_ts = txn_ts; }
