@@ -1042,8 +1042,8 @@ TxnManager::process_2pc_commit_phase_2(Message * msg)
             send_msg(msg);
         }
     }
-    _commit_end_time = get_sys_clock();
     _cc_manager->process_commit_phase_coord(rc);
+    _commit_end_time = get_sys_clock();
     if (resp_expected) {
         waiting_for_remote = true;
         return RCOK;
