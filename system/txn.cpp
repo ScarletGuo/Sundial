@@ -214,11 +214,15 @@ TxnManager::update_stats()
 #else
     #if COLLECT_DISTRIBUTED_LATENCY
         if (!_store_procedure->get_query()->is_local()) 
+    #elif COLLECT_LOCAL_LATENCY
+        if (_store_procedure->get_query()->is_local()) 
     #endif
         INC_FLOAT_STATS(execute_phase, _prepare_start_time - _txn_restart_time);
 #endif
     #if COLLECT_DISTRIBUTED_LATENCY
         if (!_store_procedure->get_query()->is_local()) {
+    #elif COLLECT_LOCAL_LATENCY
+        if (_store_procedure->get_query()->is_local()) {
     #endif
         INC_FLOAT_STATS(prepare_phase_1, _both_ack_received_time - _prepare_start_time);
         INC_FLOAT_STATS(prepare_phase_2, _commit_start_time - _both_ack_received_time);

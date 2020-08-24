@@ -142,6 +142,8 @@ void Stats::output(std::ostream * os)
         if ((i >= STAT_execute_phase && i <= STAT_network) || i == STAT_total_log_yes) {
             #if COLLECT_DISTRIBUTED_LATENCY
                 total = total / (total_num_commits - total_num_local) * 1000000; // in us.
+            #elif COLLECT_LOCAL_LATENCY
+                total = total / total_num_local * 1000000; // in us.
             #else
                 total = total / total_num_commits * 1000000; // in us.
             #endif
