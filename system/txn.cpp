@@ -212,8 +212,14 @@ TxnManager::update_stats()
         INC_FLOAT_STATS(execute_phase, _lock_phase_start_time - _txn_restart_time);
         INC_FLOAT_STATS(lock_phase, _prepare_start_time - _lock_phase_start_time);
 #else
+    #if COLLECT_DISTRIBUTED_LATENCY
+        if (!_store_procedure->get_query()->is_local()) 
+    #endif
         INC_FLOAT_STATS(execute_phase, _prepare_start_time - _txn_restart_time);
 #endif
+    #if COLLECT_DISTRIBUTED_LATENCY
+        if (!_store_procedure->get_query()->is_local()) {
+    #endif
         INC_FLOAT_STATS(prepare_phase_1, _both_ack_received_time - _prepare_start_time);
         INC_FLOAT_STATS(prepare_phase_2, _commit_start_time - _both_ack_received_time);
         INC_FLOAT_STATS(commit_phase, _commit_end_time - _commit_start_time);
@@ -221,6 +227,9 @@ TxnManager::update_stats()
 
         INC_FLOAT_STATS(wait, _lock_wait_time);
         INC_FLOAT_STATS(network, _net_wait_time);
+    #if COLLECT_DISTRIBUTED_LATENCY
+        }
+    #endif
         INC_FLOAT_STATS(network_log, _net_log_wait_time);
         INC_FLOAT_STATS(total_log_yes, _log_yes_total_time);
         INC_INT_STATS(num_log_yes, _log_yes_time_cnt);

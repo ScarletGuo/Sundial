@@ -140,7 +140,11 @@ void Stats::output(std::ostream * os)
             total += _stats[tid]->_float_stats[i];
         string suffix = "";
         if ((i >= STAT_execute_phase && i <= STAT_network) || i == STAT_total_log_yes) {
-            total = total / total_num_commits * 1000000; // in us.
+            #if COLLECT_DISTRIBUTED_LATENCY
+                total = total / (total_num_commits - total_num_local) * 1000000; // in us.
+            #else
+                total = total / total_num_commits * 1000000; // in us.
+            #endif
             suffix = " (in us) ";
         }
         #if !LOG_NODE
