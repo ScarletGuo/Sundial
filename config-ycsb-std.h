@@ -2,7 +2,7 @@
 
 #define DISTRIBUTED_ENABLE            true
 // number of server threads
-#define NUM_SERVER_THREADS            8
+#define NUM_SERVER_THREADS            28
 
 ////////////////////////////////////////////////////////////////////////
 // For distributed DBMS, the following parameters are for a single node.
@@ -251,5 +251,5 @@ extern TestCases                    g_test_case;
 
 #define COMMIT_ALG     TWO_PC
 
-#define COLLECT_DISTRIBUTED_LATENCY    false
+#define COLLECT_DISTRIBUTED_LATENCY    true
 #define COLLECT_LOCAL_LATENCY    false
