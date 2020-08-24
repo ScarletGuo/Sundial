@@ -254,7 +254,12 @@ void LogManager::run_flush_thread() {
                     perror("fsync");
                     exit(1);
                 }
-                INC_FLOAT_STATS(time_debug2, get_sys_clock() - flush_start_time);
+                uint64_t flushing_time = get_sys_clock() - flush_start_time;
+                INC_FLOAT_STATS(time_debug2, flushing_time);
+                if (flushing_time < min_flushing_time)
+                    min_flushing_time = flushing_time;
+                if (flushing_time > max_flushing_time)
+                    max_flushing_time = flushing_time;
                 flushBufferSize_ = 0;
                 // SetPersistentLSN(lastLsn_);
                 INC_FLOAT_STATS(time_debug1, get_sys_clock() - _first_log_start_time);
@@ -279,6 +284,8 @@ void LogManager::run_flush_thread() {
  * Stop and join the flush thread, set ENABLE_LOGGING = false
  */
 void LogManager::stop_flush_thread() {
+    printf("max flushing time: %lf\n", max_flushing_time * (double)1000000 / BILLION);
+    printf("min flushing time: %lf\n", min_flushing_time * (double)1000000 / BILLION);
   if (!ENABLE_LOGGING) return;
   ENABLE_LOGGING = false;
   flush(true);
