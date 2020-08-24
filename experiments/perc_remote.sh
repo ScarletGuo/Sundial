@@ -48,6 +48,7 @@ threads=28
 # profile="true"
 # cnt=100000 
 # penalty=50000
+distributed="true"
 
 # figure 4: normalized throughput with optimal case, varying requests
 for i in 0 1 2 3 4
@@ -56,9 +57,10 @@ do
 # do
 for commit_alg in ONE_PC TWO_PC
 do
-for perc_remote in 0 0.01 0.02 0.04 0.06 0.08 0.1
+# for perc_remote in 0 0.01 0.02 0.04 0.06 0.08 0.1
+for perc_remote in 0.1
 do
-timeout 200 python test.py CC_ALG=${alg} COMMIT_ALG=${commit_alg} LOG_NODE=${lognode} NUM_SERVER_THREADS=${threads} PERC_REMOTE=${perc_remote}  READ_PERC=${read_ratio} ZIPF_THETA=${zipf}
+timeout 200 python test.py COLLECT_DISTRIBUTED_LATENCY=${distributed} CC_ALG=${alg} COMMIT_ALG=${commit_alg} LOG_NODE=${lognode} NUM_SERVER_THREADS=${threads} PERC_REMOTE=${perc_remote}  READ_PERC=${read_ratio} ZIPF_THETA=${zipf}
 done
 done
 done
