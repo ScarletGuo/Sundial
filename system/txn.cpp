@@ -399,7 +399,7 @@ TxnManager::process_msg(Message * msg)
         _net_wait_time += get_sys_clock() - _net_wait_start_time;
     }
 
-    if (msg->is_log_response()) {
+    if (msg->is_log_response() && msg->get_type() != Message::YES_ACK) {
         _net_log_wait_time += get_sys_clock() - _net_log_wait_start_time;
         INC_INT_STATS(int_debug1, 1);
         #if DEBUG_LOG
