@@ -476,10 +476,10 @@ TxnManager::process_msg(Message * msg)
         }
     case Message::COMMIT_ACK:
     case Message::ABORT_ACK:
+    #if COMMIT_ALG == TWO_PC
         if (_is_sub_txn)
             return process_2pc_commit_req_phase_2(msg);
         else
-    #if COMMIT_ALG == TWO_PC
             return process_2pc_commit_phase_2(msg);
     #else
             return RCOK;
@@ -1130,6 +1130,32 @@ TxnManager::process_2pc_commit_phase(RC rc)
 }
 #endif
 
+
+#if COMMIT_ALG == ONE_PC
+RC
+TxnManager::process_2pc_commit_req(Message * msg)
+{
+    RC rc;
+    if (msg->get_type() == Message::COMMIT_REQ) {
+        _txn_state = COMMITTED;
+        rc = COMMIT;
+    } else if (msg->get_type() == Message::ABORT_REQ) {
+        _txn_state = ABORTED;
+        rc = ABORT;
+    } else
+        assert(false);
+    // Logging
+#if LOG_ENABLE
+    log(msg->get_type());
+#endif
+
+    _cc_manager->process_commit_req(rc, msg->get_data_size(), msg->get_data());
+    send_msg(new Message(Message::ACK, msg->get_src_node_id(), get_txn_id(), 0, NULL));
+    return rc;
+}
+
+#else
+
 RC
 TxnManager::process_2pc_commit_req(Message * msg)
 {
@@ -1158,6 +1184,8 @@ TxnManager::process_2pc_commit_req_phase_2(Message * msg)
     send_msg(new Message(Message::ACK, _msg_commit_req->get_src_node_id(), get_txn_id(), 0, NULL));
     return rc;
 }
+#endif
+
 
 RC
 TxnManager::process_2pc_commit_resp()
