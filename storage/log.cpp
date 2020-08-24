@@ -41,6 +41,7 @@ LogManager::LogManager(char * log_name)
     cv_ = new std::condition_variable();
     appendCv_ = new std::condition_variable();
     local_out_queue = new InOutQueue;
+    local_flush_queue = new InOutQueue;
 }
 
 LogManager::~LogManager() {
@@ -231,6 +232,7 @@ void LogManager::run_flush_thread() {
                 uint64_t flush_start_time = get_sys_clock();
                 swap(_buffer,flush_buffer_);
                 swap(logBufferOffset_,flushBufferSize_);
+                swap(local_out_queue, local_flush_queue);
                 // disk_manager_->WriteLog(flush_buffer_, flushBufferSize_);
                 // printf("write\n");
                 // TODO: figure out how to handle buffersize not reach alignment
@@ -267,7 +269,7 @@ void LogManager::run_flush_thread() {
                 
                 Message * tmp_msg = NULL;
                 uint64_t t1 = get_sys_clock();
-                while (local_out_queue->pop(tmp_msg)) {
+                while (local_flush_queue->pop(tmp_msg)) {
                     while (!output_queues[0]->push((uint64_t)tmp_msg)) {
                         PAUSE10
                     }
