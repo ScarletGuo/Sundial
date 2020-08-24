@@ -231,7 +231,7 @@ TxnManager::update_stats()
 
         INC_FLOAT_STATS(wait, _lock_wait_time);
         INC_FLOAT_STATS(network, _net_wait_time);
-    #if COLLECT_DISTRIBUTED_LATENCY
+    #if COLLECT_DISTRIBUTED_LATENCY || COLLECT_LOCAL_LATENCY
         }
     #endif
         INC_FLOAT_STATS(network_log, _net_log_wait_time);
