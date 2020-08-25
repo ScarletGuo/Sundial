@@ -254,6 +254,7 @@ void LogManager::run_flush_thread() {
                 } else {
                     fcntl(_log_fd, F_SETFD, O_RDWR | O_CREAT | O_TRUNC | O_APPEND | O_DIRECT);
                     */
+                   uint64_t aligned_size = PGROUNDUP(flushBufferSize_);
                     if (write(_log_fd, flush_buffer_, PGROUNDUP(flushBufferSize_)) == -1) {
                         perror("write2");
                         exit(1);
@@ -276,11 +277,21 @@ void LogManager::run_flush_thread() {
                 
                 Message * tmp_msg = NULL;
                 uint64_t t1 = get_sys_clock();
+                int yes_cnt = 0 , commit_cnt = 0, abort_cnt = 0;
                 while (local_flush_queue->pop(tmp_msg)) {
+                    if (tmp_msg->get_type() == Message::YES_ACK) {
+                        yes_cnt++;
+                    } else if (tmp_msg->get_type() == Message::COMMIT_ACK) {
+                        commit_cnt++;
+                    } else {
+                        abort_cnt++;
+                    }
                     while (!output_queues[0]->push((uint64_t)tmp_msg)) {
                         PAUSE10
                     }
                 }
+                chunck_types ct = {yes_cnt, commit_cnt, abort_cnt, aligned_size};
+                debug_chunck.push_back(ct);
                 INC_FLOAT_STATS(time_debug5, get_sys_clock() - t1);
             }
             _first_log_start_time = 0;
@@ -293,14 +304,18 @@ void LogManager::run_flush_thread() {
  * Stop and join the flush thread, set ENABLE_LOGGING = false
  */
 void LogManager::stop_flush_thread() {
-    printf("max flushing time: %lf\n", max_flushing_time * (double)1000000 / BILLION);
-    printf("min flushing time: %lf\n", min_flushing_time * (double)1000000 / BILLION);
+    // printf("max flushing time: %lf\n", max_flushing_time * (double)1000000 / BILLION);
+    // printf("min flushing time: %lf\n", min_flushing_time * (double)1000000 / BILLION);
+    
   if (!ENABLE_LOGGING) return;
   ENABLE_LOGGING = false;
   flush(true);
   flush_thread_->join();
   assert(logBufferOffset_ == 0 && flushBufferSize_ == 0);
   delete flush_thread_;
+  for (auto& it : debug_chunck) { 
+    printf("yes:%d commit:%d abort:%d size:%lu\n", it.yes, it.commmit, it.abort, it.size);
+} 
 };
 
 void LogManager::flush(bool force) {

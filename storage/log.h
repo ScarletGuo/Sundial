@@ -14,6 +14,13 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+typedef struct _chunck_types {
+    int yes;
+    int commmit;
+    int abort;
+    uint64_t size;
+} chunck_types;
+
 class LogManager {
 public:
     LogManager();
@@ -66,4 +73,5 @@ private:
     uint64_t min_flushing_time = 2000 * BILLION / 1000000;
 
     std::mutex * swap_lock;
+    vector<chunck_types> debug_chunck;
 };
