@@ -38,8 +38,7 @@ enum StatsFloat {
     // txn lifetime breakdown
     STAT_execute_phase,
     STAT_lock_phase,
-    STAT_prepare_phase_1,
-    STAT_prepare_phase_2,
+    STAT_prepare_phase,
     STAT_commit_phase,
     STAT_abort,
 
@@ -226,8 +225,7 @@ public:
         // txn lifetime breakdown
         "execute_phase",
         "lock_phase",
-        "prepare_phase_1",
-        "prepare_phase_2",
+        "prepare_phase",
         "commit_phase",
         "abort",
 

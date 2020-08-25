@@ -226,8 +226,9 @@ TxnManager::update_stats()
     #elif COLLECT_LOCAL_LATENCY
         if (_store_procedure->get_query()->is_local()) {
     #endif
-        INC_FLOAT_STATS(prepare_phase_1, _both_ack_received_time - _prepare_start_time);
-        INC_FLOAT_STATS(prepare_phase_2, _commit_start_time - _both_ack_received_time);
+        // INC_FLOAT_STATS(prepare_phase_1, _both_ack_received_time - _prepare_start_time);
+        // INC_FLOAT_STATS(prepare_phase_2, _commit_start_time - _both_ack_received_time);
+        INC_FLOAT_STATS(prepare_phase, _commit_start_time - _prepare_start_time);
         INC_FLOAT_STATS(commit_phase, _commit_end_time - _commit_start_time);
         INC_FLOAT_STATS(abort, _txn_restart_time - _txn_start_time);
 
