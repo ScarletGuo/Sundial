@@ -42,6 +42,24 @@ enum StatsFloat {
     STAT_commit_phase,
     STAT_abort,
 
+    STAT_execute_phase_local,
+    STAT_lock_phase_local,
+    STAT_prepare_phase_local,
+    STAT_commit_phase_local,
+    STAT_abort_local,
+
+    STAT_execute_phase_dist_write,
+    STAT_lock_phase_dist_write,
+    STAT_prepare_phase_dist_write,
+    STAT_commit_phase_dist_write,
+    STAT_abort_dist_write,
+
+    STAT_execute_phase_dist_readonly,
+    STAT_lock_phase_dist_readonly,
+    STAT_prepare_phase_dist_readonly,
+    STAT_commit_phase_dist_readonly,
+    STAT_abort_dist_readonly,
+
     STAT_row,
     STAT_index,
     STAT_logic,
@@ -228,6 +246,27 @@ public:
         "prepare_phase",
         "commit_phase",
         "abort",
+
+        // txn lifetime breakdown
+        "execute_phase_local",
+        "lock_phase_local",
+        "prepare_phase_local",
+        "commit_phase_local",
+        "abort_local",
+
+        // txn lifetime breakdown
+        "execute_phase_dist_write",
+        "lock_phase_dist_write",
+        "prepare_phase_dist_write",
+        "commit_phase_dist_write",
+        "abort_dist_write",
+
+        // txn lifetime breakdown
+        "execute_phase_dist_readonly",
+        "lock_phase_dist_readonly",
+        "prepare_phase_dist_readonly",
+        "commit_phase_dist_readonly",
+        "abort_dist_readonly",
 
         "CC (row)",
         "CC (index)",

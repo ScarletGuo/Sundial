@@ -232,6 +232,26 @@ TxnManager::update_stats()
         INC_FLOAT_STATS(commit_phase, _commit_end_time - _commit_start_time);
         INC_FLOAT_STATS(abort, _txn_restart_time - _txn_start_time);
 
+        // debugging breakdown
+        if (_store_procedure->get_query()->is_local()) {
+            INC_FLOAT_STATS(execute_phase_local, _prepare_start_time - _txn_restart_time);
+            INC_FLOAT_STATS(prepare_phase_local, _commit_start_time - _prepare_start_time);
+            INC_FLOAT_STATS(commit_phase_local, _commit_end_time - _commit_start_time);
+            INC_FLOAT_STATS(abort_local, _txn_restart_time - _txn_start_time);
+        }
+        if (is_all_remote_readonly() && !_store_procedure->get_query()->is_local()) {
+            INC_FLOAT_STATS(execute_phase_dist_readonly, _prepare_start_time - _txn_restart_time);
+            INC_FLOAT_STATS(prepare_phase_dist_readonly, _commit_start_time - _prepare_start_time);
+            INC_FLOAT_STATS(commit_phase_dist_readonly, _commit_end_time - _commit_start_time);
+            INC_FLOAT_STATS(abort_dist_readonly, _txn_restart_time - _txn_start_time);
+        }
+        if (!is_all_remote_readonly() && !_store_procedure->get_query()->is_local()) {
+            INC_FLOAT_STATS(execute_phase_dist_write, _prepare_start_time - _txn_restart_time);
+            INC_FLOAT_STATS(prepare_phase_dist_write, _commit_start_time - _prepare_start_time);
+            INC_FLOAT_STATS(commit_phase_dist_write, _commit_end_time - _commit_start_time);
+            INC_FLOAT_STATS(abort_dist_write, _txn_restart_time - _txn_start_time);
+        }
+
         INC_FLOAT_STATS(wait, _lock_wait_time);
         INC_FLOAT_STATS(network, _net_wait_time);
     #if COLLECT_DISTRIBUTED_LATENCY || COLLECT_LOCAL_LATENCY

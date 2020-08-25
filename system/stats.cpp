@@ -115,11 +115,15 @@ void Stats::output(std::ostream * os)
     }
 
     uint64_t total_num_commits = 0;
+    uint64_t total_num_local= 0;
     uint64_t total_num_remote_write = 0;
+    uint64_t total_num_remote_read = 0;
     double total_run_time = 0;
     for (uint32_t tid = 0; tid < g_total_num_threads; tid ++) {
         total_num_commits += _stats[tid]->_int_stats[STAT_num_commits];
+        total_num_local += _stats[tid]->_int_stats[STAT_num_local_txn];
         total_num_remote_write += _stats[tid]->_int_stats[STAT_num_remote_write_txn];
+        total_num_remote_read += _stats[tid]->_int_stats[STAT_num_remote_readonly_txn];
         total_run_time += _stats[tid]->_float_stats[STAT_run_time];
     }
 
@@ -139,7 +143,8 @@ void Stats::output(std::ostream * os)
         for (uint32_t tid = 0; tid < g_total_num_threads; tid ++)
             total += _stats[tid]->_float_stats[i];
         string suffix = "";
-        if ((i >= STAT_execute_phase && i <= STAT_network) || i == STAT_total_log_yes) {
+        if ((i >= STAT_execute_phase && i <= STAT_abort) ||  (i >= STAT_row && i <= STAT_network) ||
+            i == STAT_total_log_yes) {
             #if COLLECT_DISTRIBUTED_LATENCY
                 total = total / (total_num_remote_write) * 1000000; // in us.
             #elif COLLECT_LOCAL_LATENCY
@@ -147,6 +152,18 @@ void Stats::output(std::ostream * os)
             #else
                 total = total / total_num_commits * 1000000; // in us.
             #endif
+            suffix = " (in us) ";
+        }
+        if ((i >= STAT_execute_phase_local && i <= STAT_abort_local)) {
+            total = total / total_num_local * 1000000; // in us.
+            suffix = " (in us) ";
+        }
+        if ((i >= STAT_execute_phase_dist_readonly && i <= STAT_abort_dist_readonly)) {
+            total = total / total_num_remote_read * 1000000; // in us.
+            suffix = " (in us) ";
+        }
+        if ((i >= STAT_execute_phase_dist_write && i <= STAT_abort_dist_write)) {
+            total = total / total_num_remote_write * 1000000; // in us.
             suffix = " (in us) ";
         }
         #if !LOG_NODE
