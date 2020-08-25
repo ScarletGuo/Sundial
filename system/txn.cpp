@@ -70,6 +70,7 @@ TxnManager::TxnManager(ServerThread * thread, bool sub_txn)
     _net_log_wait_time = 0;
     _log_yes_total_time = 0;
     _log_yes_time_cnt = 0;
+    _log_commit_time_cnt = 0;
     _msg_count = (uint64_t *) _mm_malloc(sizeof(uint64_t) * Message::NUM_MSG_TYPES, 64);
     _msg_size = (uint64_t *) _mm_malloc(sizeof(uint64_t) * Message::NUM_MSG_TYPES, 64);
     memset(_msg_count, 0, sizeof(uint64_t) * Message::NUM_MSG_TYPES);
@@ -101,6 +102,7 @@ TxnManager::TxnManager(TxnManager * txn)
     _net_log_wait_time = 0;
     _log_yes_total_time = 0;
     _log_yes_time_cnt = 0;
+    _log_commit_time_cnt = 0;
 
     _num_aborts = txn->_num_aborts;
     _txn_abort = false;
@@ -237,6 +239,7 @@ TxnManager::update_stats()
         INC_FLOAT_STATS(network_log, _net_log_wait_time);
         INC_FLOAT_STATS(total_log_yes, _log_yes_total_time);
         INC_INT_STATS(num_log_yes, _log_yes_time_cnt);
+        INC_INT_STATS(int_debug2, _log_commit_time_cnt);
 #if COLLECT_LATENCY
         vector<double> &all = stats->_stats[GET_THD_ID]->all_latency;
         all.push_back(latency);
@@ -401,7 +404,7 @@ TxnManager::process_msg(Message * msg)
 
     if (msg->is_log_response() && msg->get_type() != Message::YES_ACK) {
         _net_log_wait_time += get_sys_clock() - _net_log_wait_start_time;
-        INC_INT_STATS(int_debug2, 1);
+        _log_commit_time_cnt += 1;
         #if DEBUG_LOG
         // printf("txn_id: %lu, type: %d, time: %lf\n", msg->get_txn_id(), msg->get_type(), get_sys_clock() * (double)1000000 / BILLION);
         #endif

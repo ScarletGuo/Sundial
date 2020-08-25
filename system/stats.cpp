@@ -115,11 +115,11 @@ void Stats::output(std::ostream * os)
     }
 
     uint64_t total_num_commits = 0;
-    uint64_t total_num_local = 0;
+    uint64_t total_num_remote_write = 0;
     double total_run_time = 0;
     for (uint32_t tid = 0; tid < g_total_num_threads; tid ++) {
         total_num_commits += _stats[tid]->_int_stats[STAT_num_commits];
-        total_num_local += _stats[tid]->_int_stats[STAT_num_local_txn];
+        total_num_remote_write += _stats[tid]->_int_stats[STAT_num_remote_write_txn];
         total_run_time += _stats[tid]->_float_stats[STAT_run_time];
     }
 
@@ -141,9 +141,9 @@ void Stats::output(std::ostream * os)
         string suffix = "";
         if ((i >= STAT_execute_phase && i <= STAT_network) || i == STAT_total_log_yes) {
             #if COLLECT_DISTRIBUTED_LATENCY
-                total = total / (total_num_commits - total_num_local) * 1000000; // in us.
+                total = total / (total_num_remote_write) * 1000000; // in us.
             #elif COLLECT_LOCAL_LATENCY
-                total = total / total_num_local * 1000000; // in us.
+                total = total / (total_num_commits - total_num_remote_write) * 1000000; // in us.
             #else
                 total = total / total_num_commits * 1000000; // in us.
             #endif
@@ -205,8 +205,8 @@ void Stats::output(std::ostream * os)
         avg_distributed_latency += _stats[tid]->_float_stats[STAT_distributed_txn_latency];
     }
     avg_latency /= total_num_commits;
-    avg_local_latency /= total_num_local;
-    avg_distributed_latency /= (total_num_commits - total_num_local);
+    avg_local_latency /= (total_num_commits - total_num_remote_write);
+    avg_distributed_latency /= total_num_remote_write;
 
     out << "    " << setw(30) << left << "average_latency:" << avg_latency / BILLION << endl;
     out << "    " << setw(30) << left << "average_local_latency:" << avg_local_latency / BILLION << endl;

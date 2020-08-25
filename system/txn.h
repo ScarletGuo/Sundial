@@ -183,6 +183,7 @@ private:
     uint64_t         _log_yes_total_time;
     uint64_t         _log_yes_start_time;
     uint64_t         _log_yes_time_cnt;
+    uint64_t         _log_commit_time_cnt;
 
     // txn_id format. Each txn has a unique ID
     // | per thread monotonically increasing ID   |  thread ID   |   Node ID |
