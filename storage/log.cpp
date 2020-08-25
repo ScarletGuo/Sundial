@@ -254,7 +254,7 @@ void LogManager::run_flush_thread() {
                 } else {
                     fcntl(_log_fd, F_SETFD, O_RDWR | O_CREAT | O_TRUNC | O_APPEND | O_DIRECT);
                     */
-                   uint64_t aligned_size = PGROUNDUP(flushBufferSize_);
+                //    uint64_t aligned_size = PGROUNDUP(flushBufferSize_);
                     if (write(_log_fd, flush_buffer_, PGROUNDUP(flushBufferSize_)) == -1) {
                         perror("write2");
                         exit(1);
@@ -266,10 +266,10 @@ void LogManager::run_flush_thread() {
                 }
                 uint64_t flushing_time = get_sys_clock() - flush_start_time;
                 INC_FLOAT_STATS(time_debug2, flushing_time);
-                if (flushing_time < min_flushing_time)
-                    min_flushing_time = flushing_time;
-                if (flushing_time > max_flushing_time)
-                    max_flushing_time = flushing_time;
+                // if (flushing_time < min_flushing_time)
+                //     min_flushing_time = flushing_time;
+                // if (flushing_time > max_flushing_time)
+                //     max_flushing_time = flushing_time;
                 flushBufferSize_ = 0;
                 // SetPersistentLSN(lastLsn_);
                 INC_FLOAT_STATS(time_debug1, get_sys_clock() - _first_log_start_time);
@@ -277,21 +277,21 @@ void LogManager::run_flush_thread() {
                 
                 Message * tmp_msg = NULL;
                 uint64_t t1 = get_sys_clock();
-                int yes_cnt = 0 , commit_cnt = 0, abort_cnt = 0;
+                // int yes_cnt = 0 , commit_cnt = 0, abort_cnt = 0;
                 while (local_flush_queue->pop(tmp_msg)) {
-                    if (tmp_msg->get_type() == Message::YES_ACK) {
-                        yes_cnt++;
-                    } else if (tmp_msg->get_type() == Message::COMMIT_ACK) {
-                        commit_cnt++;
-                    } else {
-                        abort_cnt++;
-                    }
+                    // if (tmp_msg->get_type() == Message::YES_ACK) {
+                    //     yes_cnt++;
+                    // } else if (tmp_msg->get_type() == Message::COMMIT_ACK) {
+                    //     commit_cnt++;
+                    // } else {
+                    //     abort_cnt++;
+                    // }
                     while (!output_queues[0]->push((uint64_t)tmp_msg)) {
                         PAUSE10
                     }
                 }
-                chunck_types ct = {yes_cnt, commit_cnt, abort_cnt, aligned_size};
-                debug_chunck.push_back(ct);
+                // chunck_types ct = {yes_cnt, commit_cnt, abort_cnt, aligned_size};
+                // debug_chunck.push_back(ct);
                 INC_FLOAT_STATS(time_debug5, get_sys_clock() - t1);
             }
             _first_log_start_time = 0;
@@ -313,9 +313,9 @@ void LogManager::stop_flush_thread() {
   flush_thread_->join();
   assert(logBufferOffset_ == 0 && flushBufferSize_ == 0);
   delete flush_thread_;
-  for (auto& it : debug_chunck) { 
-    printf("yes:%d commit:%d abort:%d size:%lu\n", it.yes, it.commmit, it.abort, it.size);
-} 
+//   for (auto& it : debug_chunck) { 
+//     printf("yes:%d commit:%d abort:%d size:%lu\n", it.yes, it.commmit, it.abort, it.size);
+//     } 
 };
 
 void LogManager::flush(bool force) {

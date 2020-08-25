@@ -48,7 +48,7 @@ threads=28
 # profile="true"
 # cnt=100000 
 # penalty=50000
-distributed="false"
+distributed="true"
 local="false"
 
 # figure 4: normalized throughput with optimal case, varying requests
