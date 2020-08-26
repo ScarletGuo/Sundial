@@ -19,6 +19,7 @@ typedef struct _chunck_types {
     int commmit;
     int abort;
     uint64_t size;
+    uint64_t flushing_time;
 } chunck_types;
 
 class LogManager {
