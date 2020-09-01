@@ -423,6 +423,18 @@ TxnManager::process_msg(Message * msg)
         _net_wait_time += get_sys_clock() - _net_wait_start_time;
     }
 
+    // simulate network delay
+    if (msg->is_log_response()) {
+        uint64_t begin = get_sys_clock();
+        while (true) {
+            PAUSE100
+            uint64_t end = get_sys_clock();
+            double gap = (end - begin) * 1000 / BILLION; // in ms
+            if (gap >= NETWORK_DELAY)
+                break;
+        }
+    }
+
     if (msg->is_log_response() && msg->get_type() != Message::YES_ACK) {
         _net_log_wait_time += get_sys_clock() - _net_log_wait_start_time;
         _log_commit_time_cnt += 1;

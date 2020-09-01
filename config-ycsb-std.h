@@ -253,3 +253,5 @@ extern TestCases                    g_test_case;
 #define COLLECT_LOCAL_LATENCY    false
 
 #define COMMIT_ALG     TWO_PC
+
+#define NETWORK_DELAY 5 // in ms
