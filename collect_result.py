@@ -23,23 +23,23 @@ if __name__ == "__main__":
 				if ret != 0:
 					err_msg = "error setup server"
 					print("ERROR: " + err_msg)
+				i += 1
 			# if node_type == 2:
 			# 	storage_1 = "cd ssd/Sundial; sudo git fetch; sudo git reset --hard origin/1pc-log; cd experiments; sudo ./{}.sh {}{} true".format(exp_name, exp_name, str(i))
 			# 	ret = os.system("ssh -l LockeZ {} '{}' &".format(line, storage_1))
 			# 	if ret != 0:
 			# 		err_msg = "error setup storage"
 			# 		print("ERROR: " + err_msg)
-			i += 1
 	ifconfig.close()
 	output_cnt = i
 	df_list = []
-	for i in range(output_cnt):
+	for i in range(0, output_cnt):
 		df = pd.read_csv(exp_name + str(i)+'.csv') 
 		df_list.append(df)
 	df_result = df_list[0]
 	sum_thruput = df_result["Throughput"]
 	for i in range(1, output_cnt):
-		sum_thruput += df_list[i]
+		sum_thruput += df_list[i]["Throughput"]
 	df_result["sum_throughput"] = sum_thruput
-	df_result.to_csv(exp_name+"final", index=False)
-	os.system("mv ./*.csv /outputs")
+	df_result.to_csv(exp_name+"final.csv", index=False)
+	os.system("mv ./*.csv ./outputs")
