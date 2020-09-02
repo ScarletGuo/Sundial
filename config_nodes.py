@@ -11,6 +11,7 @@ storage_setup = "git clone https://github.com/ScarletGuo/Sundial.git; cd Sundial
 def run(line, setup):
 	ret = os.system("ssh -l LockeZ {} '{}' ".format(line, setup))
 	while ret != 0:
+		time.sleep(1)
 		ret = os.system("ssh -l LockeZ {} '{}' ".format(line, setup))
 
 if __name__ == "__main__":
