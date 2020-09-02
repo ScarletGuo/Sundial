@@ -17,6 +17,7 @@ if __name__ == "__main__":
 			if line[1] == 'l':
 				node_type = 2
 		else:
+			line = line.strip('\n')
 			if node_type == 1:
 				ret = os.system("scp ./server_setup.sh LockeZ@{}:/users/LockeZ".format(line))
 				if ret != 0:
