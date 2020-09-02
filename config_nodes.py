@@ -1,6 +1,7 @@
 import os, sys, re, os.path
 import platform
 import subprocess, datetime, time, signal, json
+import time
 
 server_setup = "git clone https://github.com/ScarletGuo/Sundial.git; cd Sundial; git checkout 1pc-log; ./conf"
 storage_setup = "git clone https://github.com/ScarletGuo/Sundial.git; cd Sundial; git checkout 1pc-log; cp ./storage_setup.sh ../; cd ..; sudo ./storage_setup.sh"
@@ -28,4 +29,5 @@ if __name__ == "__main__":
 				if ret != 0:
 					err_msg = "error setup storage"
 					print("ERROR: " + err_msg)
+			time.sleep(1)
 	ifconfig.close()

@@ -14,7 +14,7 @@ git config --global credential.helper store
 git config --global user.name "Xinyu Zeng"
 git config --global user.email "xzeng@cs.wisc.edu"
 cp vimsetting ~/.vimrc
-sudo apt update
-sudo apt -y install python3-pip
-pip3 install pandas
+# sudo apt update
+# sudo apt -y install python3-pip
+# pip3 install pandas
 
