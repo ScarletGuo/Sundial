@@ -1,8 +1,20 @@
 =s
 # a list of servers; each on a new line
-node-0.testscript2.spark-pg0.wisc.cloudlab.us
-node-1.testscript2.spark-pg0.wisc.cloudlab.us
+node-0.16nodes.spark-pg0.wisc.cloudlab.us
+node-1.16nodes.spark-pg0.wisc.cloudlab.us
+node-2.16nodes.spark-pg0.wisc.cloudlab.us
+node-3.16nodes.spark-pg0.wisc.cloudlab.us
+node-4.16nodes.spark-pg0.wisc.cloudlab.us
+node-5.16nodes.spark-pg0.wisc.cloudlab.us
+node-6.16nodes.spark-pg0.wisc.cloudlab.us
+node-7.16nodes.spark-pg0.wisc.cloudlab.us
 =l
 #log manager node
-node-2.testscript2.spark-pg0.wisc.cloudlab.us
-node-3.testscript2.spark-pg0.wisc.cloudlab.us
+node-8.16nodes.spark-pg0.wisc.cloudlab.us
+node-9.16nodes.spark-pg0.wisc.cloudlab.us
+node-10.16nodes.spark-pg0.wisc.cloudlab.us
+node-11.16nodes.spark-pg0.wisc.cloudlab.us
+node-12.16nodes.spark-pg0.wisc.cloudlab.us
+node-13.16nodes.spark-pg0.wisc.cloudlab.us
+node-14.16nodes.spark-pg0.wisc.cloudlab.us
+node-15.16nodes.spark-pg0.wisc.cloudlab.us
