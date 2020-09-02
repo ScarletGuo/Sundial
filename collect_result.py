@@ -19,7 +19,7 @@ if __name__ == "__main__":
 		else:
 			line = line.strip('\n')
 			if node_type == 1:
-				ret = os.system("scp LockeZ@{}:/users/LockeZ/Sundial/output/{}{} ./".format(line, exp_name, str(i)))
+				ret = os.system("scp LockeZ@{}:/users/LockeZ/Sundial/outputs/{}{}.csv ./".format(line, exp_name, str(i)))
 				if ret != 0:
 					err_msg = "error setup server"
 					print("ERROR: " + err_msg)
@@ -41,4 +41,5 @@ if __name__ == "__main__":
 	for i in range(1, output_cnt):
 		sum_thruput += df_list[i]
 	df_result["sum_throughput"] = sum_thruput
-	df_result.to_csv(index=False)
+	df_result.to_csv(exp_name+"final", index=False)
+	os.system("mv ./*.csv /outputs")
