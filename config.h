@@ -254,4 +254,4 @@ extern TestCases                    g_test_case;
 
 #define COMMIT_ALG     ONE_PC
 
-#define NETWORK_DELAY 5 // in ms
+#define NETWORK_DELAY 0 // in ms
