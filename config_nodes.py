@@ -18,20 +18,20 @@ if __name__ == "__main__":
 				node_type = 2
 		else:
 			if node_type == 1:
-				ret = os.system("scp ./server_setup LockeZ@{}:/users/LockeZ".format(line))
+				ret = os.system("scp ./server_setup.sh LockeZ@{}:/users/LockeZ".format(line))
 				if ret != 0:
 					err_msg = "error setup server"
 					print("ERROR: " + err_msg)
-				ret = os.system("ssh -l LockeZ {} './server_setup'".format(line))
+				ret = os.system("ssh -l LockeZ {} './server_setup.sh'".format(line))
 				if ret != 0:
 					err_msg = "error setup server"
 					print("ERROR: " + err_msg)
 			if node_type == 2:
-				ret = os.system("scp ./storage_setup LockeZ@{}:/users/LockeZ".format(line))
+				ret = os.system("scp ./storage_setup.sh LockeZ@{}:/users/LockeZ".format(line))
 				if ret != 0:
 					err_msg = "error setup storage"
 					print("ERROR: " + err_msg)
-				ret = os.system("ssh -l LockeZ {} './storage_setup'".format(line))
+				ret = os.system("ssh -l LockeZ {} './storage_setup.sh'".format(line))
 				if ret != 0:
 					err_msg = "error setup storage"
 					print("ERROR: " + err_msg)
