@@ -75,4 +75,6 @@ mv stats.csv ${fname}.csv
 mv stats.json ${fname}.json
 cd ..
 
-# python experiments/send_email.py ${fname}
+if [ "$lognode" = "false" ]; then
+    python3 experiments/send_email.py ${fname}
+fi

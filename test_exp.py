@@ -2,12 +2,13 @@ import os, sys, re, os.path
 import platform
 import subprocess, datetime, time, signal, json
 
-server_setup = "git clone https://github.com/ScarletGuo/Sundial.git; cd Sundial; git checkout 1pc-log; ./conf"
-storage_setup = "git clone https://github.com/ScarletGuo/Sundial.git; cd Sundial; git checkout 1pc-log; cp ./storage_setup.sh ../; cd ..; sudo ./storage_setup.sh"
 
 if __name__ == "__main__":
+	exp_name = sys.argv[1]
+
 	ifconfig = open("ifconfig.txt")
 	node_type = -1
+	i = 0
 	for line in ifconfig:
 		if line[0] == '#':
 			continue
@@ -19,13 +20,16 @@ if __name__ == "__main__":
 		else:
 			line = line.strip('\n')
 			if node_type == 1:
-				ret = os.system("ssh -l LockeZ {} '{}' &".format(line, server_setup))
+				server_1 = "cd Sundial; git fetch; git reset --hard origin/1pc-log; cd experiments; ./{}.sh {}{} false".format(exp_name, exp_name, str(i))
+				ret = os.system("ssh -l LockeZ {} '{}' &".format(line, server_1))
 				if ret != 0:
 					err_msg = "error setup server"
 					print("ERROR: " + err_msg)
 			if node_type == 2:
-				ret = os.system("ssh -l LockeZ {} '{}' &".format(line, storage_setup))
+				storage_1 = "cd ssd/Sundial; sudo git fetch; sudo git reset --hard origin/1pc-log; cd experiments; sudo ./{}.sh {}{} true".format(exp_name, exp_name, str(i))
+				ret = os.system("ssh -l LockeZ {} '{}' &".format(line, storage_1))
 				if ret != 0:
 					err_msg = "error setup storage"
 					print("ERROR: " + err_msg)
+			i += 1
 	ifconfig.close()
