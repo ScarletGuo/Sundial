@@ -35,5 +35,5 @@ if __name__ == "__main__":
 	for i in range(1, output_cnt):
 		sum_thruput += df_list[i]["Throughput"]
 	df_result["sum_throughput"] = sum_thruput
-	df_result.to_csv(exp_name+"_final_2.csv", index=False)
+	df_result.to_csv(exp_name+"_final_6.csv", index=False)
 	os.system("mv ./*.csv ./outputs")
