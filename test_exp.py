@@ -33,7 +33,7 @@ if __name__ == "__main__":
 		else:
 			line = line.strip('\n')
 			if node_type == 1:
-				server_1 = "cd Sundial; git fetch; git reset --hard origin/1pc-log; cd experiments; ./{}.sh {}{} false".format(exp_name, exp_name, str(i))
+				server_1 = "cd Sundial; git fetch; git reset --hard origin/1pc-log; cd experiments; ./{}.sh {}_new_{} false".format(exp_name, exp_name, str(i))
 				thread1 = myThread(line, server_1)
 			if node_type == 2:
 				storage_1 = "cd ssd/Sundial; sudo git fetch; sudo git reset --hard origin/1pc-log; cd experiments; sudo ./{}.sh {}{} true".format(exp_name, exp_name, str(i))
