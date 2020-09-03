@@ -54,7 +54,7 @@ local="false"
 # figure 4: normalized throughput with optimal case, varying requests
 # for alg in WOUND_WAIT BAMBOO
 # do
-for commit_alg in TWO_PC ONE_PC
+for commit_alg in TWO_PC
 do
 # for i in 0 1 2 3 4 5
 for i in 0
