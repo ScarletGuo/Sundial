@@ -122,7 +122,7 @@
 // YCSB
 ///////////////////////////////
 // Number of tuples per node
-#define SYNTH_TABLE_SIZE             (1024 * 125 * 1024) // (1024 * 10 * 1024)
+#define SYNTH_TABLE_SIZE             (1024 * 120 * 1024) // (1024 * 10 * 1024)
 #define ZIPF_THETA                     0 // try 0 here, if still contention, make table size larger
 #define READ_PERC                     0.5
 #define PERC_READONLY_DATA            0

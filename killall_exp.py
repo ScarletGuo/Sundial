@@ -11,10 +11,10 @@ class myThread (threading.Thread):
 		self.setup = setup
 
 	def run(self):
-		ret = os.system("ssh -l LockeZ {} '{}' ".format(self.line, self.setup))
-		while ret != 0:
-			time.sleep(1)
-			ret = os.system("ssh -l LockeZ {} '{}' ".format(self.line, self.setup))
+		ret = os.system("ssh -l LockeZ {} '{}'".format(self.line, self.setup))
+		# while ret != 0:
+		# 	time.sleep(1)
+		# 	ret = os.system("ssh -l LockeZ {} '{}'".format(self.line, self.setup))
 
 if __name__ == "__main__":
 	exp_name = sys.argv[1]
@@ -32,7 +32,7 @@ if __name__ == "__main__":
 				node_type = 2
 		else:
 			line = line.strip('\n')
-			server_1 = "sudo killall -u LockeZ"
+			server_1 = "sudo pkill rundb"
 			thread1 = myThread(line, server_1)
 			thread1.start()
 			threads.append(thread1)
