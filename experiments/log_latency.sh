@@ -56,7 +56,7 @@ local="false"
 # do
 for commit_alg in TWO_PC ONE_PC
 do
-for i in 0 1 2 3 4 5
+for i in 0 1 2 3 4
 # for i in 0
 do
 # for perc_remote in 0 0.01 0.02 0.04 0.06 0.08 0.1
