@@ -63,7 +63,7 @@ for perc_remote in 0.05
 do
 for log_latency in 0
 do
-for read_ratio in 0 0.2 0.4 0.6 0.8 0.1
+for read_ratio in 0 0.2 0.4 0.6 0.8 1
 do
 timeout 200 python test.py NETWORK_DELAY=${log_latency} COLLECT_LOCAL_LATENCY=${local} COLLECT_DISTRIBUTED_LATENCY=${distributed} CC_ALG=${alg} COMMIT_ALG=${commit_alg} LOG_NODE=${lognode} NUM_SERVER_THREADS=${threads} PERC_REMOTE=${perc_remote}  READ_PERC=${read_ratio} ZIPF_THETA=${zipf}
 done
