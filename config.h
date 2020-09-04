@@ -122,7 +122,7 @@
 // YCSB
 ///////////////////////////////
 // Number of tuples per node
-#define SYNTH_TABLE_SIZE             (1024 * 10 * 1024) // (1024 * 10 * 1024)
+#define SYNTH_TABLE_SIZE             (1024 * 64 * 1024) // (1024 * 10 * 1024)
 #define ZIPF_THETA                     0 // try 0 here, if still contention, make table size larger
 #define READ_PERC                     0.5
 #define PERC_READONLY_DATA            0
@@ -252,6 +252,6 @@ extern TestCases                    g_test_case;
 #define COLLECT_DISTRIBUTED_LATENCY    false
 #define COLLECT_LOCAL_LATENCY    false
 
-#define COMMIT_ALG     ONE_PC
+#define COMMIT_ALG     TWO_PC
 
 #define NETWORK_DELAY 0 // in ms
