@@ -56,16 +56,17 @@ local="false"
 # do
 for commit_alg in TWO_PC ONE_PC
 do
-for i in 0 1 2 3 4 5
+for i in 0 1
 do
 # for perc_remote in 0 0.01 0.02 0.04 0.06 0.08 0.1
 for perc_remote in 0.05
 do
 for log_latency in 0
 do
-for zipf in 0, 0.6, 0.8, 0.9, 0.99, 1.1
+for zipf in 0 0.6 0.8 0.9 0.99 1.1
+# for zipf in 1.1
 do
-timeout 200 python test.py NETWORK_DELAY=${log_latency} COLLECT_LOCAL_LATENCY=${local} COLLECT_DISTRIBUTED_LATENCY=${distributed} CC_ALG=${alg} COMMIT_ALG=${commit_alg} LOG_NODE=${lognode} NUM_SERVER_THREADS=${threads} PERC_REMOTE=${perc_remote}  READ_PERC=${read_ratio} ZIPF_THETA=${zipf}
+timeout 100 python test.py NETWORK_DELAY=${log_latency} COLLECT_LOCAL_LATENCY=${local} COLLECT_DISTRIBUTED_LATENCY=${distributed} CC_ALG=${alg} COMMIT_ALG=${commit_alg} LOG_NODE=${lognode} NUM_SERVER_THREADS=${threads} PERC_REMOTE=${perc_remote}  READ_PERC=${read_ratio} ZIPF_THETA=${zipf}
 done
 done
 done

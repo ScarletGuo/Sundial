@@ -147,6 +147,13 @@ RC ServerThread::run() {
             }
             // 1pc
             #if COMMIT_ALG == ONE_PC
+                if (msg->get_type() == Message::COMMIT_ACK
+                || msg->get_type() == Message::ABORT_ACK) {
+                    DELETE(Message, msg);
+                    continue;
+                }
+            #endif
+            #if COMMIT_ALG == ONE_PC
             // if (msg->get_type() == Message::LOG_ACK) {
             //     TxnManager * tmp_txn = txn_table->get_txn(msg->get_txn_id());
             //     if (tmp_txn != NULL) {
@@ -187,13 +194,6 @@ RC ServerThread::run() {
                     DELETE(Message, msg);
                     continue;
                 }
-                #if COMMIT_ALG == ONE_PC
-                    if (msg->get_type() == Message::COMMIT_ACK
-                    || msg->get_type() == Message::ABORT_ACK) {
-                        DELETE(Message, msg);
-                        continue;
-                    }
-                #endif
                 M_ASSERT(msg->get_type() == Message::REQ || msg->get_type() == Message::CLIENT_REQ,
                         "msg->type = %s, txn_id=%lu\n", msg->get_name().c_str(), msg->get_txn_id());
                 txn_man = new TxnManager(msg, this);

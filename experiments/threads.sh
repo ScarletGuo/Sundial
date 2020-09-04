@@ -33,7 +33,7 @@ perc_remote=0.05
 wl="YCSB"
 # req=16
 # synthetic=true
-zipf=0
+zipf=0.9
 # num_hs=1
 # pos=SPECIFIED
 # specified=0
@@ -53,13 +53,13 @@ threads=32
 # penalty=50000
 
 # figure 4: normalized throughput with optimal case, varying requests
-for i in 0 1 2 3 4
+for i in 0 1 2
 do
 # for alg in WOUND_WAIT BAMBOO
 # do
-for commit_alg in ONE_PC TWO_PC
+for commit_alg in TWO_PC ONE_PC
 do
-for threads in 2 4 8 12 16 20 24 28
+for threads in 2 4 8 12 16 20 24 28 32
 do
 # for log_timeout in 250 500 750 1000 1250 1500
 # do
@@ -75,7 +75,7 @@ mv stats.csv ${fname}.csv
 mv stats.json ${fname}.json
 cd ..
 
-if [ $lognode -eq "false" ]
+if [ "$lognode" = "false" ]
 then
 python experiments/send_email.py ${fname}
 fi
