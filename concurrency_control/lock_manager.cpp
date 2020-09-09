@@ -409,6 +409,17 @@ LockManager::get_modified_tuples(uint32_t &size, char * &data)
         return false;
 }
 
+bool
+LockManager::all_remote_readonly()
+{
+    for (auto access : _remote_set)    {
+        if (access.type == WR)
+            return false;
+    }
+            
+    return true;
+}
+
 void
 LockManager::process_commit_req(RC rc, uint32_t size, char * data)
 {

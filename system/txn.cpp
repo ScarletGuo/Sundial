@@ -239,13 +239,21 @@ TxnManager::update_stats()
             INC_FLOAT_STATS(commit_phase_local, _commit_end_time - _commit_start_time);
             INC_FLOAT_STATS(abort_local, _txn_restart_time - _txn_start_time);
         }
+        #if WORKLOAD == YCSB
         if (is_all_remote_readonly() && !_store_procedure->get_query()->is_local()) {
+        #else
+        if (_cc_manager->all_remote_readonly() && !_store_procedure->get_query()->is_local()) {
+        #endif
             INC_FLOAT_STATS(execute_phase_dist_readonly, _prepare_start_time - _txn_restart_time);
             INC_FLOAT_STATS(prepare_phase_dist_readonly, _commit_start_time - _prepare_start_time);
             INC_FLOAT_STATS(commit_phase_dist_readonly, _commit_end_time - _commit_start_time);
             INC_FLOAT_STATS(abort_dist_readonly, _txn_restart_time - _txn_start_time);
         }
+        #if WORKLOAD == YCSB
         if (!is_all_remote_readonly() && !_store_procedure->get_query()->is_local()) {
+        #else
+        if (!_cc_manager->all_remote_readonly() && !_store_procedure->get_query()->is_local()) {
+        #endif
             INC_FLOAT_STATS(execute_phase_dist_write, _prepare_start_time - _txn_restart_time);
             INC_FLOAT_STATS(prepare_phase_dist_write, _commit_start_time - _prepare_start_time);
             INC_FLOAT_STATS(commit_phase_dist_write, _commit_end_time - _commit_start_time);
@@ -996,7 +1004,11 @@ TxnManager::process_2pc_commit_phase(RC rc)
 #if LOG_ENABLE
     // Logging
     if ( 
+    #if WORKLOAD == YCSB
             (is_all_remote_readonly() || remote_nodes_involved.size() == 0)  == false
+    #else
+            (_cc_manager->all_remote_readonly() || remote_nodes_involved.size() == 0)  == false
+    #endif
             ) {  // for host node only log YES, no COMMIT for readonly
         log(type);
     }
@@ -1098,7 +1110,11 @@ TxnManager::process_2pc_commit_phase(RC rc)
 
 #if LOG_ENABLE
     if ( 
+        #if WORKLOAD == YCSB
             (is_all_remote_readonly() || remote_nodes_involved.size() == 0)  == false
+        #else
+                (_cc_manager->all_remote_readonly() || remote_nodes_involved.size() == 0)  == false
+        #endif
             ) {    // for host node only log YES, no COMMIT for readonly, or a completely local txn
     _commit_start_time = get_sys_clock();
         // Logging

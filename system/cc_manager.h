@@ -97,6 +97,8 @@ public:
     virtual void     process_caching_resp(uint32_t node_id, uint32_t size, char * data) { return; }
 
     virtual uint32_t get_log_record(char *& record) { assert(false); }
+
+    virtual bool        all_remote_readonly() { return false; };
 protected:
     volatile uint32_t    _num_lock_waits;
     uint64_t        _timestamp;

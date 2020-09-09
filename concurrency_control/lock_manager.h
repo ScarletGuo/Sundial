@@ -41,6 +41,8 @@ public:
     void         process_commit_req(RC rc, uint32_t size, char * data);
     RC             commit_insdel();
     void         abort();
+    
+    bool        all_remote_readonly();
 private:
     struct AccessLock : Access {
         AccessLock() { data = NULL; data_size = 0; }
@@ -49,6 +51,7 @@ private:
     };
 
     AccessLock * find_access(uint64_t key, uint32_t table_id, vector<AccessLock> * set);
+
 
     vector<AccessLock>        _access_set;
     vector<AccessLock>        _remote_set;

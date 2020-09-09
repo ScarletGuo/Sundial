@@ -3,20 +3,27 @@ import platform
 import subprocess, datetime, time, signal, json
 import time
 import _thread
+import threading
 
 server_setup = "git clone https://github.com/ScarletGuo/Sundial.git; cd Sundial; git checkout 1pc-log; ./conf"
 storage_setup = "git clone https://github.com/ScarletGuo/Sundial.git; cd Sundial; git checkout 1pc-log; cp ./storage_setup.sh ../; cd ..; sudo ./storage_setup.sh"
 
+class myThread (threading.Thread):
+	def __init__(self, line, setup):
+		threading.Thread.__init__(self)
+		self.line = line
+		self.setup = setup
 
-def run(line, setup):
-	ret = os.system("ssh -l LockeZ {} '{}' ".format(line, setup))
-	while ret != 0:
-		time.sleep(1)
-		ret = os.system("ssh -l LockeZ {} '{}' ".format(line, setup))
+	def run(self):
+		ret = os.system("ssh -l LockeZ {} '{}' ".format(self.line, self.setup))
+		while ret != 0:
+			time.sleep(1)
+			ret = os.system("ssh -l LockeZ {} '{}' ".format(self.line, self.setup))
 
 if __name__ == "__main__":
 	ifconfig = open("ifconfig.txt")
 	node_type = -1
+	threads = []
 	for line in ifconfig:
 		if line[0] == '#':
 			continue
@@ -38,8 +45,12 @@ if __name__ == "__main__":
 			# 		err_msg = "error setup storage"
 			# 		print("ERROR: " + err_msg)
 			if node_type == 1:
-				_thread.start_new_thread(run, (line, server_setup, ))
+				thread1 = myThread(line, server_setup)
 			if node_type == 2:
-				_thread.start_new_thread(run, (line, storage_setup, ))
+				thread1 = myThread(line, storage_setup)
+			thread1.start()
+			threads.append(thread1)
 			time.sleep(1)
+	for t in threads:
+		t.join()
 	ifconfig.close()
