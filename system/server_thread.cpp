@@ -69,11 +69,11 @@ RC ServerThread::run() {
                 Message *m = new Message(Message::LOG_ACK, msg->get_src_node_id(), msg->get_txn_id(), 0, NULL);
                 output_queues[0]->push((uint64_t)m);
                 */
-                Message* ret = log_manager->log(msg);
+                log_manager->log(msg);
                 // Message *m = new Message(ret->get_type(), msg->get_src_node_id(), msg->get_txn_id(), ret->get_lsn(), 0, NULL);
                 // output_queues[0]->push((uint64_t)m);
                 // _transport->sendMsg(new Message(ret->get_type(), msg->get_src_node_id(), msg->get_txn_id(), ret->get_lsn(), 0, NULL));
-                delete ret;
+                // delete ret;
             }
             if (glob_manager->is_sim_done())
             {
