@@ -2,7 +2,7 @@
 
 #define DISTRIBUTED_ENABLE            true
 // number of server threads
-#define NUM_SERVER_THREADS            28
+#define NUM_SERVER_THREADS            16
 
 ////////////////////////////////////////////////////////////////////////
 // For distributed DBMS, the following parameters are for a single node.
@@ -142,8 +142,10 @@
 // TODO. REPLICATE_ITEM_TABLE = false only works for TICTOC.
 #define REPLICATE_ITEM_TABLE        true
 
+// #define PERC_PAYMENT                 1 // try one type
 #define PERC_PAYMENT                 0.316
-#define PERC_NEWORDER                 0.331
+#define PERC_NEWORDER                 0.684
+// #define PERC_NEWORDER                 0.331
 #define PERC_ORDERSTATUS            0.029
 #define PERC_DELIVERY                0.294
 #define PERC_STOCKLEVEL                0.03
