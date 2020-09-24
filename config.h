@@ -13,7 +13,7 @@
 // warmup time
 #define WARMUP                        0
 // YCSB or TPCC
-#define WORKLOAD                     TPCC
+#define WORKLOAD                     YCSB
 
 // print the transaction latency distribution
 #define COLLECT_LATENCY             true
