@@ -28,7 +28,7 @@
 // Concurrency Control
 ////////////////////////////////////////////////////////////////////////
 // WAIT_DIE, NO_WAIT, TICTOC, F_ONE, MAAT
-#define CC_ALG                         WAIT_DIE
+#define CC_ALG                         NO_WAIT
 #define ISOLATION_LEVEL             SERIALIZABLE
 
 // all transactions acquire tuples according to the primary key order.
