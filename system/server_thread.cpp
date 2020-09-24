@@ -65,15 +65,7 @@ RC ServerThread::run() {
                     msg = _msg;
                     _msg = NULL;
                 }
-                /*
-                Message *m = new Message(Message::LOG_ACK, msg->get_src_node_id(), msg->get_txn_id(), 0, NULL);
-                output_queues[0]->push((uint64_t)m);
-                */
                 log_manager->log(msg);
-                // Message *m = new Message(ret->get_type(), msg->get_src_node_id(), msg->get_txn_id(), ret->get_lsn(), 0, NULL);
-                // output_queues[0]->push((uint64_t)m);
-                // _transport->sendMsg(new Message(ret->get_type(), msg->get_src_node_id(), msg->get_txn_id(), ret->get_lsn(), 0, NULL));
-                // delete ret;
             }
             if (glob_manager->is_sim_done())
             {
@@ -81,21 +73,21 @@ RC ServerThread::run() {
             }
         }
         
-    #if DEBUG_LOG
-        uint64_t t1;
-        uint64_t t2;
-        int cnt = 0;
-        uint64_t total = 0;
-        while (input_time_queue->pop(t1) && output_time_queue->pop(t2)) {
-            uint64_t time = (t2 - t1) * 1000000 / BILLION;
-            total += time;
-            // printf("time: %lu\n", time);
-            INC_FLOAT_STATS(time_debug6, t2 - t1);
-            INC_INT_STATS(int_debug2, 1);
-            cnt++;
-        }
-        // printf("ave: %lf\n", (double) total / cnt);
-    #endif
+        #if DEBUG_LOG
+            uint64_t t1;
+            uint64_t t2;
+            int cnt = 0;
+            uint64_t total = 0;
+            while (input_time_queue->pop(t1) && output_time_queue->pop(t2)) {
+                uint64_t time = (t2 - t1) * 1000000 / BILLION;
+                total += time;
+                // printf("time: %lu\n", time);
+                INC_FLOAT_STATS(time_debug6, t2 - t1);
+                INC_INT_STATS(int_debug2, 1);
+                cnt++;
+            }
+            // printf("ave: %lf\n", (double) total / cnt);
+        #endif
     #else
     uint64_t init_time = get_sys_clock();
     _num_active_txns = 0;

@@ -152,6 +152,7 @@ private:
     #endif
     RC process_2pc_commit_req(Message * msg);
     RC process_2pc_commit_resp();
+    RC execute_commit_phase(RC rc);
 
 
     bool             _is_sub_txn;

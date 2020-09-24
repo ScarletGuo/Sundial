@@ -13,7 +13,6 @@ LogManager::LogManager()
 
 LogManager::LogManager(char * log_name)
 {
-    // assert(512 % sizeof(LogRecord) == 0);   // group commit alignment
     _buffer_size = 64 * 1024 * 1024;
     int align = 512 - 1;
     _buffer = (char *)malloc(_buffer_size + align); // 64 MB
@@ -28,11 +27,6 @@ LogManager::LogManager(char * log_name)
         perror("open log file");
         exit(1);
     }
-    // _log_fp = fdopen(_log_fd, "w+");
-    // if (_log_fp == NULL) {
-    //     perror("open log file");
-    //     exit(1);
-    // }
     
     // group commit
     flush_buffer_ = (char *)malloc(_buffer_size + align); // 64 MB
@@ -168,7 +162,6 @@ LogRecord::Type LogManager::check_log(Message * msg) {
 void LogManager::log_message(Message *msg, LogRecord::Type type) {
     unique_lock<mutex> latch(*latch_);
     ATOM_FETCH_ADD(_lsn, 1);
-    // printf("latest lsn: %d\n", _lsn);
     uint32_t size_total = sizeof(LogRecord) + msg->get_data_size();
     swap_lock->lock();
     if (logBufferOffset_ + size_total > _buffer_size) {
@@ -189,17 +182,6 @@ void LogManager::log_message(Message *msg, LogRecord::Type type) {
         logBufferOffset_ += msg->get_data_size();
     }
     swap_lock->unlock();
-    // if (fwrite(&log, sizeof(log), 1, _log_fp) != 1) {
-	// 		perror("fwrite");
-	// 		exit(1);
-    // }
-    /*
-    fflush(_log_fp);
-    if (fsync(_log_fd) == -1) {
-        perror("fsync");
-        exit(1);
-    }
-    */
 }
 
 uint64_t LogManager::get_last_lsn() {
@@ -235,30 +217,18 @@ void LogManager::run_flush_thread() {
             assert(flushBufferSize_ == 0);
             if (logBufferOffset_ > 0) {
                 uint64_t flush_start_time = get_sys_clock();
+
                 swap_lock->lock();
                 swap(_buffer,flush_buffer_);
                 swap(logBufferOffset_,flushBufferSize_);
                 swap(local_out_queue, local_flush_queue);
                 swap_lock->unlock();
-                // disk_manager_->WriteLog(flush_buffer_, flushBufferSize_);
-                // printf("write\n");
-                // TODO: figure out how to handle buffersize not reach alignment
-                /*
-                if (flushBufferSize_ != _buffer_size) {
-                    // printf("fcntl\n");
-                    fcntl(_log_fd, F_SETFD, O_RDWR | O_CREAT | O_TRUNC | O_APPEND);
-                    if (write(_log_fd, flush_buffer_, flushBufferSize_) == -1) {
-                        perror("write1");
-                        exit(1);
-                    }
-                } else {
-                    fcntl(_log_fd, F_SETFD, O_RDWR | O_CREAT | O_TRUNC | O_APPEND | O_DIRECT);
-                    */
-                   uint64_t aligned_size = PGROUNDUP(flushBufferSize_);
-                    if (write(_log_fd, flush_buffer_, PGROUNDUP(flushBufferSize_)) == -1) {
-                        perror("write2");
-                        exit(1);
-                    }
+                
+                uint64_t aligned_size = PGROUNDUP(flushBufferSize_);
+                if (write(_log_fd, flush_buffer_, PGROUNDUP(flushBufferSize_)) == -1) {
+                    perror("write2");
+                    exit(1);
+                }
                 // }
                 if (fsync(_log_fd) == -1) {
                     perror("fsync");
@@ -266,12 +236,9 @@ void LogManager::run_flush_thread() {
                 }
                 uint64_t flushing_time = get_sys_clock() - flush_start_time;
                 INC_FLOAT_STATS(time_debug2, flushing_time);
-                // if (flushing_time < min_flushing_time)
-                //     min_flushing_time = flushing_time;
-                // if (flushing_time > max_flushing_time)
-                //     max_flushing_time = flushing_time;
+
                 flushBufferSize_ = 0;
-                // SetPersistentLSN(lastLsn_);
+                
                 INC_FLOAT_STATS(time_debug1, get_sys_clock() - _first_log_start_time);
                 INC_INT_STATS(int_debug1, 1);
                 
@@ -304,26 +271,21 @@ void LogManager::run_flush_thread() {
  * Stop and join the flush thread, set ENABLE_LOGGING = false
  */
 void LogManager::stop_flush_thread() {
-    // printf("max flushing time: %lf\n", max_flushing_time * (double)1000000 / BILLION);
-    // printf("min flushing time: %lf\n", min_flushing_time * (double)1000000 / BILLION);
-    
-  if (!ENABLE_LOGGING) return;
-  ENABLE_LOGGING = false;
-  flush(true);
-  flush_thread_->join();
-  assert(logBufferOffset_ == 0 && flushBufferSize_ == 0);
-  delete flush_thread_;
-  int cnt = 0;
-  uint64_t size = 0;
-  uint64_t time = 0;
-  for (auto& it : debug_chunck) { 
-    // printf("yes:%d commit:%d abort:%d size:%lu\n", it.yes, it.commmit, it.abort, it.size);
-    cnt++;
-    size += it.size;
-    time += it.flushing_time;
+    if (!ENABLE_LOGGING) return;
+    ENABLE_LOGGING = false;
+    flush(true);
+    flush_thread_->join();
+    assert(logBufferOffset_ == 0 && flushBufferSize_ == 0);
+    delete flush_thread_;
+    int cnt = 0;
+    uint64_t size = 0;
+    uint64_t time = 0;
+    for (auto& it : debug_chunck) { 
+        // printf("yes:%d commit:%d abort:%d size:%lu\n", it.yes, it.commmit, it.abort, it.size);
+        cnt++;
+        size += it.size;
+        time += it.flushing_time;
     } 
-    printf("average size: %lu\n", size / cnt);
-    printf("average time: %lu\n", time / cnt);
 };
 
 void LogManager::flush(bool force) {

@@ -48,16 +48,12 @@ int main(int argc, char* argv[])
         output_queues[i] = (InOutQueue *) _mm_malloc(sizeof(InOutQueue), 64);
         new (output_queues[i]) InOutQueue;
     }
-//   #if CC_ALG == TICTOC && ENABLE_LOCAL_CACHING
-//     local_cache_man = new CacheManager;
-//   #endif
 
     stats = (Stats *) _mm_malloc(sizeof(Stats), 64);
     new(stats) Stats();
 
     glob_manager = (Manager *) _mm_malloc(sizeof(Manager), 64);
     glob_manager->init();
-    // txn_table = new TxnTable();
 
     //TODO: not hardcode log name
     char log_name[100];
