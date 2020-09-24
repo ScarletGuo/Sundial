@@ -1002,11 +1002,9 @@ TxnManager::process_2pc_commit_phase(RC rc)
             ) {    // for host node only log YES, no COMMIT for readonly, or a completely local txn
         // Logging
         if (rc == COMMIT) {
-            send_msg( new Message( Message::COMMIT_REQ, g_log_node_id, get_txn_id(),
-                    0, NULL ) );
+            log(Message::COMMIT_REQ);
         } else if (rc == ABORT){
-            send_msg( new Message( Message::ABORT_REQ, g_log_node_id, get_txn_id(),
-                    0, NULL ) );
+            log(Message::ABORT_REQ);
         }
     } else {
         return execute_commit_phase(rc);
