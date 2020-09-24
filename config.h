@@ -143,9 +143,9 @@
 #define REPLICATE_ITEM_TABLE        true
 
 // #define PERC_PAYMENT                 1 // try one type
-#define PERC_PAYMENT                 0.316
+#define PERC_PAYMENT                 0
 // #define PERC_NEWORDER                 0.684
-#define PERC_NEWORDER                 0.331
+#define PERC_NEWORDER                 1
 #define PERC_ORDERSTATUS            0.029
 #define PERC_DELIVERY                0.294
 #define PERC_STOCKLEVEL                0.03
