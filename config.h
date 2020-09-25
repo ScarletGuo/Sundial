@@ -28,7 +28,7 @@
 // Concurrency Control
 ////////////////////////////////////////////////////////////////////////
 // WAIT_DIE, NO_WAIT, TICTOC, F_ONE, MAAT
-#define CC_ALG                         NO_WAIT
+#define CC_ALG                         WAIT_DIE
 #define ISOLATION_LEVEL             SERIALIZABLE
 
 // all transactions acquire tuples according to the primary key order.
@@ -142,9 +142,7 @@
 // TODO. REPLICATE_ITEM_TABLE = false only works for TICTOC.
 #define REPLICATE_ITEM_TABLE        true
 
-// #define PERC_PAYMENT                 1 // try one type
 #define PERC_PAYMENT                 0
-// #define PERC_NEWORDER                 0.684
 #define PERC_NEWORDER                 1
 #define PERC_ORDERSTATUS            0.029
 #define PERC_DELIVERY                0.294

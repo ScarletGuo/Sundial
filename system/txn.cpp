@@ -75,6 +75,11 @@ TxnManager::TxnManager(ServerThread * thread, bool sub_txn)
     _txn_abort = false;
     _remote_txn_abort = false;
     _cc_manager = CCManager::create(this);
+
+    
+    //1pc
+    _lsn_table = new uint32_t[g_num_nodes];
+    memset(_lsn_table, 0, g_num_nodes * sizeof(uint32_t));
 }
 
 TxnManager::TxnManager(TxnManager * txn)
@@ -104,6 +109,11 @@ TxnManager::TxnManager(TxnManager * txn)
     memset(_msg_count, 0, sizeof(uint64_t) * Message::NUM_MSG_TYPES);
     memset(_msg_size, 0, sizeof(uint64_t) * Message::NUM_MSG_TYPES);
     _cc_manager = CCManager::create(this);
+
+    
+    //1pc
+    _lsn_table = new uint32_t[g_num_nodes];
+    memset(_lsn_table, 0, g_num_nodes * sizeof(uint32_t));
 }
 
 TxnManager::~TxnManager()
@@ -137,6 +147,18 @@ void
 TxnManager::set_txn_ready(RC rc)
 {
     _cc_manager->set_txn_ready(rc);
+}
+
+void 
+TxnManager::log(Message::Type type, char * data, int size) {
+    uint32_t lsn = _lsn_table[g_node_id];
+    send_msg( new Message(type, g_log_node_id, get_txn_id(), lsn, 
+                  size, data ) );
+}
+
+void 
+TxnManager::log(Message::Type type) {
+    log(type, NULL, 0);
 }
 
 void
@@ -374,6 +396,16 @@ TxnManager::process_msg(Message * msg)
     case Message::LOCAL_COPY_RESP:
         assert(ENABLE_LOCAL_CACHING);
         return process_caching_resp(msg);
+    case Message::COMMIT_ACK:
+    case Message::ABORT_ACK:
+    #if COMMIT_ALG == TWO_PC
+        if (_is_sub_txn)
+            assert(false);
+        else
+            return process_2pc_commit_phase_2(msg);
+    #else
+            return RCOK;
+    #endif
     default:
         M_ASSERT(false, "Unsupported message type\n");
     }
@@ -796,9 +828,27 @@ TxnManager::process_2pc_prepare_resp(Message * msg)
 }
 
 RC
-TxnManager::process_2pc_commit_phase(RC rc)
+TxnManager::process_2pc_commit_phase_2(Message * msg)
 {
+    RC rc = msg->get_type() == Message::COMMIT_ACK ? COMMIT : ABORT;
+    return execute_commit_phase(rc);
+}
+
+
+RC
+TxnManager::process_2pc_commit_phase(RC rc) {
     _commit_start_time = get_sys_clock();
+    if (rc == COMMIT) {
+        log(Message::COMMIT_REQ);
+    } else if (rc == ABORT){
+        log(Message::ABORT_REQ);
+    }
+    return RCOK;
+}
+
+RC
+TxnManager::execute_commit_phase(RC rc)
+{
 #if CC_ALG == TCM
     if (rc == COMMIT)
         rc = ((TCMManager *)_cc_manager)->compute_ts_range();

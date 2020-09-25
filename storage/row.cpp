@@ -28,8 +28,8 @@ row_t::~row_t()
 {
     if (data)
         delete data;
-    if (manager)
-        delete manager;
+    // if (manager)
+    //     delete manager;
 }
 
 RC
