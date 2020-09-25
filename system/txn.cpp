@@ -39,7 +39,6 @@ TxnManager::TxnManager(QueryBase * query, ServerThread * thread)
     : TxnManager(thread, false)
 {
     _store_procedure = GET_WORKLOAD->create_store_procedure(this, query);
-    _query = query;
 }
 
 TxnManager::TxnManager(Message * msg, ServerThread * thread)
@@ -67,10 +66,6 @@ TxnManager::TxnManager(ServerThread * thread, bool sub_txn)
     _txn_restart_time = _txn_start_time;
     _lock_wait_time = 0;
     _net_wait_time = 0;
-    _net_log_wait_time = 0;
-    _log_yes_total_time = 0;
-    _log_yes_time_cnt = 0;
-    _log_commit_time_cnt = 0;
     _msg_count = (uint64_t *) _mm_malloc(sizeof(uint64_t) * Message::NUM_MSG_TYPES, 64);
     _msg_size = (uint64_t *) _mm_malloc(sizeof(uint64_t) * Message::NUM_MSG_TYPES, 64);
     memset(_msg_count, 0, sizeof(uint64_t) * Message::NUM_MSG_TYPES);
@@ -80,10 +75,6 @@ TxnManager::TxnManager(ServerThread * thread, bool sub_txn)
     _txn_abort = false;
     _remote_txn_abort = false;
     _cc_manager = CCManager::create(this);
-    
-    //1pc
-    _lsn_table = new uint32_t[g_num_nodes];
-    memset(_lsn_table, 0, g_num_nodes * sizeof(uint32_t));
 }
 
 TxnManager::TxnManager(TxnManager * txn)
@@ -99,10 +90,6 @@ TxnManager::TxnManager(TxnManager * txn)
     _txn_restart_time = get_sys_clock();
     _lock_wait_time = 0;
     _net_wait_time = 0;
-    _net_log_wait_time = 0;
-    _log_yes_total_time = 0;
-    _log_yes_time_cnt = 0;
-    _log_commit_time_cnt = 0;
 
     _num_aborts = txn->_num_aborts;
     _txn_abort = false;
@@ -117,10 +104,6 @@ TxnManager::TxnManager(TxnManager * txn)
     memset(_msg_count, 0, sizeof(uint64_t) * Message::NUM_MSG_TYPES);
     memset(_msg_size, 0, sizeof(uint64_t) * Message::NUM_MSG_TYPES);
     _cc_manager = CCManager::create(this);
-
-    //1pc
-    _lsn_table = new uint32_t[g_num_nodes];
-    memset(_lsn_table, 0, g_num_nodes * sizeof(uint32_t));
 }
 
 TxnManager::~TxnManager()
@@ -136,21 +119,12 @@ TxnManager::~TxnManager()
 #else
     delete _cc_manager;
 #endif
-
-    //1pc
-    delete _lsn_table;
 }
 
 bool
 TxnManager::is_all_remote_readonly()
 {
     return _store_procedure->get_query()->is_all_remote_readonly();
-}
-
-bool
-TxnManager::is_all_local_readonly()
-{
-    return _store_procedure->get_query()->is_all_local_readonly();
 }
 
 bool
@@ -163,18 +137,6 @@ void
 TxnManager::set_txn_ready(RC rc)
 {
     _cc_manager->set_txn_ready(rc);
-}
-
-void 
-TxnManager::log(Message::Type type, char * data, int size) {
-    uint32_t lsn = _lsn_table[g_node_id];
-    send_msg( new Message(type, g_log_node_id, get_txn_id(), lsn, 
-                  size, data ) );
-}
-
-void 
-TxnManager::log(Message::Type type) {
-    log(type, NULL, 0);
 }
 
 void
@@ -200,73 +162,20 @@ TxnManager::update_stats()
 
     if ( _txn_state == COMMITTED ) {
         INC_INT_STATS(num_commits, 1);
-        // change from finish time to commit end time
-        uint64_t latency = _commit_end_time - _txn_start_time;
+        uint64_t latency = _finish_time - _txn_start_time;
         INC_FLOAT_STATS(txn_latency, latency);
-        if (_store_procedure->get_query()->is_local()) {
-            INC_FLOAT_STATS(local_txn_latency, latency);
-        } else {
-            INC_FLOAT_STATS(distributed_txn_latency, latency);
-        }
 #if CC_ALG == NAIVE_TICTOC
         INC_FLOAT_STATS(execute_phase, _lock_phase_start_time - _txn_restart_time);
         INC_FLOAT_STATS(lock_phase, _prepare_start_time - _lock_phase_start_time);
 #else
-    #if COLLECT_DISTRIBUTED_LATENCY
-        if (!_store_procedure->get_query()->is_local()) 
-    #elif COLLECT_LOCAL_LATENCY
-        if (_store_procedure->get_query()->is_local()) 
-    #endif
         INC_FLOAT_STATS(execute_phase, _prepare_start_time - _txn_restart_time);
 #endif
-    #if COLLECT_DISTRIBUTED_LATENCY
-        if (!_store_procedure->get_query()->is_local()) {
-    #elif COLLECT_LOCAL_LATENCY
-        if (_store_procedure->get_query()->is_local()) {
-    #endif
-        // INC_FLOAT_STATS(prepare_phase_1, _both_ack_received_time - _prepare_start_time);
-        // INC_FLOAT_STATS(prepare_phase_2, _commit_start_time - _both_ack_received_time);
         INC_FLOAT_STATS(prepare_phase, _commit_start_time - _prepare_start_time);
-        INC_FLOAT_STATS(commit_phase, _commit_end_time - _commit_start_time);
+        INC_FLOAT_STATS(commit_phase, _finish_time - _commit_start_time);
         INC_FLOAT_STATS(abort, _txn_restart_time - _txn_start_time);
-
-        // debugging breakdown
-        if (_store_procedure->get_query()->is_local()) {
-            INC_FLOAT_STATS(execute_phase_local, _prepare_start_time - _txn_restart_time);
-            INC_FLOAT_STATS(prepare_phase_local, _commit_start_time - _prepare_start_time);
-            INC_FLOAT_STATS(commit_phase_local, _commit_end_time - _commit_start_time);
-            INC_FLOAT_STATS(abort_local, _txn_restart_time - _txn_start_time);
-        }
-        // #if WORKLOAD == YCSB
-        // if (is_all_remote_readonly() && !_store_procedure->get_query()->is_local()) {
-        // #else
-        // if (_cc_manager->all_remote_readonly() && !_store_procedure->get_query()->is_local()) {
-        // #endif
-        //     INC_FLOAT_STATS(execute_phase_dist_readonly, _prepare_start_time - _txn_restart_time);
-        //     INC_FLOAT_STATS(prepare_phase_dist_readonly, _commit_start_time - _prepare_start_time);
-        //     INC_FLOAT_STATS(commit_phase_dist_readonly, _commit_end_time - _commit_start_time);
-        //     INC_FLOAT_STATS(abort_dist_readonly, _txn_restart_time - _txn_start_time);
-        // }
-        // #if WORKLOAD == YCSB
-        // if (!is_all_remote_readonly() && !_store_procedure->get_query()->is_local()) {
-        // #else
-        // if (!_cc_manager->all_remote_readonly() && !_store_procedure->get_query()->is_local()) {
-        // #endif
-        //     INC_FLOAT_STATS(execute_phase_dist_write, _prepare_start_time - _txn_restart_time);
-        //     INC_FLOAT_STATS(prepare_phase_dist_write, _commit_start_time - _prepare_start_time);
-        //     INC_FLOAT_STATS(commit_phase_dist_write, _commit_end_time - _commit_start_time);
-        //     INC_FLOAT_STATS(abort_dist_write, _txn_restart_time - _txn_start_time);
-        // }
 
         INC_FLOAT_STATS(wait, _lock_wait_time);
         INC_FLOAT_STATS(network, _net_wait_time);
-    #if COLLECT_DISTRIBUTED_LATENCY || COLLECT_LOCAL_LATENCY
-        }
-    #endif
-        INC_FLOAT_STATS(network_log, _net_log_wait_time);
-        INC_FLOAT_STATS(total_log_yes, _log_yes_total_time);
-        INC_INT_STATS(num_log_yes, _log_yes_time_cnt);
-        INC_INT_STATS(int_debug2, _log_commit_time_cnt);
 #if COLLECT_LATENCY
         vector<double> &all = stats->_stats[GET_THD_ID]->all_latency;
         all.push_back(latency);
@@ -342,7 +251,6 @@ TxnManager::execute(bool restart)
         uint32_t resp_size = 0;
         char * resp_data = NULL;
         char * data = _msg->get_data();
-        _msg_remote_req = new Message(_msg);
         UnstructuredBuffer buffer(_msg->get_data());
         uint32_t header_size = _cc_manager->process_remote_req_header( &buffer );
         data += header_size;
@@ -429,31 +337,6 @@ TxnManager::process_msg(Message * msg)
         _net_wait_time += get_sys_clock() - _net_wait_start_time;
     }
 
-    // simulate network delay
-    if (msg->is_log_response()) {
-        uint64_t begin = get_sys_clock();
-        while (true) {
-            PAUSE100
-            uint64_t end = get_sys_clock();
-            double gap = (end - begin) * 1000 / BILLION; // in ms
-            if (gap >= NETWORK_DELAY)
-                break;
-        }
-    }
-
-    if (msg->is_log_response() && msg->get_type() != Message::YES_ACK) {
-        _net_log_wait_time += get_sys_clock() - _net_log_wait_start_time;
-        _log_commit_time_cnt += 1;
-        #if DEBUG_LOG
-        // printf("txn_id: %lu, type: %d, time: %lf\n", msg->get_txn_id(), msg->get_type(), get_sys_clock() * (double)1000000 / BILLION);
-        #endif
-    }
-
-    if (msg->get_type() == Message::YES_ACK) {
-        _log_yes_total_time += get_sys_clock() - _net_log_wait_start_time;
-        _log_yes_time_cnt += 1;
-    }
-
     switch (msg->get_type()) {
     case Message::CLIENT_REQ:
         INC_INT_STATS(num_home_txn, 1);
@@ -480,13 +363,7 @@ TxnManager::process_msg(Message * msg)
     case Message::COMMITTED:
         assert(_txn_state == PREPARING);
         assert(waiting_for_remote);
-        // wait for log YES success
-        if (_log_yes_success == true)
-            return process_2pc_prepare_resp(msg);
-        else {
-            _prepare_resp_set.push_back(msg);
-            return RCOK;
-        }
+        return process_2pc_prepare_resp(msg);
     // 2PC commit phase
     case Message::COMMIT_REQ:
     case Message::ABORT_REQ:
@@ -497,39 +374,6 @@ TxnManager::process_msg(Message * msg)
     case Message::LOCAL_COPY_RESP:
         assert(ENABLE_LOCAL_CACHING);
         return process_caching_resp(msg);
-    case Message::LOG_ACK:
-        return RCOK;
-    case Message::YES_ACK:
-        // send back after YES_ACK from log node received
-        // TODO: now only for participant
-        if (_is_sub_txn)
-            return process_2pc_prepare_req_phase_2(msg);
-        else {
-            _log_yes_success = true;
-            if (_readonly_wait_for_yes) {
-                _both_ack_received_time = get_sys_clock();
-                return process_2pc_commit_phase(COMMIT);
-            }
-            for (int i = 0; i < (int)_prepare_resp_set.size() - 1; i++)
-            {
-                process_2pc_prepare_resp(_prepare_resp_set[i]);
-            }
-            
-            if (_prepare_resp_set.empty())
-                return RCOK;
-            else
-                return process_2pc_prepare_resp(_prepare_resp_set.back());
-        }
-    case Message::COMMIT_ACK:
-    case Message::ABORT_ACK:
-    #if COMMIT_ALG == TWO_PC
-        if (_is_sub_txn)
-            return process_2pc_commit_req_phase_2(msg);
-        else
-            return process_2pc_commit_phase_2(msg);
-    #else
-            return RCOK;
-    #endif
     default:
         M_ASSERT(false, "Unsupported message type\n");
     }
@@ -550,11 +394,15 @@ TxnManager::process_commit_phase_singlepart(RC rc)
 
 #if LOG_ENABLE
     // TODO. Have two separate implementations: 1. log to local disk. 2. log to Spanner.
-    if (rc == COMMIT) {
-        log(Message::COMMIT_REQ);
-    } else {
-        log(Message::ABORT_REQ);
-    }
+//     if (rc == COMMIT) {
+//         char * log_record = NULL;
+//         uint32_t log_record_size = _cc_manager->get_log_record(log_record);
+//         if (log_record_size > 0) {
+//             assert(log_record);
+//             log_manager->log(log_record_size, log_record);
+//             delete log_record;
+//         }
+//     }
 #endif
     _cc_manager->process_commit_phase_coord(rc);
     _txn_state = (rc == COMMIT)? COMMITTED : ABORTED;
@@ -746,17 +594,14 @@ TxnManager::process_2pc_prepare_phase()
         _num_resp_expected = 1;
     }
     // Logging
-#if LOG_ENABLE
+//#if LOG_ENABLE
     // TODO need logging here only if the transaction is distributed.
-    if (rc != WAIT) {
-        // TODO: should wait be sending YES here?
-        Message::Type type1 = rc == ABORT ? Message::ABORT_REQ : Message::PREPARED_COMMIT;
-        uint32_t size = 0;
-        char * data = NULL;
-        !_cc_manager->get_modified_tuples(size, data);
-        log(type1, data, size);
-    }
-#endif
+    //if (rc != WAIT) {
+    //    uint32_t log_record_size = sizeof(_txn_id) + sizeof(rc);
+    //    char log_record[ log_record_size ];
+    //    log_manager->log(log_record_size, log_record);
+    //}
+//#endif
     if (rc == ABORT) {
         // local validation fails
         return process_2pc_commit_phase(ABORT);
@@ -787,27 +632,8 @@ TxnManager::process_2pc_prepare_phase()
         return RCOK;
     } else {
         assert(rc == RCOK);
-        // timeout and commit?
-        if (_log_yes_success) {
-            _both_ack_received_time = get_sys_clock();
-            return process_2pc_commit_phase(COMMIT);
-        }
-        else {
-            _readonly_wait_for_yes = true;
-            return RCOK;
-        }
+        return process_2pc_commit_phase(COMMIT);
     }
-}
-
-RC
-TxnManager::process_2pc_prepare_req_phase_2(Message * msg)
-{
-    // only for yes
-    // _log_yes_total_time += get_sys_clock() - _log_yes_start_time;
-    Message::Type type = rc_prepare_2 == RCOK ? Message::PREPARED_COMMIT : Message::COMMITTED;
-    Message * resp_msg = new Message(type, _src_node_id, get_txn_id(), 0, NULL);
-    send_msg(resp_msg);
-    return rc_prepare_2;
 }
 
 RC
@@ -826,18 +652,16 @@ TxnManager::process_2pc_prepare_req(Message * msg)
     // send PREPARED right away
     RC rc = _cc_manager->process_prepare_req(msg->get_data_size(), msg->get_data(), _resp_size, _resp_data);
 #if LOG_ENABLE
-    // Logging
-    Message::Type type1 = Message::PREPARED_COMMIT;
-    _src_node_id = msg->get_src_node_id();
-    rc_prepare_2 = rc;
-
-    uint32_t size = 0;
-    char * data = NULL;
-    !_cc_manager->get_modified_tuples(size, data);
-    // _log_yes_start_time = get_sys_clock();
-    log(type1, data, size);
+    // // Logging
+    // uint32_t log_record_size = sizeof(_txn_id) + sizeof(rc);
+    // char log_record[ log_record_size ];
+    // log_manager->log(log_record_size, log_record);
 #endif
-    return RCOK;
+    assert(rc == RCOK || rc == COMMIT);
+    Message::Type type = (rc == RCOK)? Message::PREPARED_COMMIT : Message::COMMITTED;
+    Message * resp_msg = new Message(type, msg->get_src_node_id(), get_txn_id(), 0, NULL);
+    send_msg(resp_msg);
+    return rc;
 #elif CC_ALG == TICTOC || CC_ALG == F_ONE || CC_ALG == MAAT  \
     || CC_ALG == IDEAL_MVCC || CC_ALG == NAIVE_TICTOC || CC_ALG == TCM
     _resp_size = 0;
@@ -859,13 +683,12 @@ TxnManager::process_2pc_prepare_req(Message * msg)
     if (rc == WAIT)
         waiting_for_lock = true;
 #if LOG_ENABLE
-    else {
-        // Logging
-        //TODO: how to deal with COMMITTED?
-        Message::Type type = (rc == RCOK)? Message::PREPARED_COMMIT : 
-                         (rc == ABORT)? Message::ABORT_REQ : Message::COMMIT_REQ;
-        log(type);
-    }
+    // else {
+    //     // Logging
+    //     uint32_t log_record_size = sizeof(_txn_id) + sizeof(rc);
+    //     char log_record[ log_record_size ];
+    //     log_manager->log(log_record_size, log_record);
+    // }
 #endif
     return rc;
 #endif
@@ -891,8 +714,9 @@ TxnManager::continue_prepare_phase()
             rc = _txn_abort? ABORT : COMMIT;
 #if LOG_ENABLE
             // Logging
-            Message::Type type = (rc == COMMIT)? Message::COMMIT_REQ : Message::ABORT_REQ;
-            log(type);
+            // uint32_t log_record_size = sizeof(_txn_id) + sizeof(rc);
+            // char log_record[ log_record_size ];
+            // log_manager->log(log_record_size, log_record);
 #endif
             return process_2pc_commit_phase(rc);
         }
@@ -914,7 +738,9 @@ TxnManager::continue_prepare_phase()
 
 #if LOG_ENABLE
         // Logging
-        log(type);
+        // uint32_t log_record_size = sizeof(_txn_id) + sizeof(rc);
+        // char log_record[ log_record_size ];
+        // log_manager->log(log_record_size, log_record);
 #endif
         send_msg(new Message(type, _src_node_id, get_txn_id(), _resp_size, _resp_data));
         return rc;
@@ -924,7 +750,6 @@ TxnManager::continue_prepare_phase()
 RC
 TxnManager::process_2pc_prepare_resp(Message * msg)
 {
-    _both_ack_received_time = get_sys_clock();
     RC rc = RCOK;
         rc = RCOK;
     if (msg->get_type() == Message::PREPARED_ABORT)
@@ -970,56 +795,14 @@ TxnManager::process_2pc_prepare_resp(Message * msg)
     }
 }
 
-
-#if COMMIT_ALG == ONE_PC
 RC
 TxnManager::process_2pc_commit_phase(RC rc)
 {
     _commit_start_time = get_sys_clock();
-    return execute_commit_phase(rc);
-}
-#else
-RC
-TxnManager::process_2pc_commit_phase_2(Message * msg)
-{
-    RC rc = msg->get_type() == Message::COMMIT_ACK ? COMMIT : ABORT;
-    return execute_commit_phase(rc);
-}
-
-RC
-TxnManager::process_2pc_commit_phase(RC rc)
-{
-
-    _commit_start_time = get_sys_clock();
-#if LOG_ENABLE
-    if ( 
-        #if WORKLOAD == YCSB
-            (is_all_remote_readonly() || remote_nodes_involved.size() == 0)  == false
-        #else
-                // (_cc_manager->all_remote_readonly() || remote_nodes_involved.size() == 0)  == false
-                true
-        #endif
-            ) {    // for host node only log YES, no COMMIT for readonly, or a completely local txn
-        // Logging
-        if (rc == COMMIT) {
-            log(Message::COMMIT_REQ);
-        } else if (rc == ABORT){
-            log(Message::ABORT_REQ);
-        }
-    } else {
-        return execute_commit_phase(rc);
-    }
-    return RCOK;
+#if CC_ALG == TCM
+    if (rc == COMMIT)
+        rc = ((TCMManager *)_cc_manager)->compute_ts_range();
 #endif
-}
-#endif
-
-RC
-TxnManager::execute_commit_phase(RC rc) {
-    #if CC_ALG == TCM
-        if (rc == COMMIT)
-            rc = ((TCMManager *)_cc_manager)->compute_ts_range();
-    #endif
 
     assert(!waiting_for_lock && !waiting_for_remote);
     if (rc == COMMIT) {
@@ -1039,20 +822,22 @@ TxnManager::execute_commit_phase(RC rc) {
     if (rc == COMMIT)
         ((MaaTManager *)_cc_manager)->finalize_commit_ts();
 #endif
-
-    #if COMMIT_ALG == ONE_PC
-        // Logging
-        if ( 
-        #if WORKLOAD == YCSB
-                (is_all_remote_readonly() || remote_nodes_involved.size() == 0)  == false
-        #else
-                // (_cc_manager->all_remote_readonly() || remote_nodes_involved.size() == 0)  == false
-                true
-        #endif
-                ) {  // for host node only log YES, no COMMIT for readonly
-            log(type);
-        }
-    #endif
+#if LOG_ENABLE
+    // Logging
+    // if (rc == ABORT) {
+    //     uint32_t log_record_size = sizeof(_txn_id) + sizeof(rc);
+    //     char log_record[ log_record_size ];
+    //     log_manager->log(log_record_size, log_record);
+    // } else if (rc == COMMIT) {
+    //     char * log_record = NULL;
+    //     uint32_t log_record_size = _cc_manager->get_log_record(log_record);
+    //     if (log_record_size > 0) {
+    //         assert(log_record);
+    //         log_manager->log(log_record_size, log_record);
+    //         delete log_record;
+    //     }
+    // }
+#endif
     for (set<uint32_t>::iterator it = remote_nodes_involved.begin();
         it != remote_nodes_involved.end();
         it ++)
@@ -1072,7 +857,6 @@ TxnManager::execute_commit_phase(RC rc) {
         }
     }
     _cc_manager->process_commit_phase_coord(rc);
-    _commit_end_time = get_sys_clock();
     if (resp_expected) {
         waiting_for_remote = true;
         return RCOK;
@@ -1085,7 +869,6 @@ TxnManager::execute_commit_phase(RC rc) {
     }
 }
 
-#if COMMIT_ALG == ONE_PC
 RC
 TxnManager::process_2pc_commit_req(Message * msg)
 {
@@ -1100,46 +883,15 @@ TxnManager::process_2pc_commit_req(Message * msg)
         assert(false);
     // Logging
 #if LOG_ENABLE
-    log(msg->get_type());
+    // uint32_t log_record_size = sizeof(_txn_id) + sizeof(rc);
+    // char log_record[ log_record_size ];
+    // log_manager->log(log_record_size, log_record);
 #endif
 
     _cc_manager->process_commit_req(rc, msg->get_data_size(), msg->get_data());
     send_msg(new Message(Message::ACK, msg->get_src_node_id(), get_txn_id(), 0, NULL));
     return rc;
 }
-
-#else
-
-RC
-TxnManager::process_2pc_commit_req(Message * msg)
-{
-    _msg_commit_req = new Message(msg);
-    // Logging
-#if LOG_ENABLE
-    log(msg->get_type());
-#endif
-
-    return RCOK;
-}
-
-RC
-TxnManager::process_2pc_commit_req_phase_2(Message * msg)
-{
-    RC rc;
-    if (msg->get_type() == Message::COMMIT_ACK) {
-        _txn_state = COMMITTED;
-        rc = COMMIT;
-    } else if (msg->get_type() == Message::ABORT_ACK) {
-        _txn_state = ABORTED;
-        rc = ABORT;
-    } else
-        assert(false);
-    _cc_manager->process_commit_req(rc, _msg_commit_req->get_data_size(), _msg_commit_req->get_data());
-    send_msg(new Message(Message::ACK, _msg_commit_req->get_src_node_id(), get_txn_id(), 0, NULL));
-    return rc;
-}
-#endif
-
 
 RC
 TxnManager::process_2pc_commit_resp()
@@ -1167,8 +919,6 @@ void
 TxnManager::send_msg(Message * msg)
 {
     _net_wait_start_time = get_sys_clock();
-    if (msg->get_dest_id() == g_log_node_id)
-        _net_log_wait_start_time = get_sys_clock();
     _msg_count[msg->get_type()] ++;
     _msg_size[msg->get_type()] += msg->get_packet_len();
     while (!output_queues[GET_THD_ID]->push((uint64_t)msg)) {
