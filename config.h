@@ -143,9 +143,9 @@
 #define REPLICATE_ITEM_TABLE        true
 
 #define PERC_PAYMENT                 0
-#define PERC_NEWORDER                 1
-#define PERC_ORDERSTATUS            0.029
-#define PERC_DELIVERY                0.294
+#define PERC_NEWORDER                 0
+#define PERC_ORDERSTATUS            0
+#define PERC_DELIVERY                1
 #define PERC_STOCKLEVEL                0.03
 #define PAYMENT_REMOTE_PERC            15 // 15% customers are remote
 #define NEW_ORDER_REMOTE_PERC        1  // 1% order lines are remote
