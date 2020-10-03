@@ -151,7 +151,7 @@ class Sundial_GRPC_SYNC final {
       ::grpc::Service::experimental().
     #endif
         MarkMethodCallback(0,
-          new ::grpc_impl::internal::CallbackUnaryHandler< ::sundial_rpc::SundialRequest, ::sundial_rpc::SundialResponse>(
+          new ::grpc::internal::CallbackUnaryHandler< ::sundial_rpc::SundialRequest, ::sundial_rpc::SundialResponse>(
             [this](
     #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
                    ::grpc::CallbackServerContext*
@@ -166,7 +166,7 @@ class Sundial_GRPC_SYNC final {
     #else
       ::grpc::internal::MethodHandler* const handler = ::grpc::Service::experimental().GetHandler(0);
     #endif
-      static_cast<::grpc_impl::internal::CallbackUnaryHandler< ::sundial_rpc::SundialRequest, ::sundial_rpc::SundialResponse>*>(handler)
+      static_cast<::grpc::internal::CallbackUnaryHandler< ::sundial_rpc::SundialRequest, ::sundial_rpc::SundialResponse>*>(handler)
               ->SetMessageAllocator(allocator);
     }
     ~ExperimentalWithCallbackMethod_contactRemote() override {
@@ -240,7 +240,7 @@ class Sundial_GRPC_SYNC final {
       ::grpc::Service::experimental().
     #endif
         MarkMethodRawCallback(0,
-          new ::grpc_impl::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
+          new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
     #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
                    ::grpc::CallbackServerContext*
@@ -275,8 +275,8 @@ class Sundial_GRPC_SYNC final {
       ::grpc::Service::MarkMethodStreamed(0,
         new ::grpc::internal::StreamedUnaryHandler<
           ::sundial_rpc::SundialRequest, ::sundial_rpc::SundialResponse>(
-            [this](::grpc_impl::ServerContext* context,
-                   ::grpc_impl::ServerUnaryStreamer<
+            [this](::grpc::ServerContext* context,
+                   ::grpc::ServerUnaryStreamer<
                      ::sundial_rpc::SundialRequest, ::sundial_rpc::SundialResponse>* streamer) {
                        return this->StreamedcontactRemote(context,
                          streamer);
@@ -421,7 +421,7 @@ class Sundial_GRPC_ASYNC final {
       ::grpc::Service::experimental().
     #endif
         MarkMethodCallback(0,
-          new ::grpc_impl::internal::CallbackUnaryHandler< ::sundial_rpc::SundialRequest, ::sundial_rpc::SundialResponse>(
+          new ::grpc::internal::CallbackUnaryHandler< ::sundial_rpc::SundialRequest, ::sundial_rpc::SundialResponse>(
             [this](
     #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
                    ::grpc::CallbackServerContext*
@@ -436,7 +436,7 @@ class Sundial_GRPC_ASYNC final {
     #else
       ::grpc::internal::MethodHandler* const handler = ::grpc::Service::experimental().GetHandler(0);
     #endif
-      static_cast<::grpc_impl::internal::CallbackUnaryHandler< ::sundial_rpc::SundialRequest, ::sundial_rpc::SundialResponse>*>(handler)
+      static_cast<::grpc::internal::CallbackUnaryHandler< ::sundial_rpc::SundialRequest, ::sundial_rpc::SundialResponse>*>(handler)
               ->SetMessageAllocator(allocator);
     }
     ~ExperimentalWithCallbackMethod_contactRemote() override {
@@ -510,7 +510,7 @@ class Sundial_GRPC_ASYNC final {
       ::grpc::Service::experimental().
     #endif
         MarkMethodRawCallback(0,
-          new ::grpc_impl::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
+          new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
     #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
                    ::grpc::CallbackServerContext*
@@ -545,8 +545,8 @@ class Sundial_GRPC_ASYNC final {
       ::grpc::Service::MarkMethodStreamed(0,
         new ::grpc::internal::StreamedUnaryHandler<
           ::sundial_rpc::SundialRequest, ::sundial_rpc::SundialResponse>(
-            [this](::grpc_impl::ServerContext* context,
-                   ::grpc_impl::ServerUnaryStreamer<
+            [this](::grpc::ServerContext* context,
+                   ::grpc::ServerUnaryStreamer<
                      ::sundial_rpc::SundialRequest, ::sundial_rpc::SundialResponse>* streamer) {
                        return this->StreamedcontactRemote(context,
                          streamer);

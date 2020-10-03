@@ -422,8 +422,8 @@ TxnManager::process_2pc_phase2(RC rc, CompletionQueue* cq)
     // implementation as logging is not on the critical path of locking anyway.
   #if LOG_ENABLE
     std::string record = std::to_string(_txn_id);
-    char * log_record = (char *)record.c_str();
-    uint32_t log_record_size = record.length();
+    //char * log_record = (char *)record.c_str();
+    //uint32_t log_record_size = record.length();
     log_semaphore->incr();
     //log_manager->log(this, log_record_size, log_record);
     // OPTIMIZATION: perform local logging and commit request in parallel
@@ -488,7 +488,7 @@ TxnManager::process_remote_request(const SundialRequest* request, SundialRespons
     switch(request->request_type()) {
         case SundialRequest::READ_REQ :
             num_tuples = request->read_requests_size();
-            for (int i = 0; i < num_tuples; i++) {
+            for (uint64_t i = 0; i < num_tuples; i++) {
                 uint64_t key = request->read_requests(i).key();
                 uint64_t index_id = request->read_requests(i).index_id();
                 access_t access_type = (access_t)request->read_requests(i).access_type();
@@ -527,7 +527,7 @@ TxnManager::process_remote_request(const SundialRequest* request, SundialRespons
             //printf("get prepare request\n");
             // copy data to the write set.
             num_tuples = request->tuple_data_size();
-            for (int i = 0; i < num_tuples; i++) {
+            for (uint64_t i = 0; i < num_tuples; i++) {
                 uint64_t key = request->tuple_data(i).key();
                 uint64_t table_id = request->tuple_data(i).table_id();
                 char * data = get_cc_manager()->get_data(key, table_id);

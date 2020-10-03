@@ -19,7 +19,7 @@ LogManager::LogManager()
 
     // TODO. Shuffle the entries in _log_metadata to avoid false sharing.
     _log_buffer = new LogBufferEntry [_buffer_size];
-    for (int i = 0; i < _buffer_size; i ++) {
+    for (uint64_t i = 0; i < _buffer_size; i ++) {
         _log_buffer[i].txn = NULL;
         _log_buffer[i].filled = false;
     }
@@ -109,7 +109,7 @@ LogManager::check_response() {
         LogMetadata &metadata = _log_metadata.front();
             uint64_t t1 = get_sys_clock();
             // commit this transaction
-            for (int i = 0; i < metadata.num_records; i++) {
+            for (uint64_t i = 0; i < metadata.num_records; i++) {
                 printf("free 1 txn\n");
                 LogBufferEntry &entry = _log_buffer[(metadata.lsn + i) % _buffer_size];
                 entry.txn->log_semaphore->decr();
