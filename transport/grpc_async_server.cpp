@@ -141,7 +141,7 @@ void SundialAsyncServiceImp::CallData::Proceed(){
         new CallData(service_, cq_);
 
         // The actual processing.
-        int a = processRequest(&request_ , &response_);
+        processRequest(&request_ , &response_);
 
         // And we are done! Let the gRPC runtime know we've finished, using the
         // memory address of this instance as the uniquely identifying tag for

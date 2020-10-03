@@ -11,7 +11,7 @@
 
 //toDo: add more nodes to it
 Sundial_Sync_Client::Sundial_Sync_Client(std::string* channel){
-    for(int i=0; i<g_num_nodes;i++){
+    for(uint64_t i=0; i<g_num_nodes;i++){
         if(i==g_node_id)
             continue;
     //stub_[i]=Sundial_GRPC_SYNC::NewStub(channel[i]);

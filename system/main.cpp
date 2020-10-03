@@ -131,7 +131,7 @@ int main(int argc, char* argv[])
 #if DISTRIBUTED
     cout << "Synchronization starts" << endl;
     // Notify other nodes that the current node has finished initialization
-    for (int i = 0; i < g_num_nodes; i ++) {
+    for (uint64_t i = 0; i < g_num_nodes; i ++) {
         if (i == g_node_id) continue;
         //printf("syncronize with other nodes\n");
         SundialRequest request;
@@ -170,7 +170,7 @@ int main(int argc, char* argv[])
     SundialResponse response;
     request.set_request_type( SundialRequest::SYS_REQ );
     // Notify other nodes the completion of the current node.
-    for (int i = 0; i < g_num_nodes; i ++) {
+    for (uint64_t i = 0; i < g_num_nodes; i ++) {
         if (i == g_node_id) continue;
         //rpc_client->sendRequest(i, request, response);
         printf("upon completion\n");

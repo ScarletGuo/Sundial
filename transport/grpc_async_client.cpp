@@ -23,7 +23,7 @@ using sundial_rpc::SundialResponse;
 using sundial_rpc::Sundial_GRPC_ASYNC;
 
 Sundial_Async_Client::Sundial_Async_Client(std::string* channel){
-  for(int i=0; i<g_num_nodes;i++){
+  for(uint64_t i=0; i<g_num_nodes;i++){
         if(i==g_node_id)
             continue;
      std::string server_address = channel[i];
