@@ -10,6 +10,7 @@ def start_nodes(script, arg, curr_node):
         if '#' in addr:
             continue
         if curr_node == num_nodes:
+            num_nodes += 1
             continue
         # start server
         addr = addr.split(':')[0]
