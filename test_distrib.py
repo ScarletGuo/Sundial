@@ -12,6 +12,7 @@ def start_nodes(script, arg, curr_node):
         if curr_node == num_nodes:
             continue
         # start server
+        addr = addr.split(':')[0]
         os.system("sudo ssh {} 'pkill rundb'".format(addr))
         cmd = "python3 {} {} NODE_ID={}".format(script, arg, num_nodes)
         ret = os.system("sudo ssh {} 'cd /users/scarletg/Sundial/ ; export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH ; su scarletg; {}' &".format(addr, cmd))
