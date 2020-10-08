@@ -5,7 +5,8 @@
 #include "txn.h"
 #include "txn_table.h"
 
-SundialRPCClient::SundialRPCClient() {
+void 
+SundialRPCClient::run() {
     _servers = new SundialRPCClientStub  * [g_num_nodes];
     // get server names
     std::istringstream in(ifconfig_string);
@@ -27,6 +28,7 @@ SundialRPCClient::SundialRPCClient() {
     _thread = new std::thread(AsyncCompleteRpc, this);
     //pthread_create(_thread, NULL, AsyncCompleteRpc, this); 
     // use a single cq for different channels. 
+    cout << "sundial client is initialized!" << endl;
 }
 
 void 

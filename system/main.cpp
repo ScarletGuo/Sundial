@@ -23,7 +23,6 @@ void parser(int argc, char ** argv);
 
 int main(int argc, char* argv[])
 {
-    cout << "main function" << endl;
     parser(argc, argv);
     cout << "start node " << g_node_id << endl;
 
@@ -34,12 +33,14 @@ int main(int argc, char* argv[])
     glob_manager->calibrate_cpu_frequency();
 
 #if DISTRIBUTED
-    rpc_client = new SundialRPCClient;
+    rpc_client = new SundialRPCClient();
     rpc_server = new SundialRPCServerImpl;
 
     pthread_t * pthread_rpc = new pthread_t;
     pthread_create(pthread_rpc, NULL, start_rpc_server, NULL);
+    rpc_client->run();
 #endif
+
 #if LOG_ENABLE
     g_total_num_threads ++;
     log_manager = new LogManager();
