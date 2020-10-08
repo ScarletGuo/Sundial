@@ -8,7 +8,6 @@
 //void 
 //SundialRPCClient::run() {
 SundialRPCClient::SundialRPCClient() {
-    cout << "enter sundial client !" << endl;
     _servers = new SundialRPCClientStub  * [g_num_nodes];
     // get server names
     std::istringstream in(ifconfig_string);

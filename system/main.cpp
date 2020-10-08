@@ -38,7 +38,6 @@ int main(int argc, char* argv[])
 
     pthread_t * pthread_rpc = new pthread_t;
     pthread_create(pthread_rpc, NULL, start_rpc_server, NULL);
-    //rpc_client->run();
 #endif
 
 #if LOG_ENABLE

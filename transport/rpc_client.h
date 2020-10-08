@@ -38,7 +38,6 @@ public:
 class SundialRPCClient {
 public:
     SundialRPCClient();
-    //void run();
     static void AsyncCompleteRpc(SundialRPCClient * s);
     void sendRequest(uint64_t node_id, SundialRequest &request, SundialResponse &response);
     void sendRequestAsync(TxnManager * txn, uint64_t node_id,
