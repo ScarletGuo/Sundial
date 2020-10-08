@@ -10,7 +10,8 @@
 SundialRPCClient::SundialRPCClient() {
     _servers = new SundialRPCClientStub  * [g_num_nodes];
     // get server names
-    std::istringstream in(ifconfig_string);
+    //std::istringstream in(ifconfig_string);
+    std::ifstream in(ifconfig_file);
     string line;
     uint32_t num_nodes = 0;
     while ( num_nodes < g_num_nodes && getline(in, line) ) {

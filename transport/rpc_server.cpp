@@ -15,7 +15,8 @@ SundialRPCServerImpl::~SundialRPCServerImpl(){
 
 void
 SundialRPCServerImpl::run() {
-    std::istringstream in(ifconfig_string);
+    //std::istringstream in(ifconfig_string);
+    std::ifstream in(ifconfig_file);
     string line;
     uint32_t num_nodes = 0;
     while (getline (in, line)) {
@@ -48,7 +49,7 @@ SundialRPCServerImpl::run() {
         //pthread_create(_thread_pool[i], NULL, HandleRpcs, NULL); 
         _thread_pool[i] = new std::thread(HandleRpcs, this);
     }
-    printf("sundial server initialized!\n");
+    cout <<"sundial server initialized, lisentening on " << line << endl;
 }
 
 void SundialRPCServerImpl::HandleRpcs(SundialRPCServerImpl * s) {
