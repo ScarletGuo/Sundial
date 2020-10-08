@@ -23,8 +23,9 @@ void parser(int argc, char ** argv);
 
 int main(int argc, char* argv[])
 {
-    //g_node_id = ;
+    cout << "main function" << endl;
     parser(argc, argv);
+    cout << "start node " << g_node_id << endl;
 
     g_total_num_threads = g_num_worker_threads;
 
