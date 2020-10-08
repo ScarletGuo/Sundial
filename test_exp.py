@@ -26,15 +26,15 @@ if __name__ == "__main__":
     #if os.path.exists("outputs/stats.json"):
     #	os.remove("outputs/stats.json")
     for arg in args:
-            if script == "test_distrib.py"
-        ret = start_nodes(script, arg, curr_node)
-        if ret != 0:
-            continue
-        print("[LOG] KILLING REMOTE SERVER ... ")
-        # kill the remote servers
-                kill_nodes(curr_node)
-        os.system("ssh node-1 'sudo pkill rundb'")
-        print("[LOG] FINISH EXECUTION ")
-            else:
-                compile_and_run(parse_arg(arg))
+        if script == "test_distrib.py":
+            ret = start_nodes(script, arg, curr_node)
+            if ret != 0:
+                continue
+            print("[LOG] KILLING REMOTE SERVER ... ")
+            # kill the remote servers
+            kill_nodes(curr_node)
+            os.system("ssh node-1 'sudo pkill rundb'")
+            print("[LOG] FINISH EXECUTION ")
+        else:
+            compile_and_run(parse_arg(arg))
     print("[LOG] FINISH WHOLE EXPERIMENTS")

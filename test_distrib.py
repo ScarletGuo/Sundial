@@ -7,7 +7,7 @@ def start_nodes(script, arg, curr_node):
     f = open(ifconfig)
     num_nodes = 0
     for addr in f:
-        if '#' in line:
+        if '#' in addr:
             continue
         if curr_node == num_nodes:
             continue
@@ -44,6 +44,6 @@ def kill_nodes(curr_node):
 if __name__ == "__main__":
     arg = sys.argv[1]
     script = "test.py"
-    start_node(script, arg)
+    start_nodes(script, arg, 0)
         
     

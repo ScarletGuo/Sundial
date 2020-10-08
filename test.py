@@ -34,8 +34,8 @@ def try_compile(job):
 
 def run(test = '', job=None):
     app_flags = ""
-        if "NODE_ID" in job:
-            app_flags += "-Gn{} ".format(job['NODE_ID'])
+    if "NODE_ID" in job:
+        app_flags += "-Gn{} ".format(job['NODE_ID'])
     os.system("./rundb %s" % app_flags)
 
 
