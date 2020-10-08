@@ -33,12 +33,12 @@ int main(int argc, char* argv[])
     glob_manager->calibrate_cpu_frequency();
 
 #if DISTRIBUTED
-    rpc_client = new SundialRPCClient();
+    rpc_client = new SundialRPCClient;
     rpc_server = new SundialRPCServerImpl;
 
     pthread_t * pthread_rpc = new pthread_t;
     pthread_create(pthread_rpc, NULL, start_rpc_server, NULL);
-    rpc_client->run();
+    //rpc_client->run();
 #endif
 
 #if LOG_ENABLE
@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
 #if DISTRIBUTED
     cout << "Synchronization starts" << endl;
     // Notify other nodes that the current node has finished initialization
-    for (int i = 0; i < g_num_nodes; i ++) {
+    for (uint32_t i = 0; i < g_num_nodes; i ++) {
         if (i == g_node_id) continue;
         SundialRequest request;
         SundialResponse response;
@@ -114,7 +114,7 @@ int main(int argc, char* argv[])
     SundialResponse response;
     request.set_request_type( SundialRequest::SYS_REQ );
     // Notify other nodes the completion of the current node.
-    for (int i = 0; i < g_num_nodes; i ++) {
+    for (uint32_t i = 0; i < g_num_nodes; i ++) {
         if (i == g_node_id) continue;
         rpc_client->sendRequest(i, request, response);
     }
