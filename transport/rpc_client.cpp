@@ -52,7 +52,7 @@ SundialRPCClient::AsyncCompleteRpc(SundialRPCClient * s) {
 void
 SundialRPCClient::sendRequest(uint64_t node_id, SundialRequest &request, SundialResponse &response) {
     ClientContext context;
-    Status status = _servers[node_id]->stub_->contactRemote(&context, request, &response);
+    Status status = _servers[node_id]->contactRemote(&context, request, &response);
     assert(status.ok());
     glob_stats->_stats[GET_THD_ID]->_resp_msg_count[ response.response_type() ] ++;
     glob_stats->_stats[GET_THD_ID]->_resp_msg_size[ response.response_type() ] += response.SpaceUsedLong();
