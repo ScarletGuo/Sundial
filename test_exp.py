@@ -13,21 +13,24 @@ if __name__ == "__main__":
         curr_node = int(sys.argv[2])
     args = [""]
     for key in job:
+        new_args = []
         if isinstance(job[key], list):
-            new_args = []
             for i, x in enumerate(job[key]):
                 for arg in args:
                     arg = arg + "{}={} ".format(key, x)
                     new_args.append(arg)
-            args = new_args
         else:
             for arg in args:
                 arg = arg + "{}={} ".format(key, job[key])
+                new_args.append(arg)
+        args = new_args
     #if os.path.exists("outputs/stats.json"):
     #	os.remove("outputs/stats.json")
-    for arg in args:
+    for i, arg in enumerate(args):
+        print("[LOG] issue exp {}/{}".format(i+1, len(args)))
+        print("[LOG] arg = {}".format(arg))
         if script == "test_distrib.py":
-            ret = start_nodes(script, arg, curr_node)
+            ret = start_nodes(arg, curr_node)
             if ret != 0:
                 continue
             print("[LOG] KILLING REMOTE SERVER ... ")
