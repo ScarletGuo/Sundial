@@ -8,7 +8,7 @@
 //void 
 //SundialRPCClient::run() {
 SundialRPCClient::SundialRPCClient() {
-    _servers = new SundialRPCClientStub  * [g_num_nodes];
+    _servers = new SundialRPCClientStub * [g_num_nodes];
     // get server names
     //std::istringstream in(ifconfig_string);
     std::ifstream in(ifconfig_file);
@@ -20,8 +20,7 @@ SundialRPCClient::SundialRPCClient() {
         else {
             string url = line;
             if (num_nodes != g_node_id) {
-                SundialRPCClientStub c(grpc::CreateChannel(url, grpc::InsecureChannelCredentials()));
-                _servers[num_nodes] = &c;
+                _servers[num_nodes] = new SundialRPCClientStub(grpc::CreateChannel(url, grpc::InsecureChannelCredentials()));
             }
             num_nodes ++;
         }
