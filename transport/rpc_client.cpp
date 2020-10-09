@@ -70,7 +70,7 @@ SundialRPCClient::sendRequestAsync(TxnManager * txn, uint64_t node_id,
     assert(node_id != g_node_id);
     glob_stats->_stats[GET_THD_ID]->_req_msg_count[ request.request_type() ] ++;
     glob_stats->_stats[GET_THD_ID]->_req_msg_size[ request.request_type() ] += request.SpaceUsedLong();
-    _servers[node_id]->stub_->PrepareAsynccontactRemote(&call->context, request, &cq);
+    call->response_reader = _servers[node_id]->stub_->PrepareAsynccontactRemote(&call->context, request, &cq);
     
     // StartCall initiates the RPC call
     // TODO(zhihan): set timeout
