@@ -307,7 +307,7 @@ RC
 TxnManager::send_remote_read_request(uint64_t node_id, uint64_t key, uint64_t index_id,
                                      uint64_t table_id, access_t access_type)
 {
-    printf("[node-%u] txn-%lu send remote read on %lu to node-%lu\n", g_node_id, get_txn_id(), key, node_id);
+    //printf("[node-%u] txn-%lu send remote read on %lu to node-%lu\n", g_node_id, get_txn_id(), key, node_id);
     _is_single_partition = false;
     if ( _remote_nodes_involved.find(node_id) == _remote_nodes_involved.end() ) {
         _remote_nodes_involved[node_id] = new RemoteNodeInfo;
@@ -434,10 +434,10 @@ TxnManager::process_2pc_phase2(RC rc)
     // OPTIMIZATION: perform local logging and commit request in parallel
     // log_semaphore->wait();
   #endif
-    bool remote_readonly = false;
+    bool remote_readonly = true;
     for (auto it = _remote_nodes_involved.begin(); it != _remote_nodes_involved.end(); it ++) {
-        if (it->second->state == ABORTED || it->second->state == COMMITTED) {
-            remote_readonly = true;
+        if (!(it->second->state == ABORTED || it->second->state == COMMITTED)) {
+            remote_readonly = false;
             break;
         }
     }
@@ -527,7 +527,7 @@ TxnManager::process_remote_request(const SundialRequest* request, SundialRespons
             num_tuples = request->read_requests_size();
             for (uint32_t i = 0; i < num_tuples; i++) {
                 uint64_t key = request->read_requests(i).key();
-   	printf("[node-%u] txn-%lu rec remote read on %lu\n", g_node_id, get_txn_id(), key);
+   	//printf("[node-%u] txn-%lu rec remote read on %lu\n", g_node_id, get_txn_id(), key);
                 uint64_t index_id = request->read_requests(i).index_id();
                 access_t access_type = (access_t)request->read_requests(i).access_type();
 
